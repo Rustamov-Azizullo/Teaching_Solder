@@ -8,4 +8,5 @@ export const queryKeys = {
   lessons: ['lessons'] as const,
   dashboard: ['dashboard'] as const,
   questionnaire: ['questionnaire'] as const,
+  users: ['users'] as const,
 };

@@ -32,7 +32,7 @@ export function UsersManager() {
               { title: adminLabels.users.username, dataIndex: 'username' },
               { title: common.fields.fullName, dataIndex: 'fullName' },
               { title: adminLabels.users.role, dataIndex: 'roleLabel' },
-              { title: common.fields.unit, dataIndex: 'militaryUnitName', render: (name: string | null) => name ?? '—' },
+              { title: adminLabels.users.location, dataIndex: 'locationName', render: (name: string | null) => name ?? '—' },
               { title: common.fields.status, dataIndex: 'active', render: (active: boolean) => <Tag color={active ? 'green' : 'red'}>{active ? common.fields.active : 'Bloklangan'}</Tag> },
               { title: '', render: (_: unknown, row) => <Button type="text" icon={<EditOutlined />} onClick={() => openModal(row)} aria-label={common.actions.edit} /> },
             ]}

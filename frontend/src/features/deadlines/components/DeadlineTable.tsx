@@ -17,6 +17,8 @@ type FormValues = { name: string; description?: string; deadlineDate: Dayjs; res
 
 const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({ value, label }));
 const required = [{ required: true, message: common.fields.required }];
+/** Muddat buzilsa, respublika darajasiga (SuperAdmin) xabar beriladi. */
+const DEFAULT_ESCALATION_ROLE: Role = 'SUPER_ADMIN';
 const f = deadlineLabels.fields;
 
 function DeadlineModal({ deadline, open, onClose }: { deadline: Deadline | null; open: boolean; onClose: () => void }) {
@@ -26,7 +28,7 @@ function DeadlineModal({ deadline, open, onClose }: { deadline: Deadline | null;
     if (!open) return;
     form.resetFields();
     if (deadline) form.setFieldsValue({ ...deadline, description: deadline.description ?? undefined, deadlineDate: dayjs(deadline.deadlineDate) });
-    else form.setFieldsValue({ remindDaysBefore: 7, escalationRole: 'HKTB' });
+    else form.setFieldsValue({ remindDaysBefore: 7, escalationRole: DEFAULT_ESCALATION_ROLE });
   }, [open, deadline, form]);
 
   const handleOk = async () => {
@@ -58,7 +60,7 @@ function DeadlineModal({ deadline, open, onClose }: { deadline: Deadline | null;
 
 export function DeadlineTable() {
   const canManage = useCan('deadlineManage');
-  const isAdmin = useCan('admin');
+  const canProcess = useCan('systemConfig');
   const { data, isLoading, error, refetch } = useDeadlines();
   const complete = useCompleteDeadline();
   const process = useProcessDeadlines();
@@ -72,7 +74,7 @@ export function DeadlineTable() {
       {canManage && (
         <Space wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => open(null)}>{deadlineLabels.add}</Button>
-          {isAdmin && (
+          {canProcess && (
             <Button icon={<SendOutlined />} loading={process.isPending}
               onClick={async () => notify.success(deadlineLabels.processed(await process.mutateAsync()))}>{deadlineLabels.process}</Button>
           )}

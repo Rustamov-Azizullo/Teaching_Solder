@@ -1,26 +1,28 @@
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
-import { RequireAuth, RequireCapability, type Capability } from '@/features/auth';
+import { RequireAuth, RequireCapability, RequirePermissionManager, type Capability } from '@/features/auth';
 import { LoginPage } from '@/pages/LoginPage';
 import { HomeRedirect } from './HomeRedirect';
 import { AppLayout } from './layout/AppLayout';
 
 type PageModule = Record<string, ComponentType>;
 
+/** Sahifaga kirish sharti: dinamik ruxsat (capability) yoki faqat SuperAdmin/Mega SuperAdmin. */
+type RouteAccess = Capability | 'permissionManager';
+
+function guard(access: RouteAccess | undefined, content: ReactNode): ReactNode {
+  if (!access) return content;
+  if (access === 'permissionManager') return <RequirePermissionManager>{content}</RequirePermissionManager>;
+  return <RequireCapability capability={access}>{content}</RequireCapability>;
+}
+
 /** Sahifani kerak bo'lganda yuklaydi (past tezlikli internetda boshlang'ich yuklanish kichik bo'ladi). */
-function page(path: string, load: () => Promise<PageModule>, exportName: string, capability?: Capability): RouteObject {
+function page(path: string, load: () => Promise<PageModule>, exportName: string, access?: RouteAccess): RouteObject {
   return {
     path,
     lazy: async () => {
       const Page = (await load())[exportName];
-      const Component = () =>
-        capability ? (
-          <RequireCapability capability={capability}>
-            <Page />
-          </RequireCapability>
-        ) : (
-          <Page />
-        );
+      const Component = () => guard(access, <Page />);
       return { Component };
     },
   };
@@ -46,8 +48,9 @@ export const router = createBrowserRouter([
           page('teachers', () => import('@/pages/TeachersPage'), 'TeachersPage', 'groupRead'),
           page('dictionaries', () => import('@/pages/DictionariesPage'), 'DictionariesPage', 'unitDirections'),
           page('users', () => import('@/pages/UsersPage'), 'UsersPage', 'admin'),
-          page('audit', () => import('@/pages/AuditPage'), 'AuditPage', 'admin'),
-          page('settings', () => import('@/pages/SettingsPage'), 'SettingsPage', 'admin'),
+          page('audit', () => import('@/pages/AuditPage'), 'AuditPage', 'systemConfig'),
+          page('settings', () => import('@/pages/SettingsPage'), 'SettingsPage', 'systemConfig'),
+          page('admin/role-permissions', () => import('@/pages/RolePermissionsPage'), 'RolePermissionsPage', 'permissionManager'),
           page('profile', () => import('@/pages/ProfilePage'), 'ProfilePage'),
           page('subdivisions', () => import('@/pages/SubdivisionsPage'), 'SubdivisionsPage', 'soldierRead'),
           page('assignments', () => import('@/pages/AssignmentsPage'), 'AssignmentsPage', 'assignmentRead'),
@@ -56,7 +59,7 @@ export const router = createBrowserRouter([
           page('reports', () => import('@/pages/ReportsPage'), 'ReportsPage', 'reports'),
           page('deadlines', () => import('@/pages/DeadlinesPage'), 'DeadlinesPage'),
           page('notifications', () => import('@/pages/NotificationsPage'), 'NotificationsPage'),
-          page('integration-logs', () => import('@/pages/IntegrationLogsPage'), 'IntegrationLogsPage', 'admin'),
+          page('integration-logs', () => import('@/pages/IntegrationLogsPage'), 'IntegrationLogsPage', 'systemConfig'),
           page('*', () => import('@/pages/NotFoundPage'), 'NotFoundPage'),
         ],
       },

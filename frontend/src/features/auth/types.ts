@@ -1,19 +1,38 @@
-export type Role =
-  | 'MEGA_SUPER_ADMIN'
-  | 'SUPER_ADMIN'
+export type Role = 'MEGA_SUPER_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | 'USER';
+
+/** Backenddagi `LocationLevel` enum: respublika (ildiz) -> harbiy okrug -> harbiy qism. */
+export type LocationLevel = 'REPUBLIC' | 'DISTRICT' | 'UNIT';
+
+/** Backenddagi `Permission` enum kalitlari (rol-ruxsat matritsasi va shaxsiy ruxsatlar shu kalitlar bilan ishlaydi). */
+export type PermissionKey =
   | 'ADMIN'
-  | 'USER'
-  | 'SYSTEM_ADMIN'
-  | 'HKTB'
-  | 'JTB'
-  | 'TMIBB'
-  | 'DISTRICT_OFFICER'
-  | 'UNIT_COMMANDER'
-  | 'UNIT_OPERATOR'
-  | 'COMBAT_TRAINING_DEPT'
-  | 'EDUCATION_DEPT'
-  | 'GROUP_LEADER'
-  | 'PSYCHOLOGIST';
+  | 'SYSTEM_CONFIG'
+  | 'DICTIONARY_WRITE'
+  | 'UNIT_DIRECTIONS'
+  | 'SOLDIER_READ'
+  | 'SOLDIER_WRITE'
+  | 'QUESTIONNAIRE_READ'
+  | 'QUESTIONNAIRE_WRITE'
+  | 'ATTACHMENT_WRITE'
+  | 'ASSIGNMENT_READ'
+  | 'ASSIGNMENT_PROPOSE'
+  | 'ASSIGNMENT_DECIDE'
+  | 'DEADLINE_MANAGE'
+  | 'RESULT_READ'
+  | 'RESULT_WRITE'
+  | 'ADMISSION_READ'
+  | 'ADMISSION_WRITE'
+  | 'EMPLOYMENT'
+  | 'TRANSFER'
+  | 'GROUP_READ'
+  | 'GROUP_WRITE'
+  | 'GROUP_LEADER_ASSIGN'
+  | 'SCHEDULE_WRITE'
+  | 'SCHEDULE_TIME_OVERRIDE'
+  | 'REPORTS'
+  | 'DASHBOARD_VOCATIONAL'
+  | 'DASHBOARD_OTM'
+  | 'DASHBOARD_SURVEYS';
 
 export type AuthUser = {
   id: number;
@@ -21,11 +40,15 @@ export type AuthUser = {
   fullName: string;
   role: Role;
   roleLabel: string;
-  militaryDistrictId: number | null;
+  locationId: number | null;
+  locationName: string | null;
+  locationLevel: LocationLevel | null;
+  /** Hududdan hisoblanadi (faqat qism darajasida); guruh/biriktirish formalarida standart qism sifatida o'qiladi. */
   militaryUnitId: number | null;
-  militaryUnitName: string | null;
   active: boolean;
   twoFactorEnabled: boolean;
+  /** Foydalanuvchining amaldagi barcha ruxsatlari (rol + shaxsiy). */
+  permissions: PermissionKey[];
 };
 
 export type TwoFactorSetup = { secret: string; otpauthUri: string };

@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/apiClient';
 import type {
-  AuditPage, CreateUserRequest, CycleRow, IntegrationPage, RoleOption, SettingsMap, UpdateUserRequest, UserRow,
+  AuditPage, CreateUserRequest, CycleRow, IntegrationPage, Location, RoleOption, SettingsMap, UpdateUserRequest,
+  UserPermissionChange, UserPermissionState, UserRow,
 } from '../types';
 
 export const adminApi = {
@@ -8,6 +9,11 @@ export const adminApi = {
   roles: () => apiClient.get<RoleOption[]>('/users/roles').then((r) => r.data),
   createUser: (request: CreateUserRequest) => apiClient.post<UserRow>('/users', request).then((r) => r.data),
   updateUser: (id: number, request: UpdateUserRequest) => apiClient.put<UserRow>(`/users/${id}`, request).then((r) => r.data),
+  userPermissions: (id: number) =>
+    apiClient.get<UserPermissionState[]>(`/users/${id}/permissions`).then((r) => r.data),
+  updateUserPermissions: (id: number, changes: UserPermissionChange[]) =>
+    apiClient.put<UserPermissionState[]>(`/users/${id}/permissions`, changes).then((r) => r.data),
+  locations: () => apiClient.get<Location[]>('/locations').then((r) => r.data),
   audit: (params: { username: string; entity: string; page: number; size: number }) =>
     apiClient.get<AuditPage>('/audit-logs', { params }).then((r) => r.data),
   integrationLogs: (page: number, size: number) =>

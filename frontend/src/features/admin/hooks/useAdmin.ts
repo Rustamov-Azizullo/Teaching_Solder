@@ -1,8 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
 import { adminApi } from '../api/adminApi';
-import type { CreateUserRequest, SettingsMap, UpdateUserRequest } from '../types';
+import type { CreateUserRequest, SettingsMap, UpdateUserRequest, UserPermissionChange } from '../types';
 
-export const useUsers = () => useQuery({ queryKey: ['users'], queryFn: adminApi.users });
+export const useUsers = () => useQuery({ queryKey: queryKeys.users, queryFn: adminApi.users });
 export const useRoles = () => useQuery({ queryKey: ['roles'], queryFn: adminApi.roles, staleTime: Infinity });
 
 export function useSaveUser(id?: number) {
@@ -12,7 +13,26 @@ export function useSaveUser(id?: number) {
       id === undefined
         ? adminApi.createUser(request as CreateUserRequest)
         : adminApi.updateUser(id, request as UpdateUserRequest),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.users }),
+  });
+}
+
+export const useLocations = () => useQuery({ queryKey: ['locations'], queryFn: adminApi.locations });
+
+const userPermissionsKey = (id: number) => [...queryKeys.users, id, 'permissions'] as const;
+
+export function useUserPermissions(id: number) {
+  return useQuery({ queryKey: userPermissionsKey(id), queryFn: () => adminApi.userPermissions(id) });
+}
+
+export function useUpdateUserPermissions(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (changes: UserPermissionChange[]) => adminApi.updateUserPermissions(id, changes),
+    onSuccess: (states) => {
+      queryClient.setQueryData(userPermissionsKey(id), states);
+      return queryClient.invalidateQueries({ queryKey: queryKeys.users, exact: true });
+    },
   });
 }
 

@@ -14,9 +14,8 @@ export type AuthContextValue = {
   logout: () => void;
 };
 
-const REMINDED_ROLES: Role[] = [
-  'MEGA_SUPER_ADMIN', 'SUPER_ADMIN', 'ADMIN', 'USER', 'SYSTEM_ADMIN', 'HKTB', 'JTB', 'TMIBB', 'DISTRICT_OFFICER',
-];
+/** Okrug darajasi va undan yuqori rollar (qism darajasidagi `USER` bundan mustasno). */
+const REMINDED_ROLES: Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN', 'ADMIN'];
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 

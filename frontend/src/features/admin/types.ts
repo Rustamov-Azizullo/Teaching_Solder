@@ -1,5 +1,5 @@
 import type { PageResponse } from '@/types/api';
-import type { Role } from '@/features/auth';
+import type { LocationLevel, PermissionKey, Role } from '@/features/auth';
 
 export type UserRow = {
   id: number;
@@ -7,24 +7,41 @@ export type UserRow = {
   fullName: string;
   role: Role;
   roleLabel: string;
-  militaryDistrictId: number | null;
-  militaryUnitId: number | null;
-  militaryUnitName: string | null;
+  locationId: number | null;
+  locationName: string | null;
+  locationLevel: LocationLevel | null;
   active: boolean;
 };
 
-export type RoleOption = { code: Role; label: string; scopeLevel: 'REPUBLIC' | 'DISTRICT' | 'UNIT' };
+export type RoleOption = { code: Role; label: string; scopeLevel: LocationLevel };
+
+/** `GET /api/locations` elementi (tekis ro'yxat; daraxt `parentId` orqali quriladi). */
+export type Location = {
+  id: number;
+  parentId: number | null;
+  level: LocationLevel;
+  name: string;
+  code: string | null;
+  militaryDistrictId: number | null;
+  militaryUnitId: number | null;
+};
 
 export type CreateUserRequest = {
   username: string;
   password: string;
   fullName: string;
   role: Role;
-  militaryDistrictId?: number;
-  militaryUnitId?: number;
+  /** Respublika rollari uchun berilmaydi; okrug roli uchun okrug, qism roli uchun qism hududi. */
+  locationId?: number;
 };
 
 export type UpdateUserRequest = Omit<CreateUserRequest, 'username' | 'password'> & { active: boolean; newPassword?: string };
+
+/** `GET /api/users/{id}/permissions`: `granted` — shaxsiy ruxsat, `grantedByRole` — rol orqali allaqachon bor. */
+export type UserPermissionState = { permission: PermissionKey; granted: boolean; grantedByRole: boolean };
+
+/** `PUT /api/users/{id}/permissions` elementi: faqat ko'rsatilgan ruxsatlar o'zgaradi. */
+export type UserPermissionChange = { permission: PermissionKey; granted: boolean };
 
 export type AuditLogRow = {
   id: number;

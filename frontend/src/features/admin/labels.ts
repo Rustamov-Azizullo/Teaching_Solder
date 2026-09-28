@@ -10,8 +10,16 @@ export const adminLabels = {
     passwordHint: 'Kamida 8 belgi: bosh harf, kichik harf va raqam',
     newPassword: 'Yangi parol (o\'zgartirish uchun)',
     role: 'Rol',
+    location: 'Hudud',
     district: 'Harbiy okrug',
     unit: 'Harbiy qism',
+  },
+  userPermissions: {
+    title: 'Shaxsiy ruxsatlar',
+    hint: "Rol orqali berilgan ruxsatlar belgilangan va o'zgartirilmaydi (ularni «Rol huquqlari» sahifasida sozlang). Qo'shimcha ruxsatlarni shu yerda bering.",
+    byRole: 'Rol orqali',
+    save: 'Ruxsatlarni saqlash',
+    saved: 'Shaxsiy ruxsatlar saqlandi',
   },
   audit: {
     title: 'Audit jurnali',

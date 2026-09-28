@@ -1,18 +1,25 @@
 import { Form, Input, Modal, Select, Switch } from 'antd';
 import { useEffect } from 'react';
-import type { Role } from '@/features/auth';
-import { useMilitaryDistricts, useMilitaryUnits } from '@/features/organization';
+import { isPermissionManager, useAuth, type Role } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
-import { adminLabels } from '../labels';
-import { useRoles, useSaveUser } from '../hooks/useAdmin';
-import type { CreateUserRequest, UpdateUserRequest, UserRow } from '../types';
 import { notify } from '@/lib/notify';
+import { useRoles, useSaveUser } from '../hooks/useAdmin';
+import { adminLabels } from '../labels';
+import type { CreateUserRequest, UpdateUserRequest, UserRow } from '../types';
+import { locationLevelForRole } from '../utils/locationOptions';
+import { LocationSelect } from './LocationSelect';
+import { UserPermissionsPanel } from './UserPermissionsPanel';
 
 type FormValues = {
   username?: string; password?: string; newPassword?: string; fullName: string; role: Role;
-  militaryDistrictId?: number; militaryUnitId?: number; active: boolean;
+  locationId?: number; active: boolean;
 };
+
+/** Respublika rollari hududga biriktirilmaydi — eski qiymat yuborilmasligi uchun tozalanadi. */
+function locationIdFor(values: FormValues): number | undefined {
+  return locationLevelForRole(values.role) ? values.locationId : undefined;
+}
 
 function toCreateRequest(values: FormValues): CreateUserRequest {
   return {
@@ -20,8 +27,7 @@ function toCreateRequest(values: FormValues): CreateUserRequest {
     password: values.password ?? '',
     fullName: values.fullName,
     role: values.role,
-    militaryDistrictId: values.militaryDistrictId,
-    militaryUnitId: values.militaryUnitId,
+    locationId: locationIdFor(values),
   };
 }
 
@@ -29,35 +35,35 @@ function toUpdateRequest(values: FormValues): UpdateUserRequest {
   return {
     fullName: values.fullName,
     role: values.role,
-    militaryDistrictId: values.militaryDistrictId,
-    militaryUnitId: values.militaryUnitId,
+    locationId: locationIdFor(values),
     active: values.active,
     newPassword: values.newPassword || undefined,
   };
 }
 
+/** Shaxsiy ruxsatlar faqat sozlanadigan rollarga (ADMIN/USER) beriladi. */
+const CONFIGURABLE_ROLES: readonly Role[] = ['ADMIN', 'USER'];
+
 const required = [{ required: true, message: common.fields.required }];
 const u = adminLabels.users;
 
-export function UserFormModal({ user, open, onClose }: { user: UserRow | null; open: boolean; onClose: () => void }) {
+type UserFormModalProps = { user: UserRow | null; open: boolean; onClose: () => void };
+
+export function UserFormModal({ user, open, onClose }: UserFormModalProps) {
   const [form] = Form.useForm<FormValues>();
   const role = Form.useWatch('role', form);
+  const { user: viewer } = useAuth();
   const { data: roles = [] } = useRoles();
-  const { data: districts = [] } = useMilitaryDistricts();
-  const { data: units = [] } = useMilitaryUnits();
   const { mutateAsync, isPending } = useSaveUser(user?.id);
-  const scopeLevel = roles.find((option) => option.code === role)?.scopeLevel;
+  const locationLevel = locationLevelForRole(role);
+  const canEditPermissions = user !== null && CONFIGURABLE_ROLES.includes(user.role) && isPermissionManager(viewer);
 
   useEffect(() => {
     if (!open) return;
     form.resetFields();
     form.setFieldsValue(
       user
-        ? {
-            fullName: user.fullName, role: user.role, active: user.active,
-            militaryDistrictId: user.militaryDistrictId ?? undefined,
-            militaryUnitId: user.militaryUnitId ?? undefined,
-          }
+        ? { fullName: user.fullName, role: user.role, active: user.active, locationId: user.locationId ?? undefined }
         : { active: true },
     );
   }, [open, user, form]);
@@ -81,7 +87,7 @@ export function UserFormModal({ user, open, onClose }: { user: UserRow | null; o
         form={form}
         layout="vertical"
         onValuesChange={(changed) => {
-          if ('role' in changed) form.setFieldsValue({ militaryDistrictId: undefined, militaryUnitId: undefined });
+          if ('role' in changed) form.setFieldsValue({ locationId: undefined });
         }}
       >
         {!user && (
@@ -96,14 +102,9 @@ export function UserFormModal({ user, open, onClose }: { user: UserRow | null; o
         <Form.Item name="role" label={u.role} rules={required}>
           <Select options={roles.map((option) => ({ value: option.code, label: option.label }))} />
         </Form.Item>
-        {scopeLevel === 'DISTRICT' && (
-          <Form.Item name="militaryDistrictId" label={u.district} rules={required}>
-            <Select options={districts.map((d) => ({ value: d.id, label: d.name }))} />
-          </Form.Item>
-        )}
-        {scopeLevel === 'UNIT' && (
-          <Form.Item name="militaryUnitId" label={u.unit} rules={required}>
-            <Select options={units.map((unit) => ({ value: unit.id, label: unit.name }))} />
+        {locationLevel && (
+          <Form.Item name="locationId" label={locationLevel === 'DISTRICT' ? u.district : u.unit} rules={required}>
+            <LocationSelect level={locationLevel} />
           </Form.Item>
         )}
         {user && (
@@ -113,6 +114,7 @@ export function UserFormModal({ user, open, onClose }: { user: UserRow | null; o
           </>
         )}
       </Form>
+      {canEditPermissions && <UserPermissionsPanel userId={user.id} />}
     </Modal>
   );
 }

@@ -48,7 +48,7 @@ describe('LoginForm', () => {
     await userEvent.click(screen.getByRole('button', { name: authLabels.submit }));
 
     expect(await screen.findByText(authLabels.usernameRequired)).toBeInTheDocument();
-    expect(screen.getByText(authLabels.passwordRequired)).toBeInTheDocument();
+    expect(await screen.findByText(authLabels.passwordRequired)).toBeInTheDocument();
     expect(login).not.toHaveBeenCalled();
   });
 });

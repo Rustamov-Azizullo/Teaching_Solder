@@ -2,11 +2,11 @@ import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { Alert, Button, Drawer, Layout, Menu, Space, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { can, useAuth } from '@/features/auth';
+import { can, isPermissionManager, useAuth, type AuthUser } from '@/features/auth';
 import { NotificationBell } from '@/features/notifications';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { common } from '@/lib/i18n';
-import { navItems } from '../navigation';
+import { navItems, type NavItem } from '../navigation';
 
 const { Header, Sider, Content } = Layout;
 const SIDER_WIDTH = 230;
@@ -16,6 +16,13 @@ const BORDER = '1px solid rgba(128,128,128,.2)';
 /** Dashboard menyusi: uch blokdan kamida bittasiga ruxsat bo'lsa ko'rsatiladi. */
 const DASHBOARD_CAPABILITIES = ['dashboardVocational', 'dashboardOtm', 'dashboardSurveys'] as const;
 
+function isNavItemVisible(item: NavItem, user: AuthUser | null): boolean {
+  if (item.path === '/dashboard') return DASHBOARD_CAPABILITIES.some((capability) => can(user, capability));
+  if (item.access === 'any') return true;
+  if (item.access === 'permissionManager') return isPermissionManager(user);
+  return can(user, item.access);
+}
+
 export function AppLayout() {
   const { user, logout, setupRequired } = useAuth();
   const location = useLocation();
@@ -23,14 +30,7 @@ export function AppLayout() {
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
-  const visibleItems = useMemo(
-    () =>
-      navItems.filter((item) => {
-        if (item.path === '/dashboard') return DASHBOARD_CAPABILITIES.some((capability) => can(user?.role, capability));
-        return item.capability === 'any' || can(user?.role, item.capability);
-      }),
-    [user],
-  );
+  const visibleItems = useMemo(() => navItems.filter((item) => isNavItemVisible(item, user)), [user]);
   const selectedKey = visibleItems.find((item) => location.pathname.startsWith(item.path))?.path;
 
   const menu = (

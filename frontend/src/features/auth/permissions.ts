@@ -1,72 +1,53 @@
-import type { Role } from './types';
+import type { AuthUser, PermissionKey, Role } from './types';
 
 /**
- * Interfeysda tugma/menyuni ko'rsatish uchun. Haqiqiy tekshiruv serverda (RBAC) amalga oshiriladi;
- * bu jadval backenddagi `Access` konstantalari bilan mos turishi kerak.
+ * Interfeysda tugma/menyuni ko'rsatish uchun. Haqiqiy tekshiruv serverda amalga oshiriladi.
+ * Frontend capability kalitlari backenddagi `Permission` kalitlariga shu jadval orqali bog'lanadi.
  */
-const ALL_UNIT_MANAGERS: Role[] = ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR'];
+const capabilityPermissions = {
+  admin: 'ADMIN',
+  systemConfig: 'SYSTEM_CONFIG',
+  dictionaryWrite: 'DICTIONARY_WRITE',
+  unitDirections: 'UNIT_DIRECTIONS',
+  soldierRead: 'SOLDIER_READ',
+  soldierWrite: 'SOLDIER_WRITE',
+  questionnaireRead: 'QUESTIONNAIRE_READ',
+  questionnaireWrite: 'QUESTIONNAIRE_WRITE',
+  groupRead: 'GROUP_READ',
+  groupWrite: 'GROUP_WRITE',
+  transfer: 'TRANSFER',
+  attachmentWrite: 'ATTACHMENT_WRITE',
+  assignmentRead: 'ASSIGNMENT_READ',
+  assignmentPropose: 'ASSIGNMENT_PROPOSE',
+  assignmentDecide: 'ASSIGNMENT_DECIDE',
+  resultRead: 'RESULT_READ',
+  resultWrite: 'RESULT_WRITE',
+  admissionRead: 'ADMISSION_READ',
+  admissionWrite: 'ADMISSION_WRITE',
+  employment: 'EMPLOYMENT',
+  deadlineManage: 'DEADLINE_MANAGE',
+  reports: 'REPORTS',
+  leaderAssign: 'GROUP_LEADER_ASSIGN',
+  scheduleWrite: 'SCHEDULE_WRITE',
+  dashboardVocational: 'DASHBOARD_VOCATIONAL',
+  dashboardOtm: 'DASHBOARD_OTM',
+  dashboardSurveys: 'DASHBOARD_SURVEYS',
+} as const satisfies Record<string, PermissionKey>;
 
-/**
- * Backenddagi RoleHierarchy bilan mos: MEGA_SUPER_ADMIN > SUPER_ADMIN > ADMIN > USER
- * zanjiridagi har bir rol pastidagi barcha (jumladan barcha domen) rollarning huquqlarini meros oladi,
- * shuning uchun bu to'rttasi har qanday capability tekshiruvidan har doim o'tadi.
- */
-const SUPER_ROLES: Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN', 'ADMIN', 'USER'];
+export type Capability = keyof typeof capabilityPermissions;
 
-export const capabilities = {
-  admin: ['SYSTEM_ADMIN'],
-  dictionaryWrite: ['SYSTEM_ADMIN', 'HKTB'],
-  unitDirections: ['SYSTEM_ADMIN', 'HKTB', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  soldierRead: [
-    'SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR',
-    'PSYCHOLOGIST', 'GROUP_LEADER',
-  ],
-  soldierWrite: ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'PSYCHOLOGIST'],
-  questionnaireRead: [
-    'SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'PSYCHOLOGIST',
-  ],
-  questionnaireWrite: ['SYSTEM_ADMIN', 'PSYCHOLOGIST', 'UNIT_COMMANDER'],
-  groupRead: [
-    'SYSTEM_ADMIN', 'HKTB', 'JTB', 'TMIBB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR',
-    'COMBAT_TRAINING_DEPT', 'EDUCATION_DEPT', 'GROUP_LEADER', 'PSYCHOLOGIST',
-  ],
-  groupWrite: ALL_UNIT_MANAGERS,
-  transfer: ['SYSTEM_ADMIN', 'UNIT_COMMANDER'],
-  attachmentWrite: ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'PSYCHOLOGIST'],
-  assignmentRead: ['SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  assignmentPropose: ['SYSTEM_ADMIN', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  assignmentDecide: ['SYSTEM_ADMIN', 'HKTB'],
-  resultRead: [
-    'SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'COMBAT_TRAINING_DEPT', 'EDUCATION_DEPT',
-  ],
-  resultWrite: ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  admissionRead: [
-    'SYSTEM_ADMIN', 'HKTB', 'TMIBB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'EDUCATION_DEPT',
-  ],
-  admissionWrite: ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  employment: ['SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  deadlineManage: ['SYSTEM_ADMIN', 'HKTB'],
-  reports: [
-    'SYSTEM_ADMIN', 'HKTB', 'JTB', 'TMIBB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR',
-    'COMBAT_TRAINING_DEPT', 'EDUCATION_DEPT',
-  ],
-  leaderAssign: ['SYSTEM_ADMIN', 'UNIT_COMMANDER'],
-  scheduleWrite: ['SYSTEM_ADMIN', 'JTB', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  dashboardVocational: [
-    'SYSTEM_ADMIN', 'HKTB', 'JTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'COMBAT_TRAINING_DEPT',
-  ],
-  dashboardOtm: [
-    'SYSTEM_ADMIN', 'HKTB', 'TMIBB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'EDUCATION_DEPT',
-  ],
-  dashboardSurveys: [
-    'SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'PSYCHOLOGIST',
-  ],
-} satisfies Record<string, Role[]>;
+/** Backenddagi `Role.isAlwaysAllowed()`: bu rollar har qanday ruxsat tekshiruvidan o'tadi (sozlanmaydi). */
+const ALWAYS_ALLOWED_ROLES: readonly Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN'];
 
-export type Capability = keyof typeof capabilities;
+/** Backenddagi `Access.PERMISSION_MANAGE`: ruxsatlarni boshqarish dinamik tizimdan tashqarida, statik rol tekshiruvi. */
+const PERMISSION_MANAGER_ROLES: readonly Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN'];
 
-export function can(role: Role | undefined, capability: Capability): boolean {
-  if (!role) return false;
-  if (SUPER_ROLES.includes(role)) return true;
-  return (capabilities[capability] as Role[]).includes(role);
+export function can(user: AuthUser | null | undefined, capability: Capability): boolean {
+  if (!user) return false;
+  if (ALWAYS_ALLOWED_ROLES.includes(user.role)) return true;
+  return user.permissions.includes(capabilityPermissions[capability]);
+}
+
+export function isPermissionManager(user: AuthUser | null | undefined): boolean {
+  return user !== null && user !== undefined && PERMISSION_MANAGER_ROLES.includes(user.role);
 }
