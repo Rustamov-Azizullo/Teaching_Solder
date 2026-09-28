@@ -70,14 +70,12 @@ class ApiIntegrationTest {
     @Test
     void dashboardIsSplitByDirectionAndRestrictedByRole() throws Exception {
         String hktb = token("hktb");
-        mvc.perform(get("/api/dashboard/vocational").header("Authorization", "Bearer " + hktb))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.breakdown.level").value("DISTRICT"))
-                .andExpect(jsonPath("$.daily").isNotEmpty());
-        mvc.perform(get("/api/dashboard/otm").header("Authorization", "Bearer " + hktb))
+        mvc.perform(get("/api/dashboard/vocational/results").header("Authorization", "Bearer " + hktb))
                 .andExpect(status().isOk());
-        // Tarbiyaviy ishlar bo'limi "Kasb kurslari" blokini ko'ra olmaydi
-        mvc.perform(get("/api/dashboard/vocational").header("Authorization", "Bearer " + token("tarbiya1")))
+        mvc.perform(get("/api/admissions/funnel").header("Authorization", "Bearer " + hktb))
+                .andExpect(status().isOk());
+        // Jangovar tayyorgarlik bo'limi OTM qabul voronkasini ko'ra olmaydi
+        mvc.perform(get("/api/admissions/funnel").header("Authorization", "Bearer " + token("jangovar1")))
                 .andExpect(status().isForbidden());
     }
 

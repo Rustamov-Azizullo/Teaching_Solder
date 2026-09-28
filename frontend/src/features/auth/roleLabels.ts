@@ -1,6 +1,10 @@
 import type { Role } from './types';
 
 export const roleLabels: Record<Role, string> = {
+  MEGA_SUPER_ADMIN: 'Mega SuperAdmin',
+  SUPER_ADMIN: 'SuperAdmin',
+  ADMIN: 'Admin',
+  USER: 'User',
   SYSTEM_ADMIN: 'Tizim administratori',
   HKTB: 'MV HKTB xodimi',
   JTB: 'MV JTB xodimi',

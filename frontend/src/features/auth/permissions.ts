@@ -6,6 +6,13 @@ import type { Role } from './types';
  */
 const ALL_UNIT_MANAGERS: Role[] = ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR'];
 
+/**
+ * Backenddagi RoleHierarchy bilan mos: MEGA_SUPER_ADMIN > SUPER_ADMIN > ADMIN > USER
+ * zanjiridagi har bir rol pastidagi barcha (jumladan barcha domen) rollarning huquqlarini meros oladi,
+ * shuning uchun bu to'rttasi har qanday capability tekshiruvidan har doim o'tadi.
+ */
+const SUPER_ROLES: Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN', 'ADMIN', 'USER'];
+
 export const capabilities = {
   admin: ['SYSTEM_ADMIN'],
   dictionaryWrite: ['SYSTEM_ADMIN', 'HKTB'],
@@ -60,5 +67,6 @@ export type Capability = keyof typeof capabilities;
 
 export function can(role: Role | undefined, capability: Capability): boolean {
   if (!role) return false;
+  if (SUPER_ROLES.includes(role)) return true;
   return (capabilities[capability] as Role[]).includes(role);
 }

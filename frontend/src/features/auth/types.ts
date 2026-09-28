@@ -1,4 +1,8 @@
 export type Role =
+  | 'MEGA_SUPER_ADMIN'
+  | 'SUPER_ADMIN'
+  | 'ADMIN'
+  | 'USER'
   | 'SYSTEM_ADMIN'
   | 'HKTB'
   | 'JTB'

@@ -145,7 +145,8 @@ public class LessonService {
 
     /** Standart vaqtni o'zgartirish faqat vakolatli rol (JTB, qo'mondon, administrator) tomonidan. */
     private void requireAuthorizedRole() {
-        if (!currentUser.hasRole(Role.SYSTEM_ADMIN, Role.JTB, Role.UNIT_COMMANDER)) {
+        if (!currentUser.hasRole(Role.MEGA_SUPER_ADMIN, Role.SUPER_ADMIN, Role.ADMIN, Role.USER,
+                Role.SYSTEM_ADMIN, Role.JTB, Role.UNIT_COMMANDER)) {
             throw new ForbiddenException("Standart vaqtni o'zgartirish uchun vakolat yetarli emas");
         }
     }

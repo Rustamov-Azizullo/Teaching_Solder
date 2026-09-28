@@ -2,6 +2,10 @@ package uz.askar.education.security;
 
 /** TT 5-bo'lim: tizim rollari va ularning vakolat darajasi. */
 public enum Role {
+    MEGA_SUPER_ADMIN("Mega SuperAdmin", ScopeLevel.REPUBLIC),
+    SUPER_ADMIN("SuperAdmin", ScopeLevel.REPUBLIC),
+    ADMIN("Admin", ScopeLevel.REPUBLIC),
+    USER("User", ScopeLevel.REPUBLIC),
     SYSTEM_ADMIN("Tizim administratori", ScopeLevel.REPUBLIC),
     HKTB("MV HKTB xodimi", ScopeLevel.REPUBLIC),
     JTB("MV JTB xodimi", ScopeLevel.REPUBLIC),

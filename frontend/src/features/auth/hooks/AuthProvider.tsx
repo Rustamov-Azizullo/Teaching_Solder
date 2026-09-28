@@ -14,7 +14,9 @@ export type AuthContextValue = {
   logout: () => void;
 };
 
-const REMINDED_ROLES: Role[] = ['SYSTEM_ADMIN', 'HKTB', 'JTB', 'TMIBB', 'DISTRICT_OFFICER'];
+const REMINDED_ROLES: Role[] = [
+  'MEGA_SUPER_ADMIN', 'SUPER_ADMIN', 'ADMIN', 'USER', 'SYSTEM_ADMIN', 'HKTB', 'JTB', 'TMIBB', 'DISTRICT_OFFICER',
+];
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 

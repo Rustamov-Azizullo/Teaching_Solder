@@ -102,6 +102,10 @@ public class DemoDataSeeder implements CommandLineRunner {
         MilitaryUnit unitTwo = militaryUnit(districtOne, "Q-102", "102-harbiy qism (demo)");
         MilitaryUnit unitThree = militaryUnit(districtTwo, "Q-201", "201-harbiy qism (demo)");
 
+        user("megasuperadmin", "Mega SuperAdmin", Role.MEGA_SUPER_ADMIN, null, null);
+        user("superadmin", "SuperAdmin", Role.SUPER_ADMIN, null, null);
+        user("adminuser", "Admin", Role.ADMIN, null, null);
+        user("user", "User", Role.USER, null, null);
         user("admin", "Tizim administratori", Role.SYSTEM_ADMIN, null, null);
         user("hktb", "HKTB xodimi", Role.HKTB, null, null);
         user("jtb", "JTB xodimi", Role.JTB, null, null);

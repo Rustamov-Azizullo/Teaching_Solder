@@ -7,6 +7,9 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -52,6 +55,38 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter)));
         return http.build();
+    }
+
+    /**
+     * MEGA_SUPER_ADMIN &gt; SUPER_ADMIN &gt; ADMIN &gt; USER &gt; tizimning barcha domen rollari.
+     * Yuqoridagi rol pastdagilarning barcha {@code @PreAuthorize} huquqlarini avtomatik meros oladi.
+     */
+    @Bean
+    RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.fromHierarchy("""
+                ROLE_MEGA_SUPER_ADMIN > ROLE_SUPER_ADMIN
+                ROLE_SUPER_ADMIN > ROLE_ADMIN
+                ROLE_ADMIN > ROLE_USER
+                ROLE_USER > ROLE_SYSTEM_ADMIN
+                ROLE_USER > ROLE_HKTB
+                ROLE_USER > ROLE_JTB
+                ROLE_USER > ROLE_TMIBB
+                ROLE_USER > ROLE_DISTRICT_OFFICER
+                ROLE_USER > ROLE_UNIT_COMMANDER
+                ROLE_USER > ROLE_UNIT_OPERATOR
+                ROLE_USER > ROLE_COMBAT_TRAINING_DEPT
+                ROLE_USER > ROLE_EDUCATION_DEPT
+                ROLE_USER > ROLE_GROUP_LEADER
+                ROLE_USER > ROLE_PSYCHOLOGIST
+                """);
+    }
+
+    @Bean
+    org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
+            methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy);
+        return handler;
     }
 
     @Bean
