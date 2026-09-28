@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:askar;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+app:
+  seed-demo-data: true
+  storage:
+    dir: ${java.io.tmpdir}/askar-test-files

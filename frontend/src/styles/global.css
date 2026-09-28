@@ -1,0 +1,21 @@
+@import './print.css';
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.app-content {
+  padding: 16px;
+}
+
+@media (min-width: 992px) {
+  .app-content {
+    padding: 24px;
+  }
+}

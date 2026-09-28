@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: askar-talimi
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/askar_talimi}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:12345}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8081}
+
+app:
+  jwt:
+    # Kamida 32 belgi. Productionda JWT_SECRET muhit o'zgaruvchisi orqali beriladi.
+    secret: ${JWT_SECRET:change-me-change-me-change-me-change-me-0123}
+    ttl-minutes: 480
+  security:
+    max-failed-logins: 5
+    lock-minutes: 15
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://172.16.140.17:5173}
+  storage:
+    dir: ${STORAGE_DIR:./data/files}
+    secret: ${STORAGE_SECRET:change-me-storage-secret}
+  seed-demo-data: ${SEED_DEMO_DATA:true}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha

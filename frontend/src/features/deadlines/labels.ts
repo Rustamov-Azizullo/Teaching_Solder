@@ -1,0 +1,15 @@
+export const deadlineLabels = {
+  title: 'Muddatlar nazorati',
+  subtitle: "Algoritmdagi nazorat nuqtalari: muddatdan oldin eslatma, muddat o'tsa yuqori darajaga xabar",
+  add: "Muddat qo'shish",
+  editTitle: 'Muddatni tahrirlash',
+  columns: { name: 'Nomi', date: 'Sana', left: 'Qoldi', responsible: "Mas'ul rol", escalation: 'Yuqori daraja', status: 'Holat' },
+  fields: { name: 'Nomi', description: 'Izoh', date: 'Muddat', responsible: "Mas'ul rol", escalation: 'Muddat o\'tsa xabar beriladigan rol', remind: 'Necha kun oldin eslatish' },
+  done: 'Bajarildi',
+  markDone: 'Bajarildi deb belgilash',
+  overdue: "Muddati o'tgan",
+  days: (n: number) => (n >= 0 ? `${n} kun` : `${-n} kun kechikdi`),
+  saved: 'Saqlandi',
+  process: 'Eslatmalarni hozir yuborish',
+  processed: (n: number) => `Yuborilgan bildirishnomalar: ${n}`,
+} as const;
