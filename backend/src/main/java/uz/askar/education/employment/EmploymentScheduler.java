@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import uz.askar.education.notifications.NotificationService;
 import uz.askar.education.security.Role;
 
-/** Xizmat tugashiga bir oy qolgan askarlar borligi haqida HKTBga haftalik bildirishnoma. */
+/** Xizmat tugashiga bir oy qolgan askarlar borligi haqida SuperAdminlarga haftalik bildirishnoma. */
 @Component
 @RequiredArgsConstructor
 public class EmploymentScheduler {
@@ -24,7 +24,7 @@ public class EmploymentScheduler {
     public int notifyIfReady(LocalDate today) {
         int count = service.previewSystem(today);
         if (count > 0) {
-            notifications.notifyRoles(List.of(Role.HKTB), "Bandlik ro'yxatlari tayyor",
+            notifications.notifyRoles(List.of(Role.SUPER_ADMIN), "Bandlik ro'yxatlari tayyor",
                     "Xizmati tugashiga bir oy qolgan, kasbga o'qitilgan askarlar: " + count, "/employment");
         }
         return count;

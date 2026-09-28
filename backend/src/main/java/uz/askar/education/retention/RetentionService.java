@@ -51,7 +51,7 @@ public class RetentionService {
         LocalDate warnDate = today.minusYears(years);
         long count = soldiers.findServiceEndedOn(warnDate).stream().filter(s -> !isAnonymous(s)).count();
         if (count > 0) {
-            notifications.notifyRoles(List.of(Role.SYSTEM_ADMIN), "Ma'lumotlar anonimlashtiriladi",
+            notifications.notifyRoles(List.of(Role.SUPER_ADMIN), "Ma'lumotlar anonimlashtiriladi",
                     count + " ta askar ma'lumotlari saqlash muddati tugadi; " + GRACE_DAYS
                             + " kundan keyin anonimlashtiriladi", "/settings");
         }

@@ -18,6 +18,8 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long> {
     List<StudyGroup> search(@Param("type") GroupType type, @Param("districtId") Long districtId,
                             @Param("unitId") Long unitId, @Param("leaderId") Long leaderId);
 
+    boolean existsByLeaderId(Long leaderId);
+
     @Query("select g from StudyGroup g join g.soldiers s where s.id = :soldierId")
     List<StudyGroup> findBySoldierId(@Param("soldierId") Long soldierId);
 

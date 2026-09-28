@@ -25,7 +25,7 @@ public class SettingsController {
     }
 
     @PutMapping
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public Map<String, String> update(@RequestBody Map<String, String> changes) {
         settingsService.update(changes);
         return settingsService.all();

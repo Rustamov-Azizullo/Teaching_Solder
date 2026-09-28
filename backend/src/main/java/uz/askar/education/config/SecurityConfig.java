@@ -58,8 +58,8 @@ public class SecurityConfig {
     }
 
     /**
-     * MEGA_SUPER_ADMIN &gt; SUPER_ADMIN &gt; ADMIN &gt; USER &gt; tizimning barcha domen rollari.
-     * Yuqoridagi rol pastdagilarning barcha {@code @PreAuthorize} huquqlarini avtomatik meros oladi.
+     * MEGA_SUPER_ADMIN &gt; SUPER_ADMIN &gt; ADMIN &gt; USER. Faqat statik {@code hasRole}/{@code hasAnyRole}
+     * tekshiruvlariga ta'sir qiladi; amallar bo'yicha ruxsatlar {@code @perm} (dinamik) orqali tekshiriladi.
      */
     @Bean
     RoleHierarchy roleHierarchy() {
@@ -67,17 +67,6 @@ public class SecurityConfig {
                 ROLE_MEGA_SUPER_ADMIN > ROLE_SUPER_ADMIN
                 ROLE_SUPER_ADMIN > ROLE_ADMIN
                 ROLE_ADMIN > ROLE_USER
-                ROLE_USER > ROLE_SYSTEM_ADMIN
-                ROLE_USER > ROLE_HKTB
-                ROLE_USER > ROLE_JTB
-                ROLE_USER > ROLE_TMIBB
-                ROLE_USER > ROLE_DISTRICT_OFFICER
-                ROLE_USER > ROLE_UNIT_COMMANDER
-                ROLE_USER > ROLE_UNIT_OPERATOR
-                ROLE_USER > ROLE_COMBAT_TRAINING_DEPT
-                ROLE_USER > ROLE_EDUCATION_DEPT
-                ROLE_USER > ROLE_GROUP_LEADER
-                ROLE_USER > ROLE_PSYCHOLOGIST
                 """);
     }
 

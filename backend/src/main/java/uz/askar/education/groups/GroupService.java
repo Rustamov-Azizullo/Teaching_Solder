@@ -27,6 +27,8 @@ import uz.askar.education.organization.MilitaryUnitRepository;
 import uz.askar.education.organization.OrganizationDtos.NamedRef;
 import uz.askar.education.security.AccessScope;
 import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.Permission;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.security.Role;
 import uz.askar.education.soldiers.Soldier;
 import uz.askar.education.soldiers.SoldierRepository;
@@ -49,13 +51,13 @@ public class GroupService {
     private final uz.askar.education.cycles.CycleService cycleService;
     private final AppUserRepository users;
     private final CurrentUser currentUser;
+    private final PermissionEvaluatorService permissions;
     private final AuditService audit;
 
     @Transactional(readOnly = true)
     public List<GroupSummary> list(GroupType type) {
         AccessScope scope = currentUser.scope();
-        Long leaderId = currentUser.hasRole(Role.GROUP_LEADER) ? currentUser.id() : null;
-        return groups.search(type, scope.districtFilter(), scope.unitFilter(), leaderId).stream()
+        return groups.search(type, scope.districtFilter(), scope.unitFilter(), leaderRestriction()).stream()
                 .map(this::toSummary).toList();
     }
 
@@ -88,10 +90,9 @@ public class GroupService {
         StudyGroup group = findInScope(id);
         AppUser leader = users.findById(request.userId())
                 .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-        boolean sameUnit = leader.getMilitaryUnit() != null
-                && leader.getMilitaryUnit().getId().equals(group.getMilitaryUnit().getId());
-        if (leader.getRole() != Role.GROUP_LEADER || !sameUnit) {
-            throw new BusinessRuleException("Guruh kattasi shu qismning \"Guruh kattasi\" rolidagi xodimi bo'lishi kerak");
+        boolean sameUnit = group.getMilitaryUnit().getId().equals(leader.effectiveUnitId());
+        if (leader.getRole() != Role.USER || !leader.isActive() || !sameUnit) {
+            throw new BusinessRuleException("Guruh kattasi shu qismga biriktirilgan faol foydalanuvchi bo'lishi kerak");
         }
         group.setLeader(leader);
         group.setLeaderOrderNo(request.orderNo());
@@ -148,7 +149,7 @@ public class GroupService {
         MilitaryUnit unit = militaryUnits.findById(unitId)
                 .orElseThrow(() -> new NotFoundException("Harbiy qism topilmadi"));
         currentUser.scope().require(unit.getMilitaryDistrict().getId(), unit.getId());
-        return users.findByRoleAndMilitaryUnitIdAndActiveTrue(Role.GROUP_LEADER, unitId).stream()
+        return users.findByRoleAndLocationMilitaryUnitIdAndActiveTrue(Role.USER, unitId).stream()
                 .map(user -> new GroupLeaderOption(user.getId(), user.getFullName())).toList();
     }
 
@@ -157,11 +158,24 @@ public class GroupService {
         StudyGroup group = groups.findById(id).orElseThrow(() -> new NotFoundException("Guruh topilmadi"));
         currentUser.scope().require(group.getMilitaryUnit().getMilitaryDistrict().getId(),
                 group.getMilitaryUnit().getId());
-        if (currentUser.hasRole(Role.GROUP_LEADER)
-                && (group.getLeader() == null || !group.getLeader().getId().equals(currentUser.id()))) {
+        Long leaderId = leaderRestriction();
+        if (leaderId != null && (group.getLeader() == null || !group.getLeader().getId().equals(leaderId))) {
             throw new ForbiddenException("Bu guruh sizga biriktirilmagan");
         }
         return group;
+    }
+
+    /**
+     * Guruh kattasi cheklovi (rolga emas, ma'lumotga asoslangan): joriy foydalanuvchi kamida bitta guruhning
+     * kattasi bo'lsa va guruhlarni boshqarish ({@code GROUP_WRITE}) ruxsatiga ega bo'lmasa — faqat o'z
+     * guruh(lar)ini ko'radi. Qaytaradi: cheklov uchun foydalanuvchi identifikatori yoki {@code null} (cheklovsiz).
+     */
+    public Long leaderRestriction() {
+        Long userId = currentUser.id();
+        if (!groups.existsByLeaderId(userId) || permissions.currentUserHas(Permission.GROUP_WRITE)) {
+            return null;
+        }
+        return userId;
     }
 
     private void apply(StudyGroup group, GroupRequest request) {

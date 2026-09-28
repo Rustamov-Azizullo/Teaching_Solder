@@ -71,7 +71,7 @@ public class DictionaryController {
     }
 
     @PutMapping("/military-units/{unitId}/directions")
-    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','HKTB','UNIT_COMMANDER','UNIT_OPERATOR')")
+    @PreAuthorize(Access.UNIT_DIRECTIONS)
     @Transactional
     public void replaceUnitDirections(@PathVariable Long unitId, @RequestBody UnitDirectionsRequest request) {
         var unit = militaryUnits.findById(unitId).orElseThrow(() -> new NotFoundException("Harbiy qism topilmadi"));

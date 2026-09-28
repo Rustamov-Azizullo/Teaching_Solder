@@ -25,6 +25,8 @@ import uz.askar.education.groups.StudyGroup;
 import uz.askar.education.groups.StudyGroupRepository;
 import uz.askar.education.groups.Teacher;
 import uz.askar.education.groups.TeacherRepository;
+import uz.askar.education.locations.Location;
+import uz.askar.education.locations.LocationService;
 import uz.askar.education.organization.MilitaryDistrict;
 import uz.askar.education.organization.MilitaryDistrictRepository;
 import uz.askar.education.organization.MilitaryUnit;
@@ -38,6 +40,8 @@ import uz.askar.education.schedule.LessonKind;
 import uz.askar.education.schedule.LessonRepository;
 import uz.askar.education.schedule.LessonStatus;
 import uz.askar.education.security.Role;
+import uz.askar.education.security.UserPermission;
+import uz.askar.education.security.UserPermissionRepository;
 import uz.askar.education.soldiers.GeneralEducation;
 import uz.askar.education.soldiers.Soldier;
 import uz.askar.education.soldiers.SoldierRepository;
@@ -50,6 +54,10 @@ import uz.askar.education.users.AppUserRepository;
 /**
  * Namunaviy (demo) ma'lumotlar: tizimni birinchi ishga tushirishda foydalanuvchilar, qismlar, askarlar,
  * guruhlar yaratadi. Productionda {@code SEED_DEMO_DATA=false} qilib o'chiriladi.
+ *
+ * <p>Rollarning standart ruxsatlari ({@code role_permissions}) V11 migratsiyasida yaratiladi — migratsiyalar bu
+ * seederdan oldin ishlaydi. Seeder faqat demo okrug/qismlar uchun hudud yozuvlarini va qism foydalanuvchilarining
+ * shaxsiy ruxsatlarini ({@link DemoUnitProfile}) qo'shadi.
  */
 @Slf4j
 @Component
@@ -83,6 +91,8 @@ public class DemoDataSeeder implements CommandLineRunner {
     private final uz.askar.education.assignments.AssignmentRepository assignmentRepository;
     private final uz.askar.education.results.CourseResultRepository courseResultRepository;
     private final uz.askar.education.admissions.AdmissionRepository admissionRepository;
+    private final LocationService locationService;
+    private final UserPermissionRepository userPermissions;
     private final PasswordEncoder passwordEncoder;
     private final TransactionTemplate transaction;
 
@@ -102,24 +112,34 @@ public class DemoDataSeeder implements CommandLineRunner {
         MilitaryUnit unitTwo = militaryUnit(districtOne, "Q-102", "102-harbiy qism (demo)");
         MilitaryUnit unitThree = militaryUnit(districtTwo, "Q-201", "201-harbiy qism (demo)");
 
-        user("megasuperadmin", "Mega SuperAdmin", Role.MEGA_SUPER_ADMIN, null, null);
-        user("superadmin", "SuperAdmin", Role.SUPER_ADMIN, null, null);
-        user("adminuser", "Admin", Role.ADMIN, null, null);
-        user("user", "User", Role.USER, null, null);
-        user("admin", "Tizim administratori", Role.SYSTEM_ADMIN, null, null);
-        user("hktb", "HKTB xodimi", Role.HKTB, null, null);
-        user("jtb", "JTB xodimi", Role.JTB, null, null);
-        user("tmibb", "TMIBB xodimi", Role.TMIBB, null, null);
-        user("okrug1", "1-okrug mas'uli", Role.DISTRICT_OFFICER, districtOne, null);
-        user("qomondon1", "101-qism qo'mondoni", Role.UNIT_COMMANDER, null, unitOne);
-        user("operator1", "101-qism operatori", Role.UNIT_OPERATOR, null, unitOne);
-        user("jangovar1", "101-qism jangovar tayyorgarlik bo'limi", Role.COMBAT_TRAINING_DEPT, null, unitOne);
-        user("tarbiya1", "101-qism tarbiyaviy ishlar bo'limi", Role.EDUCATION_DEPT, null, unitOne);
-        AppUser leaderOne = user("katta1", "Guruh kattasi Nurmatov A.", Role.GROUP_LEADER, null, unitOne);
-        AppUser leaderTwo = user("katta2", "Guruh kattasi Ismoilov B.", Role.GROUP_LEADER, null, unitOne);
-        AppUser psychologist = user("psixolog1", "Harbiy psixolog Sobirova D.", Role.PSYCHOLOGIST, null, unitOne);
-        AppUser leaderThree = user("katta3", "Guruh kattasi Hamidov S.", Role.GROUP_LEADER, null, unitThree);
-        user("qomondon2", "201-qism qo'mondoni", Role.UNIT_COMMANDER, null, unitThree);
+        Location districtOneLocation = locationService.ensureForDistrict(districtOne);
+        Location unitOneLocation = locationService.ensureForUnit(unitOne);
+        locationService.ensureForUnit(unitTwo);
+        Location unitThreeLocation = locationService.ensureForUnit(unitThree);
+
+        user("megasuperadmin", "Mega SuperAdmin", Role.MEGA_SUPER_ADMIN, null);
+        user("superadmin", "SuperAdmin", Role.SUPER_ADMIN, null);
+        user("adminuser", "Admin", Role.ADMIN, districtOneLocation);
+        user("user", "User", Role.USER, unitOneLocation);
+        user("admin", "Tizim administratori", Role.SUPER_ADMIN, null);
+        user("hktb", "HKTB xodimi", Role.SUPER_ADMIN, null);
+        user("jtb", "JTB xodimi", Role.SUPER_ADMIN, null);
+        user("tmibb", "TMIBB xodimi", Role.SUPER_ADMIN, null);
+        user("okrug1", "1-okrug mas'uli", Role.ADMIN, districtOneLocation);
+        unitUser("qomondon1", "101-qism qo'mondoni", unitOneLocation, DemoUnitProfile.COMMANDER);
+        unitUser("operator1", "101-qism operatori", unitOneLocation, DemoUnitProfile.OPERATOR);
+        unitUser("jangovar1", "101-qism jangovar tayyorgarlik bo'limi", unitOneLocation,
+                DemoUnitProfile.COMBAT_TRAINING);
+        unitUser("tarbiya1", "101-qism tarbiyaviy ishlar bo'limi", unitOneLocation, DemoUnitProfile.EDUCATION);
+        AppUser leaderOne = unitUser("katta1", "Guruh kattasi Nurmatov A.", unitOneLocation,
+                DemoUnitProfile.LEADER);
+        AppUser leaderTwo = unitUser("katta2", "Guruh kattasi Ismoilov B.", unitOneLocation,
+                DemoUnitProfile.LEADER);
+        AppUser psychologist = unitUser("psixolog1", "Harbiy psixolog Sobirova D.", unitOneLocation,
+                DemoUnitProfile.PSYCHOLOGY);
+        AppUser leaderThree = unitUser("katta3", "Guruh kattasi Hamidov S.", unitThreeLocation,
+                DemoUnitProfile.LEADER);
+        unitUser("qomondon2", "201-qism qo'mondoni", unitThreeLocation, DemoUnitProfile.COMMANDER);
 
         Region tashkent = regions.findAllByOrderByNameAsc().stream()
                 .filter(r -> r.getName().equals("Toshkent shahri")).findFirst().orElseThrow();
@@ -389,14 +409,20 @@ public class DemoDataSeeder implements CommandLineRunner {
         return militaryUnits.save(unit);
     }
 
-    private AppUser user(String username, String fullName, Role role, MilitaryDistrict district, MilitaryUnit unit) {
+    private AppUser user(String username, String fullName, Role role, Location location) {
         AppUser user = new AppUser();
         user.setUsername(username);
         user.setPasswordHash(passwordEncoder.encode(DEMO_PASSWORD));
         user.setFullName(fullName);
         user.setRole(role);
-        user.setMilitaryDistrict(district);
-        user.setMilitaryUnit(unit);
+        user.setLocation(location);
         return users.save(user);
+    }
+
+    /** Qism darajasidagi USER + uning vazifasiga xos shaxsiy ruxsatlar (rolning umumiy ruxsatlari ustiga). */
+    private AppUser unitUser(String username, String fullName, Location unitLocation, DemoUnitProfile profile) {
+        AppUser user = user(username, fullName, Role.USER, unitLocation);
+        profile.permissions().forEach(permission -> userPermissions.save(new UserPermission(user.getId(), permission)));
+        return user;
     }
 }

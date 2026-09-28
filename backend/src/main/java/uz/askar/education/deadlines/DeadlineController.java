@@ -54,7 +54,7 @@ public class DeadlineController {
     }
 
     @PostMapping("/process")
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public Map<String, Integer> process() {
         return Map.of("sent", service.process(LocalDate.now()));
     }

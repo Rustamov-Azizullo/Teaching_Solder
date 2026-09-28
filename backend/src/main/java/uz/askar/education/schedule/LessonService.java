@@ -20,7 +20,8 @@ import uz.askar.education.schedule.LessonDtos.LessonDto;
 import uz.askar.education.schedule.LessonDtos.LessonRequest;
 import uz.askar.education.security.AccessScope;
 import uz.askar.education.security.CurrentUser;
-import uz.askar.education.security.Role;
+import uz.askar.education.security.Permission;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.settings.SettingsService;
 
 @Service
@@ -35,6 +36,7 @@ public class LessonService {
     private final GroupService groupService;
     private final SettingsService settings;
     private final CurrentUser currentUser;
+    private final PermissionEvaluatorService permissions;
     private final AuditService audit;
 
     @Transactional(readOnly = true)
@@ -47,8 +49,8 @@ public class LessonService {
     @Transactional(readOnly = true)
     public List<LessonDto> listForDate(LocalDate date) {
         AccessScope scope = currentUser.scope();
-        Long leaderId = currentUser.hasRole(Role.GROUP_LEADER) ? currentUser.id() : null;
-        return lessons.findByDateInScope(date, scope.districtFilter(), scope.unitFilter(), leaderId).stream()
+        return lessons.findByDateInScope(date, scope.districtFilter(), scope.unitFilter(),
+                        groupService.leaderRestriction()).stream()
                 .map(this::toDto).toList();
     }
 
@@ -129,7 +131,7 @@ public class LessonService {
         }
         boolean isStandard = start.equals(defaultStart) && end.equals(defaultEnd) && hours == defaultHours;
         if (!isStandard) {
-            requireAuthorizedRole();
+            requireTimeOverridePermission();
             if (request.changeReason() == null || request.changeReason().isBlank()) {
                 throw new BusinessRuleException("Standart vaqtdan farqli bo'lsa, sababi ko'rsatilishi shart");
             }
@@ -143,10 +145,13 @@ public class LessonService {
         lesson.setChangeReason(isStandard ? null : request.changeReason());
     }
 
-    /** Standart vaqtni o'zgartirish faqat vakolatli rol (JTB, qo'mondon, administrator) tomonidan. */
-    private void requireAuthorizedRole() {
-        if (!currentUser.hasRole(Role.MEGA_SUPER_ADMIN, Role.SUPER_ADMIN, Role.ADMIN, Role.USER,
-                Role.SYSTEM_ADMIN, Role.JTB, Role.UNIT_COMMANDER)) {
+    /**
+     * Standart vaqtni o'zgartirish jadval tuzish ({@code SCHEDULE_WRITE}) huquqidan torroq: alohida
+     * {@code SCHEDULE_TIME_OVERRIDE} ruxsati talab qilinadi (masalan, qism operatori jadval tuza oladi,
+     * lekin standart vaqtni faqat qo'mondon o'zgartiradi).
+     */
+    private void requireTimeOverridePermission() {
+        if (!permissions.currentUserHas(Permission.SCHEDULE_TIME_OVERRIDE)) {
             throw new ForbiddenException("Standart vaqtni o'zgartirish uchun vakolat yetarli emas");
         }
     }

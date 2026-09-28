@@ -5,14 +5,26 @@ import uz.askar.education.common.ForbiddenException;
 /** Foydalanuvchining vakolat doirasi: butun respublika, okrug yoki bitta qism. */
 public record AccessScope(ScopeLevel level, Long districtId, Long unitId) {
 
+    /**
+     * Okrug/qism darajasidagi, lekin hududga biriktirilmagan foydalanuvchi uchun filtr qiymati: hech bir yozuvga
+     * mos kelmaydi. {@code null} qaytarish "cheklovsiz" degani bo'lardi — bu xavfsiz emas.
+     */
+    private static final Long MATCHES_NOTHING = -1L;
+
     /** Repository so'rovlari uchun: okrug bo'yicha majburiy filtr (yoki {@code null} — cheklovsiz). */
     public Long districtFilter() {
-        return level == ScopeLevel.DISTRICT ? districtId : null;
+        if (level != ScopeLevel.DISTRICT) {
+            return null;
+        }
+        return districtId != null ? districtId : MATCHES_NOTHING;
     }
 
     /** Repository so'rovlari uchun: qism bo'yicha majburiy filtr (yoki {@code null} — cheklovsiz). */
     public Long unitFilter() {
-        return level == ScopeLevel.UNIT ? unitId : null;
+        if (level != ScopeLevel.UNIT) {
+            return null;
+        }
+        return unitId != null ? unitId : MATCHES_NOTHING;
     }
 
     public boolean covers(Long targetDistrictId, Long targetUnitId) {

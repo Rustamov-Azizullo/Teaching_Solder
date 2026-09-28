@@ -1,5 +1,6 @@
 package uz.askar.education.users;
 
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -7,28 +8,47 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.askar.education.audit.AuditService;
 import uz.askar.education.common.BusinessRuleException;
+import uz.askar.education.common.ForbiddenException;
 import uz.askar.education.common.NotFoundException;
-import uz.askar.education.organization.MilitaryDistrictRepository;
-import uz.askar.education.organization.MilitaryUnitRepository;
+import uz.askar.education.locations.Location;
+import uz.askar.education.locations.LocationRepository;
+import uz.askar.education.security.AccessScope;
+import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.security.Role;
 import uz.askar.education.security.ScopeLevel;
 import uz.askar.education.users.UserDtos.CreateUserRequest;
 import uz.askar.education.users.UserDtos.UpdateUserRequest;
 import uz.askar.education.users.UserDtos.UserDto;
 
+/**
+ * Foydalanuvchilarni boshqarish. Chaqiruvchi faqat o'z vakolat doirasidagi (okrug admini — o'z okrugidagi)
+ * va o'zidan yuqori bo'lmagan roldagi hisoblarni ko'radi va boshqaradi.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final AppUserRepository users;
-    private final MilitaryDistrictRepository militaryDistricts;
-    private final MilitaryUnitRepository militaryUnits;
+    private final LocationRepository locations;
     private final PasswordEncoder passwordEncoder;
+    private final PermissionEvaluatorService permissions;
+    private final CurrentUser currentUser;
     private final AuditService audit;
 
     @Transactional(readOnly = true)
     public List<UserDto> list() {
-        return users.findAllByOrderByFullNameAsc().stream().map(UserDto::from).toList();
+        AccessScope scope = currentUser.scope();
+        return users.findInDistrictScope(scope.districtFilter()).stream()
+                .filter(user -> scope.covers(user.effectiveDistrictId(), user.effectiveUnitId()))
+                .map(this::toDto)
+                .toList();
+    }
+
+    /** Joriy foydalanuvchi bera oladigan rollar (o'zidan yuqori bo'lmaganlari). */
+    public List<Role> assignableRoles() {
+        Role callerRole = currentUser.role();
+        return Arrays.stream(Role.values()).filter(callerRole::isAtLeast).toList();
     }
 
     @Transactional
@@ -40,46 +60,70 @@ public class UserService {
         AppUser user = new AppUser();
         user.setUsername(request.username());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        applyProfile(user, request.fullName(), request.role(), request.militaryDistrictId(),
-                request.militaryUnitId());
+        applyProfile(user, request.fullName(), request.role(), request.locationId());
         AppUser saved = users.save(user);
         audit.record("CREATE", "AppUser", saved.getId(), "login=" + saved.getUsername() + ", rol=" + saved.getRole());
-        return UserDto.from(saved);
+        return toDto(saved);
     }
 
     @Transactional
     public UserDto update(Long id, UpdateUserRequest request) {
-        AppUser user = users.findById(id).orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-        applyProfile(user, request.fullName(), request.role(), request.militaryDistrictId(),
-                request.militaryUnitId());
+        AppUser user = findManageable(id);
+        applyProfile(user, request.fullName(), request.role(), request.locationId());
         user.setActive(request.active());
         if (request.newPassword() != null && !request.newPassword().isBlank()) {
             PasswordPolicy.check(request.newPassword());
             user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         }
         audit.record("UPDATE", "AppUser", id, "rol=" + user.getRole() + ", faol=" + user.isActive());
-        return UserDto.from(user);
+        return toDto(user);
     }
 
-    private void applyProfile(AppUser user, String fullName, Role role, Long districtId, Long unitId) {
+    /** Chaqiruvchi boshqara oladigan foydalanuvchini topadi (vakolat doirasi va rol ierarxiyasi bo'yicha). */
+    public AppUser findManageable(Long id) {
+        AppUser user = users.findById(id).orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
+        currentUser.scope().require(user.effectiveDistrictId(), user.effectiveUnitId());
+        requireAssignable(user.getRole());
+        return user;
+    }
+
+    public UserDto toDto(AppUser user) {
+        return UserDto.from(user, permissions.effectivePermissions(user.getId(), user.getRole()));
+    }
+
+    private void applyProfile(AppUser user, String fullName, Role role, Long locationId) {
+        requireAssignable(role);
         user.setFullName(fullName);
         user.setRole(role);
-        user.setMilitaryDistrict(null);
-        user.setMilitaryUnit(null);
-        if (role.scopeLevel() == ScopeLevel.DISTRICT) {
-            user.setMilitaryDistrict(militaryDistricts.findById(requireId(districtId, "Harbiy okrug"))
-                    .orElseThrow(() -> new NotFoundException("Harbiy okrug topilmadi")));
-        }
-        if (role.scopeLevel() == ScopeLevel.UNIT) {
-            user.setMilitaryUnit(militaryUnits.findById(requireId(unitId, "Harbiy qism"))
-                    .orElseThrow(() -> new NotFoundException("Harbiy qism topilmadi")));
+        user.setLocation(resolveLocation(role, locationId));
+    }
+
+    private void requireAssignable(Role role) {
+        if (!currentUser.role().isAtLeast(role)) {
+            throw new ForbiddenException("O'zingizdan yuqori roldagi hisobni boshqarish mumkin emas");
         }
     }
 
-    private Long requireId(Long id, String label) {
-        if (id == null) {
-            throw new BusinessRuleException(label + " tanlanishi shart");
+    /** Rolning vakolat darajasiga mos hududni tanlaydi va u chaqiruvchining vakolat doirasida ekanini tekshiradi. */
+    private Location resolveLocation(Role role, Long locationId) {
+        ScopeLevel level = role.scopeLevel();
+        if (level == ScopeLevel.REPUBLIC) {
+            return null;
         }
-        return id;
+        if (locationId == null) {
+            throw new BusinessRuleException(levelLabel(level) + " tanlanishi shart");
+        }
+        Location location = locations.findById(locationId)
+                .orElseThrow(() -> new NotFoundException("Hudud topilmadi"));
+        if (!location.getLevel().name().equals(level.name())) {
+            throw new BusinessRuleException(role.label() + " roli uchun " + levelLabel(level).toLowerCase()
+                    + " tanlanishi kerak");
+        }
+        currentUser.scope().require(location.districtId(), location.unitId());
+        return location;
+    }
+
+    private String levelLabel(ScopeLevel level) {
+        return level == ScopeLevel.DISTRICT ? "Harbiy okrug" : "Harbiy qism";
     }
 }

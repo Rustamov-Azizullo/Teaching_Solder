@@ -11,6 +11,7 @@ import uz.askar.education.auth.AuthDtos.LoginRequest;
 import uz.askar.education.auth.AuthDtos.LoginResponse;
 import uz.askar.education.common.NotFoundException;
 import uz.askar.education.config.SecurityProperties;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.users.AppUser;
 import uz.askar.education.users.AppUserRepository;
 import uz.askar.education.users.UserDtos.UserDto;
@@ -27,6 +28,7 @@ public class AuthService {
     private final AuditService audit;
     private final SecurityProperties securityProperties;
     private final uz.askar.education.settings.SettingsService settings;
+    private final PermissionEvaluatorService permissions;
 
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
     public LoginResponse login(LoginRequest request) {
@@ -48,13 +50,13 @@ public class AuthService {
         audit.record(user.getUsername(), "LOGIN", "AppUser", user.getId(), "Tizimga kirdi");
         boolean setupRequired = !user.isTotpEnabled() && user.getRole().scopeLevel() != uz.askar.education.security.ScopeLevel.UNIT
                 && "true".equals(settings.get("security.2fa.required", "false"));
-        return new LoginResponse(tokens.issue(user), tokens.lifetime().toSeconds(), UserDto.from(user),
+        return new LoginResponse(tokens.issue(user), tokens.lifetime().toSeconds(), toDto(user),
                 user.isTotpEnabled(), setupRequired);
     }
 
     @Transactional(readOnly = true)
     public UserDto me(String username) {
-        return users.findByUsername(username).map(UserDto::from)
+        return users.findByUsername(username).map(this::toDto)
                 .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
     }
 
@@ -112,6 +114,10 @@ public class AuthService {
             audit.record(user.getUsername(), "ACCOUNT_LOCKED", "AppUser", user.getId(),
                     "Ketma-ket muvaffaqiyatsiz urinishlar");
         }
+    }
+
+    private UserDto toDto(AppUser user) {
+        return UserDto.from(user, permissions.effectivePermissions(user.getId(), user.getRole()));
     }
 
     private InvalidCredentialsException failedLogin(String username) {

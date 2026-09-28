@@ -23,7 +23,7 @@ public class AuditController {
     private final AuditLogRepository logs;
 
     @GetMapping
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public PageResponse<AuditLogDto> search(
             @RequestParam(defaultValue = "") String username,
             @RequestParam(defaultValue = "") String entity,

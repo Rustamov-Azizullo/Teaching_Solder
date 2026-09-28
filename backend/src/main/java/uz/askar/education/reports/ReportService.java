@@ -20,7 +20,8 @@ import uz.askar.education.results.CourseResult;
 import uz.askar.education.results.CourseResultRepository;
 import uz.askar.education.results.CourseStatus;
 import uz.askar.education.security.CurrentUser;
-import uz.askar.education.security.Role;
+import uz.askar.education.security.Permission;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.soldiers.SoldierRepository;
 import uz.askar.education.surveys.QuestionnaireRepository;
 
@@ -42,11 +43,12 @@ public class ReportService {
     private final QuestionnaireRepository questionnaires;
     private final TableExporter exporter;
     private final CurrentUser currentUser;
+    private final PermissionEvaluatorService permissions;
     private final AuditService audit;
 
     @Transactional(readOnly = true)
     public ReportFile generate(ReportType type, GroupType groupType, LocalDate from, LocalDate to, ExportFormat format) {
-        requireAllowed(type, groupType);
+        requireAllowed(type);
         TableData data = switch (type) {
             case COURSE_COMPLETION -> courseCompletion();
             case OTM_ADMISSIONS -> otmAdmissions();
@@ -99,27 +101,20 @@ public class ReportService {
                 List.of("Ko'rsatkich", "Qiymat"), table);
     }
 
-    private void requireAllowed(ReportType type, GroupType groupType) {
-        Role role = currentUser.role();
-        boolean allowed = switch (type) {
-            case COURSE_COMPLETION -> hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.DISTRICT_OFFICER,
-                    Role.UNIT_COMMANDER, Role.UNIT_OPERATOR);
-            case OTM_ADMISSIONS -> hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.TMIBB, Role.DISTRICT_OFFICER,
-                    Role.UNIT_COMMANDER, Role.UNIT_OPERATOR, Role.EDUCATION_DEPT);
-            case YEARLY_SUMMARY -> hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.DISTRICT_OFFICER, Role.UNIT_COMMANDER);
+    /**
+     * Hisobotni eksport qilish uchun {@code REPORTS} ruxsati va hisobot tarkibidagi barcha ma'lumotlarni
+     * o'qish ruxsati talab qilinadi (masalan, yillik umumlashma askarlar, anketalar, natijalar va qabulni jamlaydi).
+     */
+    private void requireAllowed(ReportType type) {
+        List<Permission> required = switch (type) {
+            case COURSE_COMPLETION -> List.of(Permission.REPORTS, Permission.RESULT_READ);
+            case OTM_ADMISSIONS -> List.of(Permission.REPORTS, Permission.ADMISSION_READ);
+            case YEARLY_SUMMARY -> List.of(Permission.REPORTS, Permission.SOLDIER_READ, Permission.QUESTIONNAIRE_READ,
+                    Permission.RESULT_READ, Permission.ADMISSION_READ);
         };
-        if (!allowed) {
+        if (!required.stream().allMatch(permissions::currentUserHas)) {
             throw new ForbiddenException("Bu hisobot uchun vakolat yo'q");
         }
-    }
-
-    private boolean hasAny(Role role, Role... allowed) {
-        for (Role candidate : allowed) {
-            if (candidate == role) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private List<String> meta(String period) {

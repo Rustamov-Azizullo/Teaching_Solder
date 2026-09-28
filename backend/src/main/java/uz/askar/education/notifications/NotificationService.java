@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uz.askar.education.common.NotFoundException;
 import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.Permission;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.security.Role;
 import uz.askar.education.users.AppUser;
 import uz.askar.education.users.AppUserRepository;
@@ -27,20 +29,18 @@ public class NotificationService {
     private final NotificationRepository notifications;
     private final AppUserRepository users;
     private final CurrentUser currentUser;
+    private final PermissionEvaluatorService permissions;
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void notifyRoles(Collection<Role> roles, String title, String body, String link) {
         users.findByRoleInAndActiveTrue(roles).forEach(user -> create(user, title, body, link));
     }
 
+    /** Qismga biriktirilgan va berilgan ruxsatga ega faol foydalanuvchilarga xabar. */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void notifyUnit(Long unitId, Collection<Role> roles, String title, String body, String link) {
-        users.findByRoleInAndMilitaryUnitIdAndActiveTrue(roles, unitId).forEach(user -> create(user, title, body, link));
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void notifyDistrictOfUnit(Long districtId, Collection<Role> roles, String title, String body, String link) {
-        users.findByRoleInAndMilitaryDistrictIdAndActiveTrue(roles, districtId)
+    public void notifyUnitPermissionHolders(Long unitId, Permission permission, String title, String body, String link) {
+        users.findByLocationMilitaryUnitIdAndActiveTrue(unitId).stream()
+                .filter(user -> permissions.holds(user.getId(), user.getRole(), permission))
                 .forEach(user -> create(user, title, body, link));
     }
 

@@ -217,7 +217,7 @@ class ModulesIntegrationTest {
                 .andExpect(status().isOk());
 
         mvc.perform(post("/api/users").headers(auth(admin)).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"weak1\",\"password\":\"password\",\"fullName\":\"X\",\"role\":\"HKTB\"}"))
+                        .content("{\"username\":\"weak1\",\"password\":\"password\",\"fullName\":\"X\",\"role\":\"SUPER_ADMIN\"}"))
                 .andExpect(status().isConflict());
     }
 

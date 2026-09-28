@@ -25,7 +25,7 @@ public class IntegrationLogController {
     }
 
     @GetMapping
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public PageResponse<IntegrationLogDto> list(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "30") int size) {
         return PageResponse.from(logs.findAllByOrderByAtDesc(PageRequest.of(page, Math.min(size, 100))),

@@ -2,7 +2,6 @@ package uz.askar.education.users;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uz.askar.education.security.Access;
-import uz.askar.education.security.Role;
 import uz.askar.education.users.UserDtos.CreateUserRequest;
 import uz.askar.education.users.UserDtos.UpdateUserRequest;
 import uz.askar.education.users.UserDtos.UserDto;
@@ -51,7 +49,7 @@ public class UserController {
     @GetMapping("/roles")
     @PreAuthorize(Access.ADMIN)
     public List<RoleOption> roles() {
-        return Arrays.stream(Role.values())
+        return userService.assignableRoles().stream()
                 .map(role -> new RoleOption(role.name(), role.label(), role.scopeLevel().name()))
                 .toList();
     }

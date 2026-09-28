@@ -16,11 +16,13 @@ import uz.askar.education.groups.GroupType;
 import uz.askar.education.notifications.NotificationService;
 import uz.askar.education.organization.MilitaryUnitRepository;
 import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.Permission;
 import uz.askar.education.security.Role;
 
 /**
  * Biriktirish oqimi: taklif → ko'rib chiqilmoqda → tasdiqlangan / rad etilgan.
- * Qism/okrug taklif kiritadi, HKTB qaror chiqaradi, shartnoma va qo'shma reja tasdiqdan keyin to'ldiriladi.
+ * Qism/okrug taklif kiritadi, respublika darajasi (ASSIGNMENT_DECIDE ruxsati) qaror chiqaradi,
+ * shartnoma va qo'shma reja tasdiqdan keyin to'ldiriladi.
  */
 @Service
 @RequiredArgsConstructor
@@ -74,7 +76,7 @@ public class AssignmentService {
         assignment.setCycleYear(LocalDate.now().getYear());
         Assignment saved = assignments.save(assignment);
         audit.record("PROPOSE", "Assignment", saved.getId(), unit.getName() + " <- " + saved.getInstitution().getName());
-        notifications.notifyRoles(List.of(Role.HKTB), "Biriktirish taklifi",
+        notifications.notifyRoles(List.of(Role.SUPER_ADMIN), "Biriktirish taklifi",
                 unit.getName() + " uchun " + saved.getInstitution().getName() + " taklif qilindi", "/assignments");
         return toDto(saved);
     }
@@ -106,7 +108,7 @@ public class AssignmentService {
         assignment.setDecisionNote(request.note());
         assignment.setDecidedBy(currentUser.username());
         audit.record(request.approve() ? "APPROVE" : "REJECT", "Assignment", id, request.note());
-        notifications.notifyUnit(assignment.getMilitaryUnit().getId(), List.of(Role.UNIT_COMMANDER, Role.UNIT_OPERATOR),
+        notifications.notifyUnitPermissionHolders(assignment.getMilitaryUnit().getId(), Permission.ASSIGNMENT_READ,
                 "Biriktirish bo'yicha qaror",
                 assignment.getInstitution().getName() + ": " + (request.approve() ? "tasdiqlandi" : "rad etildi"),
                 "/assignments");

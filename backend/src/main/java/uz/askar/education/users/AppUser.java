@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import uz.askar.education.organization.MilitaryDistrict;
-import uz.askar.education.organization.MilitaryUnit;
+import uz.askar.education.locations.Location;
 import uz.askar.education.security.Role;
 
 @Entity
@@ -40,13 +39,10 @@ public class AppUser {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    /** Hududiy biriktirish; respublika darajasidagi rollar (SuperAdmin, Mega SuperAdmin) uchun {@code null}. */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "military_district_id")
-    private MilitaryDistrict militaryDistrict;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "military_unit_id")
-    private MilitaryUnit militaryUnit;
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     private boolean active = true;
     private int failedAttempts;
@@ -59,9 +55,11 @@ public class AppUser {
 
     /** Okrug darajasidagi foydalanuvchi uchun okrug, qism darajasidagi uchun qismning okrugi. */
     public Long effectiveDistrictId() {
-        if (militaryDistrict != null) {
-            return militaryDistrict.getId();
-        }
-        return militaryUnit != null ? militaryUnit.getMilitaryDistrict().getId() : null;
+        return location != null ? location.districtId() : null;
+    }
+
+    /** Qism darajasidagi foydalanuvchi uchun qism, aks holda {@code null}. */
+    public Long effectiveUnitId() {
+        return location != null ? location.unitId() : null;
     }
 }

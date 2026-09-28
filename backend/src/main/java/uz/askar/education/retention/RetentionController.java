@@ -19,7 +19,7 @@ public class RetentionController {
     private final RetentionService service;
 
     @PostMapping("/run")
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public Map<String, Integer> run() {
         LocalDate today = LocalDate.now();
         return Map.of("warned", service.warn(today), "anonymized", service.anonymizeDue(today));

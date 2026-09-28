@@ -101,7 +101,7 @@ public class ResultService {
         return sheet(groupId);
     }
 
-    /** Qism qo'mondoni kurs yakunini tasdiqlaydi → ma'lumot HKTB dashboardida aks etadi. */
+    /** Qism qo'mondoni kurs yakunini tasdiqlaydi → ma'lumot respublika dashboardida aks etadi. */
     @Transactional
     public ResultsSheet approve(Long groupId) {
         StudyGroup group = groupService.findInScope(groupId);
@@ -114,7 +114,7 @@ public class ResultService {
         group.setCourseApprovedAt(LocalDateTime.now());
         group.setCourseApprovedBy(currentUser.username());
         audit.record("APPROVE_COURSE", "StudyGroup", groupId, group.getName());
-        notifications.notifyRoles(List.of(Role.HKTB), "Kurs yakuni tasdiqlandi",
+        notifications.notifyRoles(List.of(Role.SUPER_ADMIN), "Kurs yakuni tasdiqlandi",
                 group.getMilitaryUnit().getName() + ": " + group.getName(), "/groups/" + groupId);
         return sheet(groupId);
     }

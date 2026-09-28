@@ -41,18 +41,21 @@ docker compose up --build     # frontend: http://localhost:8088
 
 ## Demo foydalanuvchilar (parol: `Parol123!`)
 
-| Login | Rol | Nimani ko'radi |
+| Login | Rol (hudud) | Nimani ko'radi |
 |---|---|---|
-| `admin` | Tizim administratori | Hammasi, foydalanuvchilar, audit, sozlamalar |
-| `hktb` | MV HKTB xodimi | Respublika dashboardi (3 blok), ma'lumotnomalar |
-| `jtb` | MV JTB xodimi | "Kasb kurslari" dashboardi, jadval |
-| `tmibb` | TMIBB xodimi | "OTM tayyorlov" dashboardi |
-| `okrug1` | Harbiy okrug mas'uli | Faqat o'z okrugi |
-| `qomondon1`, `qomondon2` | Qism qo'mondoni | Faqat o'z qismi; guruh kattasini tayinlash |
-| `operator1` | Qism operatori | Askar, guruh, o'qituvchi kiritish |
-| `jangovar1` / `tarbiya1` | Jangovar tayyorgarlik / tarbiyaviy ishlar bo'limi | Faqat o'z yo'nalishi dashboardi |
-| `katta1`, `katta2`, `katta3` | Guruh kattasi | Faqat o'z guruhi davomati (telefon uchun qulay) |
-| `psixolog1` | Harbiy psixolog | Elektron anketa |
+| `megasuperadmin` | Mega SuperAdmin (respublika) | Hammasi; ruxsatlarni boshqarish |
+| `superadmin`, `admin`, `hktb`, `jtb`, `tmibb` | SuperAdmin (respublika) | Hammasi; ruxsatlarni boshqarish |
+| `okrug1`, `adminuser` | Admin (1-okrug) | Faqat o'z okrugi; o'z okrugidagi foydalanuvchilarni boshqarish |
+| `qomondon1`, `qomondon2` | User (101 / 201-qism) + qo'mondon ruxsatlari | Faqat o'z qismi; guruh kattasini tayinlash, standart dars vaqtini o'zgartirish |
+| `operator1` | User (101-qism) + operator ruxsatlari | Askar, guruh, o'qituvchi, natija kiritish |
+| `jangovar1` / `tarbiya1` | User (101-qism) + bo'lim ruxsatlari | Faqat o'z yo'nalishi dashboardi va hisobotlari |
+| `katta1`, `katta2`, `katta3` | User (101 / 201-qism), guruh kattasi | Faqat o'z guruhi (telefon uchun qulay) |
+| `psixolog1` | User (101-qism) + psixolog ruxsatlari | Elektron anketa |
+| `user` | User (101-qism) | Faqat guruhlar va jadval (rolning standart ruxsatlari) |
+
+Rollar faqat vakolat doirasini belgilaydi; amallar `role_permissions` (Admin/User uchun rol-ruxsat matritsasi) va
+`user_permissions` (foydalanuvchiga shaxsiy qo'shimcha ruxsatlar) jadvallari orqali beriladi — SuperAdmin ularni
+`/api/role-permissions` va `/api/users/{id}/permissions` orqali ish vaqtida o'zgartiradi.
 
 JShShIR bo'yicha manba tizim hozircha **mock**: `0…` bilan boshlansa — "topilmadi", `9…` bilan boshlansa — "manba tizim
 javob bermadi", qolgani uchun namunaviy ma'lumot qaytadi (`31234567890123`).
@@ -80,7 +83,8 @@ BMBA, KTA va manba tizim hozircha mock adapterlar (`integrations/`, `soldiers/in
   feature faqat `index.ts` orqali import qilinadi, `@/` alias, sahifalar lazy yuklanadi. Barcha matnlar `labels.ts` /
   `lib/i18n` da (o'zbek, lotin).
 - **Backend** — modul-monolit, paket-bo'yicha-feature (`soldiers`, `surveys`, `groups`, `schedule`, `attendance`,
-  `dashboard`, …). Vakolat doirasi (`AccessScope`) serverda majburlanadi; rol tekshiruvi `Access` konstantalarida.
+  `dashboard`, …). Vakolat doirasi (`AccessScope`, foydalanuvchining `Location` hududidan) serverda majburlanadi; ruxsat
+  tekshiruvi `Access` konstantalarida (`@perm.has(...)` — bazadagi dinamik ruxsatlar).
   Manba tizim `SoldierSourceClient` interfeysi (adapter) orqali ulanadi — haqiqiy API kelganda faqat yangi implementatsiya
   yoziladi.
 

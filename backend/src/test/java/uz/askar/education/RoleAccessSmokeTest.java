@@ -3,6 +3,7 @@ package uz.askar.education;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,7 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** Har bir demo rol uchun asosiy GET endpointlar 5xx xatosi bermasligi (faqat 200 yoki 403) tekshiriladi. */
+/**
+ * Har bir demo foydalanuvchi (4 ta rol va qism foydalanuvchilarining turli shaxsiy ruxsat profillari) uchun
+ * asosiy GET endpointlar 5xx xatosi bermasligi (faqat 200 yoki 403) tekshiriladi.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -22,8 +26,8 @@ class RoleAccessSmokeTest {
 
     private static final String PASSWORD = "Parol123!";
     private static final List<String> DEMO_USERS = List.of(
-            "admin", "hktb", "jtb", "tmibb", "okrug1", "qomondon1", "operator1", "jangovar1", "tarbiya1",
-            "katta1", "psixolog1");
+            "megasuperadmin", "superadmin", "adminuser", "user", "admin", "hktb", "okrug1", "qomondon1",
+            "operator1", "jangovar1", "tarbiya1", "katta1", "psixolog1");
 
     @Autowired
     private MockMvc mvc;
@@ -46,7 +50,8 @@ class RoleAccessSmokeTest {
                 "/api/employment/history", "/api/deadlines", "/api/notifications", "/api/notifications/unread-count",
                 "/api/cycles", "/api/integration-logs", "/api/surveys/group-suggestions",
                 "/api/dashboard/vocational/results", "/api/reports/YEARLY_SUMMARY",
-                "/api/attachments?ownerType=SOLDIER&ownerId=1");
+                "/api/attachments?ownerType=SOLDIER&ownerId=1", "/api/locations", "/api/role-permissions",
+                "/api/users/1/permissions");
 
         for (String username : DEMO_USERS) {
             String token = token(username);
@@ -61,7 +66,7 @@ class RoleAccessSmokeTest {
     private String token(String username) throws Exception {
         String body = mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"" + username + "\",\"password\":\"" + PASSWORD + "\"}"))
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         return body.replaceAll(".*\"accessToken\":\"([^\"]+)\".*", "$1");
     }
 }

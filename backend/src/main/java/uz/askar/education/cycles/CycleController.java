@@ -26,13 +26,13 @@ public class CycleController {
     }
 
     @PostMapping("/{year}/open")
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public CycleDto open(@PathVariable int year) {
         return service.openNew(year);
     }
 
     @PostMapping("/{year}/close")
-    @PreAuthorize(Access.ADMIN)
+    @PreAuthorize(Access.SYSTEM_CONFIG)
     public CycleDto close(@PathVariable int year) {
         return service.close(year);
     }

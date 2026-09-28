@@ -48,7 +48,7 @@ class ApiIntegrationTest {
     }
 
     @Test
-    void unitCommanderSeesOnlyOwnUnitSoldiers() throws Exception {
+    void unitUserSeesOnlyOwnUnitSoldiers() throws Exception {
         String token = token("qomondon2");
         mvc.perform(get("/api/soldiers").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -56,7 +56,7 @@ class ApiIntegrationTest {
     }
 
     @Test
-    void groupLeaderHasNoAdminOrSoldierWriteAccessButSeesOwnGroups() throws Exception {
+    void groupLeaderWithoutGroupWriteHasNoAdminOrSoldierWriteAccessAndSeesOnlyOwnGroups() throws Exception {
         String token = token("katta1");
         mvc.perform(get("/api/users").header("Authorization", "Bearer " + token))
                 .andExpect(status().isForbidden());
@@ -68,13 +68,13 @@ class ApiIntegrationTest {
     }
 
     @Test
-    void dashboardIsSplitByDirectionAndRestrictedByRole() throws Exception {
+    void dashboardIsSplitByDirectionAndRestrictedByPermission() throws Exception {
         String hktb = token("hktb");
         mvc.perform(get("/api/dashboard/vocational/results").header("Authorization", "Bearer " + hktb))
                 .andExpect(status().isOk());
         mvc.perform(get("/api/admissions/funnel").header("Authorization", "Bearer " + hktb))
                 .andExpect(status().isOk());
-        // Jangovar tayyorgarlik bo'limi OTM qabul voronkasini ko'ra olmaydi
+        // Jangovar tayyorgarlik bo'limi xodimi (USER + kasb dashboardi ruxsati) OTM qabul voronkasini ko'ra olmaydi
         mvc.perform(get("/api/admissions/funnel").header("Authorization", "Bearer " + token("jangovar1")))
                 .andExpect(status().isForbidden());
     }

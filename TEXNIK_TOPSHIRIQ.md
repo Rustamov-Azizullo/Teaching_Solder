@@ -3,7 +3,7 @@
 ## Harbiy qismlarda muddatli harbiy xizmatchilarni kasbga va fanga o'qitish tizimini raqamlashtirish
 
 **Ishchi nomi:** "Askar ta'limi" axborot tizimi (keyingi o'rinlarda — **Tizim**)
-**Hujjat versiyasi:** 1.4
+**Hujjat versiyasi:** 1.5
 **Asos:** "Harbiy qismlarda muddatli harbiy xizmatchilar bilan "Bitta askar — bitta kasb" tamoyili asosida kasbga o'rgatish o'quv kurslarini tashkil etish" hamda "Askarlarni oliy ta'lim muassasalariga o'qishga tayyorlash" ish algoritmlari
 
 > **Eslatma:** Qolgan ochiq masalalar 14-bo'limda keltirilgan.
@@ -17,6 +17,7 @@
 | 1.2 | "Muddatli harbiy xizmatchilarning kasbiy ko'nikma va qiziqishlarini o'rganish bo'yicha anketa" asosida **elektron anketa** (6.1-bo'lim) tavsiflandi: I–III bo'limlar yig'ma jildga, IV–V bo'limlar so'rovnoma natijalariga yoziladi. Manba tizim API spetsifikatsiyasi askar ma'lumotlarini kiritish moduli ishlab chiqilayotganda taqdim etiladi — tizim JShShIR orqali qaytgan maydonlarni oldindan to'ldiradi, qolganini anketa orqali kiritadi. Dashboardga "So'rovnoma natijalari" bloki qo'shildi. |
 | 1.3 | Ochiq savollar yopildi: 16-savol — erkin matn; 15-savolda tanlov rejimi sozlanadigan; BMBA va KTA bilan **API orqali** integratsiya; interfeys tili — faqat **o'zbek (lotin)**; oflayn rejim talab qilinmaydi; ma'lumotlarni saqlash muddati **sozlanadigan**; rasmiy blanklar yo'q — hisobot shakllari ishlab chiquvchi tomonidan loyihalanadi; MVP uchun qat'iy muddat mavjud. |
 | 1.4 | 12-bo'limga qo'lda to'ldiriladigan MVP sanasi va kalendar reja jadvali qo'shildi. |
+| 1.5 | 5-bo'lim: 12 ta qat'iy rol o'rniga 4 ta rol (Mega SuperAdmin, SuperAdmin, Admin, User), hududga biriktirish va SuperAdmin tomonidan tahrirlanadigan rol-ruxsat matritsasi hamda shaxsiy ruxsatlar. |
 
 ---
 
@@ -136,22 +137,23 @@ Tizim yillik siklga bog'langan bosqichli jarayonni avtomatlashtiradi. Har bir bo
 
 ## 5. Foydalanuvchilar va rollar
 
-Tizimga faqat Mudofaa vazirligi tizimidagi xodimlar kiradi. Tizim ierarxik tuzilishga ega: har bir foydalanuvchi faqat o'z **vakolat doirasidagi** (qism, okrug yoki respublika) ma'lumotlarni ko'radi.
+Tizimga faqat Mudofaa vazirligi tizimidagi xodimlar kiradi. Tizim ierarxik tuzilishga ega: har bir foydalanuvchi **hududga** (respublika → harbiy okrug → harbiy qism) biriktiriladi va faqat o'z **vakolat doirasidagi** ma'lumotlarni ko'radi.
 
-| № | Rol | Vakolat doirasi | Asosiy huquqlar |
-|---|---|---|---|
-| 1 | Tizim administratori | Butun tizim | Foydalanuvchilar, rollar, ma'lumotnomalar (jumladan fanlar va kasblar), integratsiya sozlamalari, audit jurnali |
-| 2 | MV HKTB xodimi | Respublika | Barcha dashboard va hisobotlar, biriktirishlarni tasdiqlash, kasblar ro'yxati va dasturlar, bandlik ro'yxatlarini eksport qilish |
-| 3 | MV JTB xodimi | Respublika | Kun tartibi, vaqt taqsimoti va jangovar/ma'naviy-ma'rifiy dasturlarni kiritish; kasb kurslari dashboardi |
-| 4 | TMIBB / MBMM xodimi | Respublika | OTM tayyorlov kurslari dashboardi va hisobotlarini ko'rish |
-| 5 | Harbiy okrug mas'uli | Okrug | Okrugdagi qismlar dashboardi, biriktirish takliflarini yuborish, BMBA ro'yxatdan o'tish nazorati |
-| 6 | Harbiy qism qo'mondoni | Qism | Guruhlar, guruh kattalarini tayinlash, o'qituvchilarga kirish ruxsati, sinflar ajratish, kurs yakunini tasdiqlash |
-| 7 | Qism mas'ul xodimi (operator) | Qism | Biriktirilgan muassasalar, shartnomalar, o'qituvchilar ma'lumotlari, imtihon natijalari va sertifikatlarni kiritish |
-| 8 | Qism jangovar tayyorgarlik bo'limi | Qism | "Kasb kurslari" dashboardi va hisobotlarini ko'rish |
-| 9 | Qism tarbiyaviy ishlar bo'limi | Qism | "OTM tayyorlov kurslari" dashboardi va hisobotlarini ko'rish |
-| 10 | Guruh kattasi | O'z guruhi | O'tilgan mashg'ulotlar soni va mavzusini kiritish |
-| 11 | Harbiy psixolog (sotsiolog) | Qism | So'rovnomalarni askar bilan birgalikda o'z profilidan to'ldirish, natijalarni umumlashtirish |
-| 12 | Mudofaa ishlari organi xodimi | Tuman/shahar | JShShIR orqali askar ma'lumotlarini olish, yetishmagan ma'lumot va PDF hujjatlarni kiritish |
+Tizimda **4 ta rol** mavjud. Rol foydalanuvchining vakolat doirasini (darajasini) belgilaydi; aniq amallar esa **ruxsatlar** (masalan, "Askarlarni kiritish", "Kurs natijalarini ko'rish", "Guruh kattasini tayinlash") orqali beriladi.
+
+| № | Rol | Vakolat doirasi | Hududga biriktirish | Ruxsatlar |
+|---|---|---|---|---|
+| 1 | Mega SuperAdmin | Respublika | Biriktirilmaydi | Barcha ruxsatlar — doimiy, o'zgartirib bo'lmaydi |
+| 2 | SuperAdmin | Respublika | Biriktirilmaydi | Barcha ruxsatlar — doimiy, o'zgartirib bo'lmaydi; rol-ruxsat matritsasini va shaxsiy ruxsatlarni boshqaradi |
+| 3 | Admin | Okrug | Harbiy okrug | Rol-ruxsat matritsasi bo'yicha (standart: o'z okrugidagi foydalanuvchilarni boshqarish, okrug dashboardlari va hisobotlari, biriktirish takliflari, bandlik ro'yxatlari) |
+| 4 | User | Qism | Harbiy qism | Rol-ruxsat matritsasi bo'yicha (standart: guruhlar va jadvalni ko'rish) + foydalanuvchiga berilgan shaxsiy ruxsatlar |
+
+**Ruxsatlar qanday belgilanadi:**
+
+- **Rol-ruxsat matritsasi** — Admin va User rollari uchun qaysi ruxsatlar berilishini SuperAdmin tizim ishlayotgan paytda (dasturni o'zgartirmasdan) tahrirlaydi. O'zgarish darhol, qayta kirishsiz kuchga kiradi.
+- **Shaxsiy ruxsatlar** — foydalanuvchiga rol ruxsatlari ustiga qo'shimcha ruxsat beriladi (faqat qo'shadi, olib tashlamaydi). Qism darajasidagi turli vazifalar shu orqali ifodalanadi: masalan, qism qo'mondoni — askarlar, guruhlar, natijalar, askarni o'tkazish, guruh kattasini tayinlash va standart dars vaqtini o'zgartirish; qism operatori — ma'lumotlarni kiritish; jangovar tayyorgarlik / tarbiyaviy ishlar bo'limi — tegishli dashboard va hisobotlar; harbiy psixolog — so'rovnomalar; guruh kattasi — askarlar ro'yxatini ko'rish.
+- **Guruh kattasi** alohida rol emas: guruhga kattasi etib tayinlangan va guruhlarni boshqarish ruxsati bo'lmagan foydalanuvchi faqat o'z guruh(lar)ini ko'radi.
+- SuperAdmin va Mega SuperAdmin har doim barcha ruxsatlarga ega; ruxsatlarni boshqarish ham faqat ularga ochiq.
 
 > **Tizimga kirmaydiganlar:** texnikum va maktab o'qituvchilari, muassasa rahbarlari, KTA, hokimliklar va boshqa idoralar. O'qituvchilar tizimda faqat ma'lumot yozuvi sifatida mavjud (F.I.Sh., mutaxassisligi, qaysi tashkilotdan kelgani). Ular tomonidan beriladigan ma'lumotlar (o'qituvchilar ro'yxati, imtihon natijalari va h.k.) qism xodimlari tomonidan kiritiladi.
 

@@ -6,7 +6,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 import uz.askar.education.common.ForbiddenException;
 
-/** Joriy so'rovni yuborgan foydalanuvchi (JWT da'volaridan). */
+/**
+ * Joriy so'rovni yuborgan foydalanuvchi (JWT da'volaridan). Okrug/qism da'volari tizimga kirishda
+ * foydalanuvchining {@code Location} yozuvidan hisoblanadi (qarang: {@code TokenService}).
+ */
 @Component
 public class CurrentUser {
 
@@ -25,16 +28,6 @@ public class CurrentUser {
 
     public Role role() {
         return Role.valueOf(jwt().getClaimAsString(CLAIM_ROLE));
-    }
-
-    public boolean hasRole(Role... roles) {
-        Role current = role();
-        for (Role candidate : roles) {
-            if (candidate == current) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public AccessScope scope() {

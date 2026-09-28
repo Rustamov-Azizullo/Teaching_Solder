@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import uz.askar.education.config.JwtProperties;
 import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.ScopeLevel;
 import uz.askar.education.users.AppUser;
 
 @Service
@@ -32,11 +33,16 @@ public class TokenService {
                 .expiresAt(now.plus(lifetime()))
                 .claim(CurrentUser.CLAIM_USER_ID, user.getId())
                 .claim(CurrentUser.CLAIM_ROLE, user.getRole().name());
-        if (user.effectiveDistrictId() != null) {
-            claims.claim(CurrentUser.CLAIM_DISTRICT_ID, user.effectiveDistrictId());
-        }
-        if (user.getMilitaryUnit() != null) {
-            claims.claim(CurrentUser.CLAIM_UNIT_ID, user.getMilitaryUnit().getId());
+        // Respublika darajasidagi rollar uchun hudud da'volari berilmaydi: ular har doim butun respublikani qamraydi.
+        if (user.getRole().scopeLevel() != ScopeLevel.REPUBLIC) {
+            Long districtId = user.effectiveDistrictId();
+            Long unitId = user.effectiveUnitId();
+            if (districtId != null) {
+                claims.claim(CurrentUser.CLAIM_DISTRICT_ID, districtId);
+            }
+            if (unitId != null) {
+                claims.claim(CurrentUser.CLAIM_UNIT_ID, unitId);
+            }
         }
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         return encoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();

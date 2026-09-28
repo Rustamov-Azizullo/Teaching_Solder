@@ -74,12 +74,12 @@ public class DeadlineService {
         if (deadlines.countByCycleYear(year) > 0) {
             return;
         }
-        add(year, "Texnikumlarni qismlarga biriktirish takliflari", 2, 1, Role.DISTRICT_OFFICER, Role.HKTB);
-        add(year, "Kun tartibi va vaqt taqsimoti", 3, 20, Role.JTB, Role.HKTB);
-        add(year, "O'quv-moddiy baza xatlovi", 3, 30, Role.UNIT_OPERATOR, Role.DISTRICT_OFFICER);
-        add(year, "Qo'shma qaror, kasblar ro'yxati va o'quv dasturlari", 4, 1, Role.HKTB, Role.SYSTEM_ADMIN);
-        add(year, "Kurslar boshlanishi", 5, 1, Role.UNIT_COMMANDER, Role.DISTRICT_OFFICER);
-        add(year, "BMBA platformasida nomzodlarni ro'yxatdan o'tkazish", 6, 30, Role.DISTRICT_OFFICER, Role.HKTB);
+        add(year, "Texnikumlarni qismlarga biriktirish takliflari", 2, 1, Role.ADMIN, Role.SUPER_ADMIN);
+        add(year, "Kun tartibi va vaqt taqsimoti", 3, 20, Role.SUPER_ADMIN, Role.MEGA_SUPER_ADMIN);
+        add(year, "O'quv-moddiy baza xatlovi", 3, 30, Role.USER, Role.ADMIN);
+        add(year, "Qo'shma qaror, kasblar ro'yxati va o'quv dasturlari", 4, 1, Role.SUPER_ADMIN, Role.MEGA_SUPER_ADMIN);
+        add(year, "Kurslar boshlanishi", 5, 1, Role.USER, Role.ADMIN);
+        add(year, "BMBA platformasida nomzodlarni ro'yxatdan o'tkazish", 6, 30, Role.ADMIN, Role.SUPER_ADMIN);
     }
 
     /** Kunlik ish: yaqinlashgan muddatlar uchun eslatma, o'tgan muddatlar uchun yuqori darajaga xabar. */
