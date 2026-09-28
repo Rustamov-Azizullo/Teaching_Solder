@@ -31,4 +31,18 @@ public class DashboardController {
                                @RequestParam(required = false) Long unitId) {
         return dashboardService.surveyBlock(districtId, unitId);
     }
+
+    @GetMapping("/geography")
+    @PreAuthorize(Access.DASHBOARD_SURVEYS)
+    public DashboardDtos.GeographyBlock geography(@RequestParam(required = false) Long districtId,
+                                                  @RequestParam(required = false) Long unitId) {
+        return dashboardService.geography(districtId, unitId);
+    }
+
+    @GetMapping("/otm/geography")
+    @PreAuthorize(Access.DASHBOARD_OTM)
+    public java.util.List<DashboardDtos.DistrictSoldiers> otmGeography(@RequestParam(required = false) Long districtId,
+                                                                       @RequestParam(required = false) Long unitId) {
+        return dashboardService.otmCandidatesByDistrict(districtId, unitId);
+    }
 }

@@ -3,7 +3,6 @@ package uz.askar.education;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,7 +22,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import uz.askar.education.auth.Totp;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -199,47 +197,10 @@ class ModulesIntegrationTest {
     }
 
     @Test
-    void twoFactorLoginRequiresValidCodeAndPasswordPolicyIsEnforced() throws Exception {
-        String admin = token("admin");
-        String setup = mvc.perform(post("/api/auth/2fa/setup").headers(auth(token("jtb"))))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        String secret = JsonPath.read(setup, "$.secret");
-        String code = String.format("%06d", currentCode(secret));
-        mvc.perform(post("/api/auth/2fa/enable").headers(auth(token("jtb"))).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"code\":\"" + code + "\"}")).andExpect(status().isOk());
-
-        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"jtb\",\"password\":\"" + PASSWORD + "\"}"))
-                .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value("OTP_REQUIRED"));
-        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"jtb\",\"password\":\"" + PASSWORD + "\",\"otp\":\""
-                                + String.format("%06d", currentCode(secret)) + "\"}"))
-                .andExpect(status().isOk());
-
-        mvc.perform(post("/api/users").headers(auth(admin)).contentType(MediaType.APPLICATION_JSON)
+    void passwordPolicyIsEnforced() throws Exception {
+        mvc.perform(post("/api/users").headers(auth(token("admin"))).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"weak1\",\"password\":\"password\",\"fullName\":\"X\",\"role\":\"SUPER_ADMIN\"}"))
                 .andExpect(status().isConflict());
-    }
-
-    @Test
-    void totpMatchesRfc6238TestVector() {
-        // RFC 6238 ilovasi: "12345678901234567890" (Base32: GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ), T=59 -> 94287082 (6 raqam: 287082)
-        assertTrue(Totp.verify("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", "287082", 59));
-        assertFalse(Totp.verify("GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ", "000000", 59));
-    }
-
-    private int currentCode(String secret) {
-        return codeAt(secret, System.currentTimeMillis() / 1000);
-    }
-
-    private int codeAt(String secret, long epochSeconds) {
-        try {
-            var method = Totp.class.getDeclaredMethod("generate", String.class, long.class);
-            method.setAccessible(true);
-            return (int) method.invoke(null, secret, epochSeconds / 30);
-        } catch (ReflectiveOperationException ex) {
-            throw new IllegalStateException(ex);
-        }
     }
 
     private long firstDictionaryId(String token, String type) throws Exception {

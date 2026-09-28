@@ -11,6 +11,7 @@ export const dictionaryApi = {
     apiClient.post<DictionaryItem>(`/dictionaries/${type}`, input).then((r) => r.data),
   update: (type: DictionaryType, id: number, input: DictionaryItemInput) =>
     apiClient.put<DictionaryItem>(`/dictionaries/${type}/${id}`, input).then((r) => r.data),
+  remove: (type: DictionaryType, id: number) => apiClient.delete(`/dictionaries/${type}/${id}`).then(() => undefined),
   unitDirections: (unitId: number) =>
     apiClient.get<number[]>(`/military-units/${unitId}/directions`).then((r) => r.data),
   replaceUnitDirections: (unitId: number, directionIds: number[]) =>

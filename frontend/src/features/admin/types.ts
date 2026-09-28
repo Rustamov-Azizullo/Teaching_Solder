@@ -26,6 +26,9 @@ export type Location = {
   militaryUnitId: number | null;
 };
 
+/** `POST/PUT /api/locations` tanasi; tahrirlashda faqat `name` va `code` e'tiborga olinadi. */
+export type LocationInput = { name: string; code?: string; level?: LocationLevel; parentId?: number };
+
 export type CreateUserRequest = {
   username: string;
   password: string;

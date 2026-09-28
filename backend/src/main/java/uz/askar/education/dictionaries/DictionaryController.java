@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +64,13 @@ public class DictionaryController {
     public DictionaryItemDto update(@PathVariable DictionaryType type, @PathVariable Long id,
                                     @Valid @RequestBody DictionaryItemRequest request) {
         return dictionaryService.update(type, id, request);
+    }
+
+    @DeleteMapping("/dictionaries/{type}/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(Access.DICTIONARY_WRITE)
+    public void delete(@PathVariable DictionaryType type, @PathVariable Long id) {
+        dictionaryService.delete(type, id);
     }
 
     @GetMapping("/military-units/{unitId}/directions")

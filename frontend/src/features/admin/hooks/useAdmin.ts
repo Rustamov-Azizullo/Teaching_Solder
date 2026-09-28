@@ -1,23 +1,54 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
 import { adminApi } from '../api/adminApi';
-import type { CreateUserRequest, SettingsMap, UpdateUserRequest, UserPermissionChange } from '../types';
+import type { CreateUserRequest, LocationInput, SettingsMap, UpdateUserRequest, UserPermissionChange } from '../types';
 
 export const useUsers = () => useQuery({ queryKey: queryKeys.users, queryFn: adminApi.users });
 export const useRoles = () => useQuery({ queryKey: ['roles'], queryFn: adminApi.roles, staleTime: Infinity });
 
-export function useSaveUser(id?: number) {
+export function useUpdateUser(id: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: CreateUserRequest | UpdateUserRequest) =>
-      id === undefined
-        ? adminApi.createUser(request as CreateUserRequest)
-        : adminApi.updateUser(id, request as UpdateUserRequest),
+    mutationFn: (request: UpdateUserRequest) => adminApi.updateUser(id, request),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.users }),
   });
 }
 
-export const useLocations = () => useQuery({ queryKey: ['locations'], queryFn: adminApi.locations });
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => adminApi.deleteUser(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.users }),
+  });
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: CreateUserRequest) => adminApi.createUser(request),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.users }),
+  });
+}
+
+const LOCATIONS_KEY = ['locations'] as const;
+
+export const useLocations = () => useQuery({ queryKey: LOCATIONS_KEY, queryFn: adminApi.locations });
+
+export function useSaveLocation(id?: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: LocationInput) => (id === undefined ? adminApi.createLocation(input) : adminApi.updateLocation(id, input)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: LOCATIONS_KEY }),
+  });
+}
+
+export function useDeleteLocation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => adminApi.deleteLocation(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: LOCATIONS_KEY }),
+  });
+}
 
 const userPermissionsKey = (id: number) => [...queryKeys.users, id, 'permissions'] as const;
 

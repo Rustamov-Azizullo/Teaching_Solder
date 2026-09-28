@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import uz.askar.education.security.Permission;
 import com.jayway.jsonpath.JsonPath;
 import java.time.LocalDate;
 import java.util.List;
@@ -79,18 +80,32 @@ class DynamicPermissionsIntegrationTest {
     }
 
     @Test
-    void permissionManagementIsStaticallyRestrictedAndRejectsAlwaysAllowedRoles() throws Exception {
+    void permissionManagementIsStaticallyRestrictedAndSuperAdminRowsBelongToMegaSuperAdmin() throws Exception {
         String superAdmin = token("superadmin");
+        String mega = token("megasuperadmin");
         mvc.perform(get("/api/role-permissions").headers(auth(token("okrug1")))).andExpect(status().isForbidden());
         mvc.perform(get("/api/role-permissions").headers(auth(token("qomondon1")))).andExpect(status().isForbidden());
         mvc.perform(put("/api/role-permissions").headers(auth(superAdmin)).contentType(MediaType.APPLICATION_JSON)
                         .content("[{\"role\":\"SUPER_ADMIN\",\"permission\":\"ADMIN\",\"granted\":false}]"))
+                .andExpect(status().isForbidden());
+        mvc.perform(put("/api/role-permissions").headers(auth(mega)).contentType(MediaType.APPLICATION_JSON)
+                        .content("[{\"role\":\"MEGA_SUPER_ADMIN\",\"permission\":\"ADMIN\",\"granted\":false}]"))
                 .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/role-permissions").headers(auth(mega)))
+                .andExpect(jsonPath("$[?(@.role=='SUPER_ADMIN')]", hasSize(Permission.values().length)))
+                .andExpect(jsonPath("$[?(@.role=='MEGA_SUPER_ADMIN')]", hasSize(0)));
+        mvc.perform(put("/api/role-permissions").headers(auth(mega)).contentType(MediaType.APPLICATION_JSON)
+                        .content("[{\"role\":\"SUPER_ADMIN\",\"permission\":\"DASHBOARD_OTM\",\"granted\":false}]"))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/dashboard/vocational/results").headers(auth(superAdmin))).andExpect(status().isOk());
+        mvc.perform(put("/api/role-permissions").headers(auth(mega)).contentType(MediaType.APPLICATION_JSON)
+                        .content("[{\"role\":\"SUPER_ADMIN\",\"permission\":\"DASHBOARD_OTM\",\"granted\":true}]"))
+                .andExpect(status().isOk());
         long superAdminId = currentUserId(superAdmin);
         mvc.perform(put("/api/users/" + superAdminId + "/permissions").headers(auth(superAdmin))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("[{\"permission\":\"ADMIN\",\"granted\":true}]"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isForbidden());
         mvc.perform(get("/api/auth/me").headers(auth(token("megasuperadmin"))))
                 .andExpect(jsonPath("$.permissions", hasItem("SYSTEM_CONFIG")));
     }

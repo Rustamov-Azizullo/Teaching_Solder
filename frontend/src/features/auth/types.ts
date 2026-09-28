@@ -46,19 +46,14 @@ export type AuthUser = {
   /** Hududdan hisoblanadi (faqat qism darajasida); guruh/biriktirish formalarida standart qism sifatida o'qiladi. */
   militaryUnitId: number | null;
   active: boolean;
-  twoFactorEnabled: boolean;
   /** Foydalanuvchining amaldagi barcha ruxsatlari (rol + shaxsiy). */
   permissions: PermissionKey[];
 };
-
-export type TwoFactorSetup = { secret: string; otpauthUri: string };
 
 export type LoginResponse = {
   accessToken: string;
   expiresInSeconds: number;
   user: AuthUser;
-  twoFactorEnabled: boolean;
-  twoFactorSetupRequired: boolean;
 };
 
 export type AuthStatus = 'loading' | 'authenticated' | 'anonymous';

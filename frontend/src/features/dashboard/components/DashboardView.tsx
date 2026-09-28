@@ -1,10 +1,11 @@
-import { Tabs, type TabsProps } from 'antd';
+import { Space, Tabs, type TabsProps } from 'antd';
 import { PageHeader, QueryBoundary } from '@/components/ui';
-import { AdmissionFunnel } from '@/features/admissions';
 import { useCan } from '@/features/auth';
-import { useSurveyBlock } from '../hooks/useDashboard';
+import { useGeography, useOtmDistricts, useSurveyBlock } from '../hooks/useDashboard';
 import { dashboardLabels } from '../labels';
 import { CourseResultsChart } from './CourseResultsChart';
+import { GeographyView } from './GeographyView';
+import { OtmGeographyView } from './OtmGeographyView';
 import { SurveyBlockView } from './SurveyBlockView';
 
 export function DashboardView() {
@@ -12,13 +13,36 @@ export function DashboardView() {
   const canOtm = useCan('dashboardOtm');
   const canSurveys = useCan('dashboardSurveys');
   const surveys = useSurveyBlock({}, canSurveys);
+  const geography = useGeography({}, canSurveys);
+  const otmDistricts = useOtmDistricts({}, canOtm);
 
   const tabs: NonNullable<TabsProps['items']> = [];
-  if (canVocational) {
-    tabs.push({ key: 'vocational', label: dashboardLabels.blocks.vocational, children: <CourseResultsChart filters={{}} /> });
+  if (canVocational || canSurveys) {
+    tabs.push({
+      key: 'vocational',
+      label: dashboardLabels.blocks.vocational,
+      children: (
+        <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+          {canSurveys && (
+            <QueryBoundary isLoading={geography.isLoading} error={geography.error} data={geography.data} onRetry={geography.refetch}>
+              {(block) => <GeographyView block={block} professionChoices={surveys.data?.interests ?? []} />}
+            </QueryBoundary>
+          )}
+          {canVocational && <CourseResultsChart filters={{}} />}
+        </Space>
+      ),
+    });
   }
   if (canOtm) {
-    tabs.push({ key: 'otm', label: dashboardLabels.blocks.otm, children: <AdmissionFunnel /> });
+    tabs.push({
+      key: 'otm',
+      label: dashboardLabels.blocks.otm,
+      children: (
+        <QueryBoundary isLoading={otmDistricts.isLoading} error={otmDistricts.error} data={otmDistricts.data} onRetry={otmDistricts.refetch}>
+          {(districts) => <OtmGeographyView districts={districts} subjectNeeds={surveys.data?.subjectNeeds ?? []} />}
+        </QueryBoundary>
+      ),
+    });
   }
   if (canSurveys) {
     tabs.push({
@@ -31,7 +55,6 @@ export function DashboardView() {
       ),
     });
   }
-
   return (
     <>
       <PageHeader title={dashboardLabels.title} subtitle={dashboardLabels.subtitle} />

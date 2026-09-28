@@ -27,9 +27,14 @@ public enum Role {
         return scopeLevel;
     }
 
-    /** SuperAdmin va Mega SuperAdmin har qanday ruxsat tekshiruvidan har doim o'tadi (sozlanmaydi). */
+    /** Mega SuperAdmin har qanday ruxsat tekshiruvidan har doim o'tadi (sozlanmaydi). */
     public boolean isAlwaysAllowed() {
-        return this == MEGA_SUPER_ADMIN || this == SUPER_ADMIN;
+        return this == MEGA_SUPER_ADMIN;
+    }
+
+    /** Rolning ruxsatlarini faqat shu rol egasi yoki undan yuqoridagilar o'zgartira oladi (SuperAdmin — faqat Mega SuperAdmin). */
+    public boolean isEditableBy(Role editor) {
+        return editor.isAlwaysAllowed() || this != SUPER_ADMIN && editor.isAtLeast(SUPER_ADMIN);
     }
 
     /** Rol-ruxsat matritsasida saqlanadigan (tahrirlanadigan) rollar. */

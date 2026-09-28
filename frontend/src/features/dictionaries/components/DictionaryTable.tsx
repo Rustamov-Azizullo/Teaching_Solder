@@ -1,23 +1,35 @@
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Table, Tag } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import { useState } from 'react';
 import { QueryBoundary } from '@/components/ui';
 import { useCan } from '@/features/auth';
+import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
+import { notify } from '@/lib/notify';
 import { dictionaryLabels } from '../labels';
-import { useDictionary } from '../hooks/useDictionary';
+import { useDeleteDictionaryItem, useDictionary } from '../hooks/useDictionary';
 import type { DictionaryItem, DictionaryType } from '../types';
 import { DictionaryItemModal } from './DictionaryItemModal';
 
 export function DictionaryTable({ type }: { type: DictionaryType }) {
   const canWrite = useCan('dictionaryWrite');
   const { data, isLoading, error, refetch } = useDictionary(type, { activeOnly: false });
+  const { mutateAsync: deleteItem, isPending: isDeleting } = useDeleteDictionaryItem(type);
   const [editing, setEditing] = useState<DictionaryItem | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const openModal = (item: DictionaryItem | null) => {
     setEditing(item);
     setModalOpen(true);
+  };
+
+  const handleDelete = async (item: DictionaryItem) => {
+    try {
+      await deleteItem(item.id);
+      notify.success(dictionaryLabels.deleted);
+    } catch (error) {
+      notify.error(getErrorMessage(error));
+    }
   };
 
   return (
@@ -48,9 +60,20 @@ export function DictionaryTable({ type }: { type: DictionaryType }) {
               ...(canWrite
                 ? [{
                     title: '',
-                    width: 60,
+                    width: 100,
                     render: (_: unknown, item: DictionaryItem) => (
-                      <Button type="text" icon={<EditOutlined />} onClick={() => openModal(item)} aria-label={common.actions.edit} />
+                      <Space size={0}>
+                        <Button type="text" icon={<EditOutlined />} onClick={() => openModal(item)} aria-label={common.actions.edit} />
+                        <Popconfirm
+                          title={dictionaryLabels.confirmDelete}
+                          okText={common.actions.delete}
+                          cancelText={common.actions.cancel}
+                          okButtonProps={{ danger: true, loading: isDeleting }}
+                          onConfirm={() => handleDelete(item)}
+                        >
+                          <Button type="text" danger icon={<DeleteOutlined />} aria-label={common.actions.delete} />
+                        </Popconfirm>
+                      </Space>
                     ),
                   }]
                 : []),

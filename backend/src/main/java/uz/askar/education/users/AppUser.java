@@ -48,11 +48,6 @@ public class AppUser {
     private int failedAttempts;
     private LocalDateTime lockedUntil;
 
-    @Column(name = "totp_secret")
-    private String totpSecret;
-
-    private boolean totpEnabled;
-
     /** Okrug darajasidagi foydalanuvchi uchun okrug, qism darajasidagi uchun qismning okrugi. */
     public Long effectiveDistrictId() {
         return location != null ? location.districtId() : null;

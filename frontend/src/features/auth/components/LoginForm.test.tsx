@@ -30,7 +30,7 @@ describe('LoginForm', () => {
 
     await fillAndSubmit('hktb', 'Parol123!');
 
-    await waitFor(() => expect(login).toHaveBeenCalledWith('hktb', 'Parol123!', undefined));
+    await waitFor(() => expect(login).toHaveBeenCalledWith('hktb', 'Parol123!'));
   });
 
   it('shows the server error message when login rejects', async () => {

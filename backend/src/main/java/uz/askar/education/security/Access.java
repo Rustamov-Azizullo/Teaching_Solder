@@ -13,6 +13,9 @@ public final class Access {
     /** Ruxsatlarning o'zini boshqarish — statik, dinamik tizimdan tashqarida (aylanma bog'liqlik bo'lmasligi uchun). */
     public static final String PERMISSION_MANAGE = "hasAnyRole('SUPER_ADMIN','MEGA_SUPER_ADMIN')";
 
+    /** Hududlar daraxtini tahrirlash (qo'shish, o'zgartirish, o'chirish) — faqat SuperAdmin va undan yuqori. */
+    public static final String LOCATION_MANAGE = "hasAnyRole('SUPER_ADMIN','MEGA_SUPER_ADMIN')";
+
     /** Hududlar ro'yxati (foydalanuvchini biriktirish uchun) — statik rol tekshiruvi. */
     public static final String USER_ADMIN_ROLES = "hasAnyRole('ADMIN','SUPER_ADMIN','MEGA_SUPER_ADMIN')";
 

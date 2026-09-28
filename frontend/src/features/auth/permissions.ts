@@ -36,8 +36,8 @@ const capabilityPermissions = {
 
 export type Capability = keyof typeof capabilityPermissions;
 
-/** Backenddagi `Role.isAlwaysAllowed()`: bu rollar har qanday ruxsat tekshiruvidan o'tadi (sozlanmaydi). */
-const ALWAYS_ALLOWED_ROLES: readonly Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN'];
+/** Backenddagi `Role.isAlwaysAllowed()`: bu rol har qanday ruxsat tekshiruvidan o'tadi (sozlanmaydi). */
+const ALWAYS_ALLOWED_ROLES: readonly Role[] = ['MEGA_SUPER_ADMIN'];
 
 /** Backenddagi `Access.PERMISSION_MANAGE`: ruxsatlarni boshqarish dinamik tizimdan tashqarida, statik rol tekshiruvi. */
 const PERMISSION_MANAGER_ROLES: readonly Role[] = ['MEGA_SUPER_ADMIN', 'SUPER_ADMIN'];

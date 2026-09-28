@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface LocationRepository extends JpaRepository<Location, Long> {
 
+    boolean existsByParentId(Long parentId);
+
     Optional<Location> findFirstByLevel(LocationLevel level);
 
     Optional<Location> findByMilitaryDistrictId(Long militaryDistrictId);

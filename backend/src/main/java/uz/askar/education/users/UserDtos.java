@@ -23,7 +23,7 @@ public final class UserDtos {
     public record UserDto(Long id, String username, String fullName, Role role, String roleLabel,
                           Long locationId, String locationName, LocationLevel locationLevel,
                           Long militaryDistrictId, Long militaryUnitId, String militaryUnitName, boolean active,
-                          boolean twoFactorEnabled, List<String> permissions) {
+                          List<String> permissions) {
 
         public static UserDto from(AppUser user, Collection<Permission> permissions) {
             Location location = user.getLocation();
@@ -35,7 +35,7 @@ public final class UserDtos {
                     location != null ? location.getLevel() : null,
                     user.effectiveDistrictId(), user.effectiveUnitId(),
                     isUnit ? location.getMilitaryUnit().getName() : null,
-                    user.isActive(), user.isTotpEnabled(),
+                    user.isActive(),
                     permissions.stream().map(Permission::name).sorted().toList());
         }
     }

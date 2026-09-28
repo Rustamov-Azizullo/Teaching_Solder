@@ -29,7 +29,7 @@ export function RolePermissionsMatrix() {
             <Button onClick={editor.discard} disabled={!editor.isDirty || editor.isSaving}>{rolePermissionsLabels.discard}</Button>
             {editor.isDirty && <Typography.Text type="warning">{rolePermissionsLabels.unsaved}</Typography.Text>}
           </Space>
-          <RolePermissionsTable rows={rows} onToggle={editor.toggle} />
+          <RolePermissionsTable rows={rows} onToggle={editor.toggle} onToggleAll={editor.toggleAll} />
         </Space>
       )}
     </QueryBoundary>

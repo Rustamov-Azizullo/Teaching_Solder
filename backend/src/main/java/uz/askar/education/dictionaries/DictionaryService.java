@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.askar.education.audit.AuditService;
@@ -53,6 +54,22 @@ public class DictionaryService {
         apply(item, request);
         audit.record("UPDATE", "DictionaryItem", id, before + " -> " + item.getName() + " / faol=" + item.isActive());
         return DictionaryItemDto.from(item);
+    }
+
+    /** Yozuvni o'chiradi. Anketa, guruh va boshqa yozuvlarda ishlatilgan bo'lsa — o'chirilmaydi (faolsizlantirish tavsiya etiladi). */
+    @Transactional
+    public void delete(DictionaryType type, Long id) {
+        DictionaryItem item = find(type, id);
+        String name = item.getName();
+        try {
+            unitDirections.deleteByDirectionId(id);
+            items.delete(item);
+            items.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessRuleException("Bu yozuv boshqa ma'lumotlarda ishlatilgan, o'chirib bo'lmaydi. "
+                    + "Uni faolsizlantiring");
+        }
+        audit.record("DELETE", "DictionaryItem", id, type + ": " + name);
     }
 
     @Transactional(readOnly = true)

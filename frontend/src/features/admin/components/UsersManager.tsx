@@ -1,26 +1,34 @@
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Space, Table, Tag } from 'antd';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Button, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import { useState } from 'react';
 import { QueryBoundary } from '@/components/ui';
+import { useAuth } from '@/features/auth';
+import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
+import { notify } from '@/lib/notify';
 import { adminLabels } from '../labels';
-import { useUsers } from '../hooks/useAdmin';
+import { useDeleteUser, useUsers } from '../hooks/useAdmin';
 import type { UserRow } from '../types';
 import { UserFormModal } from './UserFormModal';
 
 export function UsersManager() {
   const { data, isLoading, error, refetch } = useUsers();
+  const { user: viewer } = useAuth();
+  const { mutateAsync: deleteUser, isPending: isDeleting } = useDeleteUser();
   const [editing, setEditing] = useState<UserRow | null>(null);
-  const [isOpen, setOpen] = useState(false);
 
-  const openModal = (user: UserRow | null) => {
-    setEditing(user);
-    setOpen(true);
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteUser(id);
+      notify.success(adminLabels.users.deleted);
+    } catch (error) {
+      notify.error(getErrorMessage(error));
+    }
   };
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Button type="primary" icon={<PlusOutlined />} onClick={() => openModal(null)}>{adminLabels.users.add}</Button>
+      <Typography.Text type="secondary">{adminLabels.users.addHint}</Typography.Text>
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(users) => (
           <Table<UserRow>
@@ -34,12 +42,30 @@ export function UsersManager() {
               { title: adminLabels.users.role, dataIndex: 'roleLabel' },
               { title: adminLabels.users.location, dataIndex: 'locationName', render: (name: string | null) => name ?? '—' },
               { title: common.fields.status, dataIndex: 'active', render: (active: boolean) => <Tag color={active ? 'green' : 'red'}>{active ? common.fields.active : 'Bloklangan'}</Tag> },
-              { title: '', render: (_: unknown, row) => <Button type="text" icon={<EditOutlined />} onClick={() => openModal(row)} aria-label={common.actions.edit} /> },
+              {
+                title: '',
+                render: (_: unknown, row) => (
+                  <Space size={0}>
+                    <Button type="text" icon={<EditOutlined />} onClick={() => setEditing(row)} aria-label={common.actions.edit} />
+                    {row.id !== viewer?.id && (
+                      <Popconfirm
+                        title={adminLabels.users.confirmDelete}
+                        okText={common.actions.delete}
+                        cancelText={common.actions.cancel}
+                        okButtonProps={{ danger: true, loading: isDeleting }}
+                        onConfirm={() => handleDelete(row.id)}
+                      >
+                        <Button type="text" danger icon={<DeleteOutlined />} aria-label={common.actions.delete} />
+                      </Popconfirm>
+                    )}
+                  </Space>
+                ),
+              },
             ]}
           />
         )}
       </QueryBoundary>
-      <UserFormModal user={editing} open={isOpen} onClose={() => setOpen(false)} />
+      <UserFormModal user={editing} onClose={() => setEditing(null)} />
     </Space>
   );
 }

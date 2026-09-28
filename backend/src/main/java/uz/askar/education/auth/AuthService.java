@@ -1,6 +1,5 @@
 package uz.askar.education.auth;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,7 +26,6 @@ public class AuthService {
     private final TokenService tokens;
     private final AuditService audit;
     private final SecurityProperties securityProperties;
-    private final uz.askar.education.settings.SettingsService settings;
     private final PermissionEvaluatorService permissions;
 
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
@@ -44,65 +42,16 @@ public class AuthService {
             registerFailure(user);
             throw failedLogin(request.username());
         }
-        verifyOtp(user, request.otp());
         user.setFailedAttempts(0);
         user.setLockedUntil(null);
         audit.record(user.getUsername(), "LOGIN", "AppUser", user.getId(), "Tizimga kirdi");
-        boolean setupRequired = !user.isTotpEnabled() && user.getRole().scopeLevel() != uz.askar.education.security.ScopeLevel.UNIT
-                && "true".equals(settings.get("security.2fa.required", "false"));
-        return new LoginResponse(tokens.issue(user), tokens.lifetime().toSeconds(), toDto(user),
-                user.isTotpEnabled(), setupRequired);
+        return new LoginResponse(tokens.issue(user), tokens.lifetime().toSeconds(), toDto(user));
     }
 
     @Transactional(readOnly = true)
     public UserDto me(String username) {
         return users.findByUsername(username).map(this::toDto)
                 .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-    }
-
-    @Transactional
-    public AuthDtos.TwoFactorSetup setupTwoFactor(String username) {
-        AppUser user = users.findByUsername(username).orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-        user.setTotpSecret(Totp.newSecret());
-        user.setTotpEnabled(false);
-        String uri = "otpauth://totp/AskarTalimi:" + user.getUsername() + "?secret=" + user.getTotpSecret()
-                + "&issuer=AskarTalimi";
-        return new AuthDtos.TwoFactorSetup(user.getTotpSecret(), uri);
-    }
-
-    @Transactional
-    public void enableTwoFactor(String username, String code) {
-        AppUser user = users.findByUsername(username).orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-        if (user.getTotpSecret() == null || !Totp.verify(user.getTotpSecret(), code, Instant.now().getEpochSecond())) {
-            throw new InvalidCredentialsException("Kod noto'g'ri", InvalidCredentialsException.OTP_INVALID);
-        }
-        user.setTotpEnabled(true);
-        audit.record(username, "2FA_ENABLED", "AppUser", user.getId(), "Ikki bosqichli autentifikatsiya yoqildi");
-    }
-
-    @Transactional
-    public void disableTwoFactor(String username, String code) {
-        AppUser user = users.findByUsername(username).orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-        if (!user.isTotpEnabled() || !Totp.verify(user.getTotpSecret(), code, Instant.now().getEpochSecond())) {
-            throw new InvalidCredentialsException("Kod noto'g'ri", InvalidCredentialsException.OTP_INVALID);
-        }
-        user.setTotpEnabled(false);
-        user.setTotpSecret(null);
-        audit.record(username, "2FA_DISABLED", "AppUser", user.getId(), "Ikki bosqichli autentifikatsiya o'chirildi");
-    }
-
-    private void verifyOtp(AppUser user, String otp) {
-        if (!user.isTotpEnabled()) {
-            return;
-        }
-        if (otp == null || otp.isBlank()) {
-            throw new InvalidCredentialsException("Autentifikator ilovasidagi 6 xonali kodni kiriting",
-                    InvalidCredentialsException.OTP_REQUIRED);
-        }
-        if (!Totp.verify(user.getTotpSecret(), otp, Instant.now().getEpochSecond())) {
-            registerFailure(user);
-            throw new InvalidCredentialsException("Kod noto'g'ri", InvalidCredentialsException.OTP_INVALID);
-        }
     }
 
     private void registerFailure(AppUser user) {

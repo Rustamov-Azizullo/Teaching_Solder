@@ -5,6 +5,8 @@ export const dictionaryLabels = {
   editTitle: 'Yozuvni tahrirlash',
   createTitle: "Yangi yozuv qo'shish",
   hours: 'Soat',
+  confirmDelete: "Yozuv o'chirilsinmi? Bu amalni qaytarib bo'lmaydi",
+  deleted: "Yozuv o'chirildi",
   codeHint: 'Lotin harflari, masalan MATH',
   unitDirectionsTitle: "Qism uchun faol kasb yo'nalishlari",
   unitDirectionsHint:

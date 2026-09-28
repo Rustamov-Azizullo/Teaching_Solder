@@ -12,7 +12,6 @@ const makeUser = (role: Role, permissions: PermissionKey[] = []): AuthUser => ({
   locationLevel: null,
   militaryUnitId: null,
   active: true,
-  twoFactorEnabled: false,
   permissions,
 });
 
@@ -20,13 +19,13 @@ describe('can', () => {
   it.each([
     ['MEGA_SUPER_ADMIN', [], 'admin'],
     ['MEGA_SUPER_ADMIN', [], 'soldierWrite'],
-    ['SUPER_ADMIN', [], 'dashboardOtm'],
-    ['SUPER_ADMIN', [], 'systemConfig'],
   ] as const)('%s with no explicit permissions is always allowed %s', (role, permissions, capability) => {
     expect(can(makeUser(role, [...permissions]), capability)).toBe(true);
   });
 
   it.each([
+    ['SUPER_ADMIN', [], 'systemConfig', false],
+    ['SUPER_ADMIN', ['SYSTEM_CONFIG'], 'systemConfig', true],
     ['ADMIN', ['ASSIGNMENT_DECIDE'], 'assignmentDecide', true],
     ['ADMIN', ['ASSIGNMENT_READ'], 'assignmentDecide', false],
     ['USER', ['EMPLOYMENT'], 'employment', true],

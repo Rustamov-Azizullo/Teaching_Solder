@@ -1,15 +1,16 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { App as AntApp, ConfigProvider } from 'antd';
-import uzUZ from 'antd/locale/uz_UZ';
+import { App as AntApp } from 'antd';
 import { RouterProvider } from 'react-router-dom';
 import { AuthProvider } from '@/features/auth';
 import { queryClient } from '@/lib/queryClient';
 import { NotifyBinder } from './NotifyBinder';
 import { router } from './router';
+import { ThemeModeProvider, ThemedConfigProvider } from './theme';
 
 export function App() {
   return (
-    <ConfigProvider locale={uzUZ} theme={{ token: { colorPrimary: '#1f5f3f', borderRadius: 6 } }}>
+    <ThemeModeProvider>
+      <ThemedConfigProvider>
       <AntApp>
         <NotifyBinder />
         <QueryClientProvider client={queryClient}>
@@ -18,6 +19,7 @@ export function App() {
           </AuthProvider>
         </QueryClientProvider>
       </AntApp>
-    </ConfigProvider>
+      </ThemedConfigProvider>
+    </ThemeModeProvider>
   );
 }

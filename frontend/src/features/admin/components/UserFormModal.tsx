@@ -4,31 +4,21 @@ import { isPermissionManager, useAuth, type Role } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
-import { useRoles, useSaveUser } from '../hooks/useAdmin';
+import { useRoles, useUpdateUser } from '../hooks/useAdmin';
 import { adminLabels } from '../labels';
-import type { CreateUserRequest, UpdateUserRequest, UserRow } from '../types';
+import type { UpdateUserRequest, UserRow } from '../types';
 import { locationLevelForRole } from '../utils/locationOptions';
 import { LocationSelect } from './LocationSelect';
 import { UserPermissionsPanel } from './UserPermissionsPanel';
 
 type FormValues = {
-  username?: string; password?: string; newPassword?: string; fullName: string; role: Role;
+  newPassword?: string; fullName: string; role: Role;
   locationId?: number; active: boolean;
 };
 
 /** Respublika rollari hududga biriktirilmaydi — eski qiymat yuborilmasligi uchun tozalanadi. */
 function locationIdFor(values: FormValues): number | undefined {
   return locationLevelForRole(values.role) ? values.locationId : undefined;
-}
-
-function toCreateRequest(values: FormValues): CreateUserRequest {
-  return {
-    username: values.username ?? '',
-    password: values.password ?? '',
-    fullName: values.fullName,
-    role: values.role,
-    locationId: locationIdFor(values),
-  };
 }
 
 function toUpdateRequest(values: FormValues): UpdateUserRequest {
@@ -47,32 +37,29 @@ const CONFIGURABLE_ROLES: readonly Role[] = ['ADMIN', 'USER'];
 const required = [{ required: true, message: common.fields.required }];
 const u = adminLabels.users;
 
-type UserFormModalProps = { user: UserRow | null; open: boolean; onClose: () => void };
+type UserFormModalProps = { user: UserRow | null; onClose: () => void };
 
-export function UserFormModal({ user, open, onClose }: UserFormModalProps) {
+export function UserFormModal({ user, onClose }: UserFormModalProps) {
+  const open = user !== null;
   const [form] = Form.useForm<FormValues>();
   const role = Form.useWatch('role', form);
   const { user: viewer } = useAuth();
   const { data: roles = [] } = useRoles();
-  const { mutateAsync, isPending } = useSaveUser(user?.id);
+  const { mutateAsync, isPending } = useUpdateUser(user?.id ?? 0);
   const locationLevel = locationLevelForRole(role);
   const canEditPermissions = user !== null && CONFIGURABLE_ROLES.includes(user.role) && isPermissionManager(viewer);
 
   useEffect(() => {
     if (!open) return;
     form.resetFields();
-    form.setFieldsValue(
-      user
-        ? { fullName: user.fullName, role: user.role, active: user.active, locationId: user.locationId ?? undefined }
-        : { active: true },
-    );
+    if (user) form.setFieldsValue({ fullName: user.fullName, role: user.role, active: user.active, locationId: user.locationId ?? undefined });
   }, [open, user, form]);
 
   const handleOk = async () => {
     const values = await form.validateFields().catch(() => null);
-    if (!values) return;
+    if (!values || !user) return;
     try {
-      await mutateAsync(user ? toUpdateRequest(values) : toCreateRequest(values));
+      await mutateAsync(toUpdateRequest(values));
       notify.success(common.states.saved);
       onClose();
     } catch (error) {
@@ -81,7 +68,7 @@ export function UserFormModal({ user, open, onClose }: UserFormModalProps) {
   };
 
   return (
-    <Modal open={open} title={user ? u.editTitle : u.createTitle} onOk={handleOk} onCancel={onClose}
+    <Modal open={open} title={u.editTitle} onOk={handleOk} onCancel={onClose}
       confirmLoading={isPending} okText={common.actions.save} cancelText={common.actions.cancel} destroyOnHidden>
       <Form
         form={form}
@@ -90,14 +77,6 @@ export function UserFormModal({ user, open, onClose }: UserFormModalProps) {
           if ('role' in changed) form.setFieldsValue({ locationId: undefined });
         }}
       >
-        {!user && (
-          <>
-            <Form.Item name="username" label={u.username} rules={[...required, { min: 3 }]}><Input autoComplete="off" /></Form.Item>
-            <Form.Item name="password" label={u.password} extra={u.passwordHint} rules={[...required, { min: 8 }]}>
-              <Input.Password autoComplete="new-password" />
-            </Form.Item>
-          </>
-        )}
         <Form.Item name="fullName" label={common.fields.fullName} rules={required}><Input /></Form.Item>
         <Form.Item name="role" label={u.role} rules={required}>
           <Select options={roles.map((option) => ({ value: option.code, label: option.label }))} />
@@ -107,14 +86,10 @@ export function UserFormModal({ user, open, onClose }: UserFormModalProps) {
             <LocationSelect level={locationLevel} />
           </Form.Item>
         )}
-        {user && (
-          <>
-            <Form.Item name="newPassword" label={u.newPassword} rules={[{ min: 8 }]}><Input.Password autoComplete="new-password" /></Form.Item>
-            <Form.Item name="active" label={common.fields.active} valuePropName="checked"><Switch /></Form.Item>
-          </>
-        )}
+        <Form.Item name="newPassword" label={u.newPassword} rules={[{ min: 8 }]}><Input.Password autoComplete="new-password" /></Form.Item>
+        <Form.Item name="active" label={common.fields.active} valuePropName="checked"><Switch /></Form.Item>
       </Form>
-      {canEditPermissions && <UserPermissionsPanel userId={user.id} />}
+      {canEditPermissions && user && <UserPermissionsPanel userId={user.id} />}
     </Modal>
   );
 }

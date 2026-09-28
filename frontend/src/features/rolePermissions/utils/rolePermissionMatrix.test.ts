@@ -1,5 +1,5 @@
 import type { MatrixCellKey, RolePermissionEntry } from '../types';
-import { buildMatrixRows, collectChanges, matrixCellKey } from './rolePermissionMatrix';
+import { buildMatrixRows, canEditRole, collectChanges, matrixCellKey } from './rolePermissionMatrix';
 
 const entries: RolePermissionEntry[] = [
   { role: 'ADMIN', permission: 'ADMIN', granted: true },
@@ -11,8 +11,8 @@ const entries: RolePermissionEntry[] = [
 describe('buildMatrixRows', () => {
   it('groups entries into one row per permission, keeping catalog order', () => {
     expect(buildMatrixRows(entries)).toEqual([
-      { permission: 'ADMIN', granted: { ADMIN: true, USER: false } },
-      { permission: 'SOLDIER_READ', granted: { ADMIN: true, USER: true } },
+      { permission: 'ADMIN', granted: { SUPER_ADMIN: false, ADMIN: true, USER: false } },
+      { permission: 'SOLDIER_READ', granted: { SUPER_ADMIN: false, ADMIN: true, USER: true } },
     ]);
   });
 });
@@ -29,5 +29,13 @@ describe('collectChanges', () => {
 
   it('returns nothing when there are no changes', () => {
     expect(collectChanges(entries, new Map())).toEqual([]);
+  });
+});
+
+describe('canEditRole', () => {
+  it('lets only Mega SuperAdmin edit SuperAdmin permissions', () => {
+    expect(canEditRole('MEGA_SUPER_ADMIN', 'SUPER_ADMIN')).toBe(true);
+    expect(canEditRole('SUPER_ADMIN', 'SUPER_ADMIN')).toBe(false);
+    expect(canEditRole('SUPER_ADMIN', 'ADMIN')).toBe(true);
   });
 });

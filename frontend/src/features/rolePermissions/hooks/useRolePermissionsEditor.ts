@@ -1,7 +1,8 @@
 import type { PermissionKey } from '@/features/auth';
 import { useToggleDraft } from '@/hooks/useToggleDraft';
 import type { ConfigurableRole, MatrixCellKey, RolePermissionRow } from '../types';
-import { buildMatrixRows, collectChanges, matrixCellKey } from '../utils/rolePermissionMatrix';
+import { CONFIGURABLE_ROLES, buildMatrixRows, collectChanges, matrixCellKey } from '../utils/rolePermissionMatrix';
+import { sortByGroup } from '../utils/permissionGroups';
 import { useRolePermissions, useUpdateRolePermissions } from './useRolePermissions';
 
 export type RolePermissionsEditor = {
@@ -12,6 +13,7 @@ export type RolePermissionsEditor = {
   isDirty: boolean;
   isSaving: boolean;
   toggle: (role: ConfigurableRole, permission: PermissionKey, granted: boolean) => void;
+  toggleAll: (role: ConfigurableRole, granted: boolean) => void;
   discard: () => void;
   save: () => Promise<void>;
 };
@@ -23,18 +25,21 @@ export function useRolePermissionsEditor(): RolePermissionsEditor {
   const draft = useToggleDraft<MatrixCellKey>();
 
   const rows = data
-    ? buildMatrixRows(data).map((row) => ({
+    ? sortByGroup(buildMatrixRows(data)).map((row) => ({
         permission: row.permission,
-        granted: {
-          ADMIN: draft.valueOf(matrixCellKey('ADMIN', row.permission), row.granted.ADMIN),
-          USER: draft.valueOf(matrixCellKey('USER', row.permission), row.granted.USER),
-        },
+        granted: Object.fromEntries(
+          CONFIGURABLE_ROLES.map((role) => [role, draft.valueOf(matrixCellKey(role, row.permission), row.granted[role])]),
+        ) as Record<ConfigurableRole, boolean>,
       }))
     : undefined;
 
   const toggle = (role: ConfigurableRole, permission: PermissionKey, granted: boolean) => {
     const savedGranted = data?.find((entry) => entry.role === role && entry.permission === permission)?.granted ?? false;
     draft.set(matrixCellKey(role, permission), granted, savedGranted);
+  };
+
+  const toggleAll = (role: ConfigurableRole, granted: boolean) => {
+    data?.filter((entry) => entry.role === role).forEach((entry) => toggle(role, entry.permission, granted));
   };
 
   const save = async () => {
@@ -50,6 +55,7 @@ export function useRolePermissionsEditor(): RolePermissionsEditor {
     isDirty: draft.isDirty,
     isSaving: isPending,
     toggle,
+    toggleAll,
     discard: draft.reset,
     save,
   };

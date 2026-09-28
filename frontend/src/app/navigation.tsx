@@ -1,5 +1,5 @@
 import {
-  ApartmentOutlined, BankOutlined, BellOutlined, ClockCircleOutlined, FileDoneOutlined, FileTextOutlined, ProfileOutlined,
+  ApartmentOutlined, BankOutlined, EnvironmentOutlined, BellOutlined, ClockCircleOutlined, FileDoneOutlined, FileTextOutlined, ProfileOutlined,
   ApiOutlined, AuditOutlined, BookOutlined, DashboardOutlined, SettingOutlined, TeamOutlined,
   UserOutlined, ReadOutlined, SafetyCertificateOutlined, SolutionOutlined,
 } from '@ant-design/icons';
@@ -29,6 +29,7 @@ export const navItems: NavItem[] = [
   { path: '/dictionaries', label: "Ma'lumotnomalar", icon: <BookOutlined />, access: 'unitDirections' },
   { path: '/users', label: 'Foydalanuvchilar', icon: <UserOutlined />, access: 'admin' },
   { path: '/admin/role-permissions', label: 'Rol huquqlari', icon: <SafetyCertificateOutlined />, access: 'permissionManager' },
+  { path: '/admin/locations', label: 'Hududlar', icon: <EnvironmentOutlined />, access: 'permissionManager' },
   { path: '/integration-logs', label: 'Integratsiya jurnali', icon: <ApiOutlined />, access: 'systemConfig' },
   { path: '/audit', label: 'Audit jurnali', icon: <AuditOutlined />, access: 'systemConfig' },
   { path: '/settings', label: 'Sozlamalar', icon: <SettingOutlined />, access: 'systemConfig' },

@@ -51,6 +51,7 @@ export const router = createBrowserRouter([
           page('audit', () => import('@/pages/AuditPage'), 'AuditPage', 'systemConfig'),
           page('settings', () => import('@/pages/SettingsPage'), 'SettingsPage', 'systemConfig'),
           page('admin/role-permissions', () => import('@/pages/RolePermissionsPage'), 'RolePermissionsPage', 'permissionManager'),
+          page('admin/locations', () => import('@/pages/LocationsPage'), 'LocationsPage', 'permissionManager'),
           page('profile', () => import('@/pages/ProfilePage'), 'ProfilePage'),
           page('subdivisions', () => import('@/pages/SubdivisionsPage'), 'SubdivisionsPage', 'soldierRead'),
           page('assignments', () => import('@/pages/AssignmentsPage'), 'AssignmentsPage', 'assignmentRead'),

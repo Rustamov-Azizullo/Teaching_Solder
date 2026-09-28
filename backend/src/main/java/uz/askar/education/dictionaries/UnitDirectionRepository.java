@@ -14,4 +14,8 @@ public interface UnitDirectionRepository extends JpaRepository<UnitDirection, Un
     @Modifying
     @Query("delete from UnitDirection u where u.id.unitId = :unitId")
     void deleteByUnitId(@Param("unitId") Long unitId);
+
+    @Modifying
+    @Query("delete from UnitDirection u where u.id.directionId = :directionId")
+    void deleteByDirectionId(@Param("directionId") Long directionId);
 }

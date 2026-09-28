@@ -25,6 +25,9 @@ public class DashboardService {
     private final SoldierRepository soldiers;
     private final QuestionnaireRepository questionnaires;
     private final uz.askar.education.results.CourseResultRepository courseResults;
+    private final uz.askar.education.groups.EducationInstitutionRepository institutions;
+    private final uz.askar.education.assignments.AssignmentRepository assignments;
+    private final uz.askar.education.admissions.AdmissionRepository admissions;
     private final CurrentUser currentUser;
 
     @Transactional(readOnly = true)
@@ -59,5 +62,27 @@ public class DashboardService {
                         + count.apply(uz.askar.education.results.CourseStatus.CERTIFIED)),
                 new DashboardDtos.CountItem("Sertifikat oldi", count.apply(uz.askar.education.results.CourseStatus.CERTIFIED)),
                 new DashboardDtos.CountItem("Tugatmadi", count.apply(uz.askar.education.results.CourseStatus.DROPPED)));
+    }
+
+    /** Askarlarning okrug/qism kesimidagi taqsimoti va hududlardagi muassasalar (texnikumlar) hamda ularning qism shartnomalari. */
+    @Transactional(readOnly = true)
+    public DashboardDtos.GeographyBlock geography(Long districtId, Long unitId) {
+        AccessScope scope = currentUser.scope();
+        Long effectiveDistrict = scope.districtFilter() != null ? scope.districtFilter() : districtId;
+        Long effectiveUnit = scope.unitFilter() != null ? scope.unitFilter() : unitId;
+        List<Soldier> scopedSoldiers = soldiers.findAllInScope(effectiveDistrict, effectiveUnit);
+        return new DashboardDtos.GeographyBlock(scopedSoldiers.size(),
+                GeographyAggregator.districts(scopedSoldiers),
+                GeographyAggregator.regions(scopedSoldiers, institutions.findAllByOrderByNameAsc(),
+                        assignments.findInScope(effectiveDistrict, effectiveUnit)));
+    }
+
+    /** OTMga tayyorlanuvchi nomzod askarlarning okrug va harbiy qism kesimidagi taqsimoti. */
+    @Transactional(readOnly = true)
+    public List<DashboardDtos.DistrictSoldiers> otmCandidatesByDistrict(Long districtId, Long unitId) {
+        AccessScope scope = currentUser.scope();
+        Long effectiveDistrict = scope.districtFilter() != null ? scope.districtFilter() : districtId;
+        Long effectiveUnit = scope.unitFilter() != null ? scope.unitFilter() : unitId;
+        return GeographyAggregator.districts(admissions.findCandidates(effectiveDistrict, effectiveUnit));
     }
 }

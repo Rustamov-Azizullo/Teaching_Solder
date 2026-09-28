@@ -1,6 +1,7 @@
 /** Umumiy matnlar (o'zbek, lotin). Feature'larga xos matnlar o'sha feature'ning labels.ts faylida. */
 export const common = {
   appName: "Askar ta'limi",
+  theme: { toggle: 'Kun / tun rejimi', title: "Ko'rinish", light: 'Kun', dark: 'Tun' },
   appSubtitle: "Harbiy xizmatchilarni kasbga va fanga o'qitish tizimi",
   actions: {
     save: 'Saqlash',

@@ -46,14 +46,14 @@ class PermissionEvaluatorServiceTest {
     private AppUserRepository users;
 
     @Test
-    void superAdminRolesPassEveryCheckRegardlessOfStoredGrants() {
+    void megaSuperAdminPassesEveryCheckRegardlessOfStoredGrants() {
         rolePermissions.deleteAll();
         userPermissions.deleteAll();
         Authentication superAdmin = authentication(userId("superadmin"), Role.SUPER_ADMIN);
         Authentication megaSuperAdmin = authentication(userId("megasuperadmin"), Role.MEGA_SUPER_ADMIN);
         for (Permission permission : Permission.values()) {
-            assertTrue(perm.has(superAdmin, permission.name()), permission::name);
             assertTrue(perm.has(megaSuperAdmin, permission.name()), permission::name);
+            assertFalse(perm.has(superAdmin, permission.name()), "SuperAdmin ruxsati bazadagi yozuvga bog'liq");
         }
         assertFalse(perm.has(authentication(userId("okrug1"), Role.ADMIN), Permission.ADMIN.name()));
     }

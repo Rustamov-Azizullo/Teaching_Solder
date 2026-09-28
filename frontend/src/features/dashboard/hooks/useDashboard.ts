@@ -19,3 +19,21 @@ export function useSurveyBlock(filters: Pick<DashboardFilters, 'districtId' | 'u
     placeholderData: keepPreviousData,
   });
 }
+
+export function useGeography(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>, enabled: boolean) {
+  return useQuery({
+    queryKey: [...queryKeys.dashboard, 'geography', filters],
+    queryFn: () => dashboardApi.geography(filters),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useOtmDistricts(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>, enabled: boolean) {
+  return useQuery({
+    queryKey: [...queryKeys.dashboard, 'otm-districts', filters],
+    queryFn: () => dashboardApi.otmDistricts(filters),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+}

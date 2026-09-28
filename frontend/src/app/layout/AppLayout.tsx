@@ -1,5 +1,5 @@
 import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
-import { Alert, Button, Drawer, Layout, Menu, Space, Typography } from 'antd';
+import { Button, Drawer, Layout, Menu, Space, Typography, theme } from 'antd';
 import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { can, isPermissionManager, useAuth, type AuthUser } from '@/features/auth';
@@ -7,11 +7,13 @@ import { NotificationBell } from '@/features/notifications';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { common } from '@/lib/i18n';
 import { navItems, type NavItem } from '../navigation';
+import { ThemeModeSwitch } from '../theme/ThemeModeSwitch';
 
 const { Header, Sider, Content } = Layout;
 const SIDER_WIDTH = 230;
 const MOBILE_QUERY = '(max-width: 991px)';
-const BORDER = '1px solid rgba(128,128,128,.2)';
+const HEADER_HEIGHT = 64;
+const HEADER_Z_INDEX = 100;
 
 /** Dashboard menyusi: uch blokdan kamida bittasiga ruxsat bo'lsa ko'rsatiladi. */
 const DASHBOARD_CAPABILITIES = ['dashboardVocational', 'dashboardOtm', 'dashboardSurveys'] as const;
@@ -24,7 +26,9 @@ function isNavItemVisible(item: NavItem, user: AuthUser | null): boolean {
 }
 
 export function AppLayout() {
-  const { user, logout, setupRequired } = useAuth();
+  const { user, logout } = useAuth();
+  const { token } = theme.useToken();
+  const border = `1px solid ${token.colorBorderSecondary}`;
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(MOBILE_QUERY);
@@ -53,7 +57,12 @@ export function AppLayout() {
           {menu}
         </Drawer>
       ) : (
-        <Sider width={SIDER_WIDTH} theme="light" style={{ borderRight: BORDER }}>
+        <Sider
+          width={SIDER_WIDTH}
+          theme="light"
+          className="no-print"
+          style={{ borderRight: border, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', flex: `0 0 ${SIDER_WIDTH}px` }}
+        >
           <div style={{ padding: 16 }}>
             <Typography.Title level={4} style={{ margin: 0 }}>{common.appName}</Typography.Title>
           </div>
@@ -63,10 +72,23 @@ export function AppLayout() {
       <Layout>
         <Header
           className="no-print"
-          style={{ background: 'transparent', display: 'flex', justifyContent: isMobile ? 'space-between' : 'flex-end', alignItems: 'center', padding: '0 16px', borderBottom: BORDER, height: 64, lineHeight: 'normal' }}
+          style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: HEADER_Z_INDEX,
+            background: token.colorBgContainer,
+            display: 'flex',
+            justifyContent: isMobile ? 'space-between' : 'flex-end',
+            alignItems: 'center',
+            padding: '0 16px',
+            borderBottom: border,
+            height: HEADER_HEIGHT,
+            lineHeight: 'normal',
+          }}
         >
           {isMobile && <Button icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} aria-label="Menyu" />}
           <Space>
+            <ThemeModeSwitch />
             <NotificationBell />
             <a onClick={() => navigate('/profile')} style={{ textAlign: 'right', lineHeight: 1.25, cursor: 'pointer', color: 'inherit' }}>
               <strong>{user?.fullName}</strong>
@@ -77,15 +99,6 @@ export function AppLayout() {
           </Space>
         </Header>
         <Content className="app-content">
-          {setupRequired && location.pathname !== '/profile' && (
-            <Alert
-              type="warning"
-              showIcon
-              style={{ marginBottom: 16 }}
-              message="Xavfsizlik uchun ikki bosqichli autentifikatsiyani yoqing"
-              action={<Button size="small" onClick={() => navigate('/profile')}>Yoqish</Button>}
-            />
-          )}
           <Outlet />
         </Content>
       </Layout>

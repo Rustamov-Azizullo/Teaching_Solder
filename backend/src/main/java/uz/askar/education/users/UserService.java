@@ -3,6 +3,7 @@ package uz.askar.education.users;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,24 @@ public class UserService {
         }
         audit.record("UPDATE", "AppUser", id, "rol=" + user.getRole() + ", faol=" + user.isActive());
         return toDto(user);
+    }
+
+    /** Foydalanuvchini o'chiradi; o'zini o'chirib bo'lmaydi, anketa/guruhga bog'langan bo'lsa — faolsizlantirish tavsiya etiladi. */
+    @Transactional
+    public void delete(Long id) {
+        AppUser user = findManageable(id);
+        if (user.getId().equals(currentUser.id())) {
+            throw new BusinessRuleException("O'zingizning hisobingizni o'chirib bo'lmaydi");
+        }
+        String username = user.getUsername();
+        try {
+            users.delete(user);
+            users.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessRuleException("Foydalanuvchi anketa yoki guruhlarga bog'langan, o'chirib bo'lmaydi. "
+                    + "Uni bloklang");
+        }
+        audit.record("DELETE", "AppUser", id, "login=" + username);
     }
 
     /** Chaqiruvchi boshqara oladigan foydalanuvchini topadi (vakolat doirasi va rol ierarxiyasi bo'yicha). */

@@ -27,21 +27,6 @@ public class AuthController {
         return authService.login(request);
     }
 
-    @PostMapping("/2fa/setup")
-    public AuthDtos.TwoFactorSetup setup() {
-        return authService.setupTwoFactor(currentUser.username());
-    }
-
-    @PostMapping("/2fa/enable")
-    public void enable(@Valid @RequestBody AuthDtos.OtpRequest request) {
-        authService.enableTwoFactor(currentUser.username(), request.code());
-    }
-
-    @PostMapping("/2fa/disable")
-    public void disable(@Valid @RequestBody AuthDtos.OtpRequest request) {
-        authService.disableTwoFactor(currentUser.username(), request.code());
-    }
-
     @GetMapping("/me")
     public UserDto me() {
         return authService.me(currentUser.username());

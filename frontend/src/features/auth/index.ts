@@ -2,7 +2,6 @@ export { AuthProvider } from './hooks/AuthProvider';
 export { useAuth } from './hooks/useAuth';
 export { useCan } from './hooks/useCan';
 export { can, isPermissionManager, type Capability } from './permissions';
-export { TwoFactorPanel } from './components/TwoFactorPanel';
 export { LoginForm } from './components/LoginForm';
 export { RequireAuth } from './components/RequireAuth';
 export { RequireCapability } from './components/RequireCapability';

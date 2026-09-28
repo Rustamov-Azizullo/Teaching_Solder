@@ -2,9 +2,6 @@ package uz.askar.education.auth;
 
 public class InvalidCredentialsException extends RuntimeException {
 
-    public static final String OTP_REQUIRED = "OTP_REQUIRED";
-    public static final String OTP_INVALID = "OTP_INVALID";
-
     private final String code;
 
     public InvalidCredentialsException(String message) {

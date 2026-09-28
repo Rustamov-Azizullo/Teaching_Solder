@@ -10,12 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.askar.education.audit.AuditService;
 import uz.askar.education.common.BadRequestException;
+import uz.askar.education.common.ForbiddenException;
 import uz.askar.education.common.NotFoundException;
 import uz.askar.education.users.AppUser;
 import uz.askar.education.users.AppUserRepository;
 
 /**
- * Rol-ruxsat matritsasi (ADMIN, USER) va foydalanuvchiga shaxsiy ruxsatlarni boshqarish.
+ * Rol-ruxsat matritsasi (SUPER_ADMIN, ADMIN, USER; SUPER_ADMIN ni faqat Mega SuperAdmin o'zgartiradi) va foydalanuvchiga shaxsiy ruxsatlarni boshqarish.
  * Yozuvlar bir-bir qo'llanadi: {@code granted=true} — ruxsat qo'shiladi, {@code false} — olib tashlanadi;
  * so'rovda ko'rsatilmagan juftliklar o'zgarmaydi.
  */
@@ -40,6 +41,7 @@ public class PermissionManagementService {
     private final UserPermissionRepository userPermissions;
     private final AppUserRepository users;
     private final AuditService audit;
+    private final CurrentUser currentUser;
 
     @Transactional(readOnly = true)
     public List<RolePermissionEntry> roleMatrix() {
@@ -58,6 +60,7 @@ public class PermissionManagementService {
         entries.forEach(entry -> {
             requirePresent(entry.role(), entry.permission());
             requireConfigurable(entry.role());
+            requireEditable(entry.role());
         });
         for (RolePermissionEntry entry : entries) {
             boolean exists = rolePermissions.existsByRoleAndPermission(entry.role(), entry.permission());
@@ -91,6 +94,7 @@ public class PermissionManagementService {
     public List<UserPermissionState> updateUserPermissions(Long userId, List<UserPermissionEntry> entries) {
         AppUser user = findUser(userId);
         requireConfigurable(user.getRole());
+        requireEditable(user.getRole());
         entries.forEach(entry -> requirePresent(user.getRole(), entry.permission()));
         Set<Permission> overrides = overridesOf(userId);
         entries.stream().filter(UserPermissionEntry::granted).map(UserPermissionEntry::permission)
@@ -126,6 +130,12 @@ public class PermissionManagementService {
     private void requireConfigurable(Role role) {
         if (!role.isConfigurable()) {
             throw new BadRequestException(role.label() + " roli har doim barcha ruxsatlarga ega va sozlanmaydi");
+        }
+    }
+
+    private void requireEditable(Role role) {
+        if (!role.isEditableBy(currentUser.role())) {
+            throw new ForbiddenException(role.label() + " ruxsatlarini faqat Mega SuperAdmin o'zgartira oladi");
         }
     }
 

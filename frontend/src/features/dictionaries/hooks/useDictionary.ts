@@ -26,6 +26,14 @@ export function useSaveDictionaryItem(type: DictionaryType) {
   });
 }
 
+export function useDeleteDictionaryItem(type: DictionaryType) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => dictionaryApi.remove(type, id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dictionary', type] }),
+  });
+}
+
 export function useUnitDirections(unitId: number | undefined) {
   return useQuery({
     queryKey: ['unit-directions', unitId],
