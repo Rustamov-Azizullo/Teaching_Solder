@@ -2,7 +2,6 @@ import type { Dayjs } from 'dayjs';
 import { CalendarOutlined, PlusOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { Alert, Button, DatePicker, Input, Modal, Space, Table, Tag } from 'antd';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { QueryBoundary } from '@/components/ui';
 import { getErrorMessage } from '@/lib/apiClient';
 import { API_DATE_FORMAT, DISPLAY_DATE_FORMAT, dayjs } from '@/lib/dayjs';
@@ -16,9 +15,9 @@ import { notify } from '@/lib/notify';
 
 const STATUS_COLORS: Record<LessonStatus, string> = { PLANNED: 'blue', HELD: 'green', CANCELLED: 'default' };
 
-type LessonScheduleProps = { groupId: number; groupStart: string; groupEnd: string; canEdit: boolean; canRecordAttendance: boolean };
+type LessonScheduleProps = { groupId: number; groupStart: string; groupEnd: string; canEdit: boolean };
 
-export function LessonSchedule({ groupId, groupStart, groupEnd, canEdit, canRecordAttendance }: LessonScheduleProps) {
+export function LessonSchedule({ groupId, groupStart, groupEnd, canEdit }: LessonScheduleProps) {
   const [range, setRange] = useState<[Dayjs, Dayjs]>([dayjs().startOf('month'), dayjs().endOf('month')]);
   const [isModalOpen, setModalOpen] = useState(false);
   const from = range[0].format(API_DATE_FORMAT);
@@ -94,10 +93,7 @@ export function LessonSchedule({ groupId, groupStart, groupEnd, canEdit, canReco
                 title: '',
                 render: (_: unknown, l) => (
                   <Space>
-                    {canRecordAttendance && l.status !== 'CANCELLED' && (
-                      <Link to={`/attendance/${l.id}`}>{scheduleLabels.attendance}</Link>
-                    )}
-                    {canEdit && l.status === 'PLANNED' && !l.attendanceRecorded && (
+                    {canEdit && l.status === 'PLANNED' && (
                       <Button size="small" danger type="link" onClick={() => setLessonToCancel(l)}>{scheduleLabels.cancel}</Button>
                     )}
                   </Space>

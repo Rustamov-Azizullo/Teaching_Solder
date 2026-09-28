@@ -30,7 +30,6 @@ public final class LessonDtos {
 
     public record LessonDto(Long id, Long groupId, String groupName, GroupType groupType, LocalDate lessonDate,
                             LocalTime startTime, LocalTime endTime, int academicHours, String topic,
-                            LessonKind kind, LessonStatus status, String changeReason, Boolean teacherPresent,
-                            boolean attendanceRecorded) {
+                            LessonKind kind, LessonStatus status, String changeReason, Boolean teacherPresent) {
     }
 }

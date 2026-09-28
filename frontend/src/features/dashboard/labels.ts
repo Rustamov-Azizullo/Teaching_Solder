@@ -2,20 +2,11 @@ export const dashboardLabels = {
   title: 'Dashboard',
   subtitle: "Yo'nalishlar bo'yicha alohida bloklar",
   blocks: { vocational: 'Kasb kurslari', otm: 'OTM tayyorlov kurslari', surveys: "So'rovnoma natijalari" },
-  period: 'Davr',
   kpi: {
     soldiers: 'Jami askarlar',
-    groups: 'Guruhlar soni',
-    today: 'Bugungi davomat',
-    missing: 'Davomat kiritilmagan guruhlar',
     finalized: 'Yakunlangan anketalar',
   },
   charts: {
-    daily: 'Kunlik davomat dinamikasi',
-    weekly: 'Haftalik umumlashma',
-    weeklyPercent: "O'rtacha davomat, %",
-    weeklyHours: "O'tilgan soatlar",
-    reasons: 'Kelmaslik sabablari',
     completion: "Anketa to'ldirilishi",
     interests: 'Qiziqqan kasb yo\'nalishlari',
     plans: 'Kelgusi rejalar',
@@ -24,7 +15,5 @@ export const dashboardLabels = {
     mandatory: 'Majburiy fanlar',
     education: "Ta'lim darajasi va sertifikatlar",
     courseResults: 'Kurs natijalari',
-    breakdown: { DISTRICT: 'Davomat: okruglar kesimi', UNIT: 'Davomat: qismlar kesimi', GROUP: 'Davomat: guruhlar kesimi' },
   },
-  drill: { hint: 'Chuqurlashish uchun ustunni bosing', reset: 'Barcha okruglar', district: 'Okrug', unit: 'Qism' },
 } as const;

@@ -14,10 +14,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
-import uz.askar.education.attendance.AbsenceReason;
-import uz.askar.education.attendance.Attendance;
-import uz.askar.education.attendance.AttendanceRepository;
-import uz.askar.education.attendance.AttendanceStatus;
 import uz.askar.education.dictionaries.DictionaryItem;
 import uz.askar.education.dictionaries.DictionaryItemRepository;
 import uz.askar.education.dictionaries.DictionaryType;
@@ -53,7 +49,7 @@ import uz.askar.education.users.AppUserRepository;
 
 /**
  * Namunaviy (demo) ma'lumotlar: tizimni birinchi ishga tushirishda foydalanuvchilar, qismlar, askarlar,
- * guruhlar va davomat yaratadi. Productionda {@code SEED_DEMO_DATA=false} qilib o'chiriladi.
+ * guruhlar yaratadi. Productionda {@code SEED_DEMO_DATA=false} qilib o'chiriladi.
  */
 @Slf4j
 @Component
@@ -63,7 +59,6 @@ public class DemoDataSeeder implements CommandLineRunner {
     static final String DEMO_PASSWORD = "Parol123!";
     private static final long RANDOM_SEED = 42;
     private static final int LESSON_HISTORY_DAYS = 21;
-    private static final double PRESENCE_RATE = 0.88;
     private static final int COURSE_MONTHS = 5;
 
     private static final List<String> FIRST_NAMES = List.of("Jasur", "Sardor", "Otabek", "Bekzod", "Dilshod",
@@ -83,10 +78,8 @@ public class DemoDataSeeder implements CommandLineRunner {
     private final SoldierRepository soldiers;
     private final StudyGroupRepository groups;
     private final LessonRepository lessons;
-    private final AttendanceRepository attendances;
     private final QuestionnaireRepository questionnaires;
     private final uz.askar.education.organization.SubdivisionRepository subdivisionRepository;
-    private final uz.askar.education.facilities.FacilityRepository facilityRepository;
     private final uz.askar.education.assignments.AssignmentRepository assignmentRepository;
     private final uz.askar.education.results.CourseResultRepository courseResultRepository;
     private final uz.askar.education.admissions.AdmissionRepository admissionRepository;
@@ -147,7 +140,7 @@ public class DemoDataSeeder implements CommandLineRunner {
         StudyGroup other = group("Dasturlash-1", GroupType.VOCATIONAL, unitThree, technicalSchool,
                 item(DictionaryType.PROFESSION, "PROGRAMMER"), List.of(), unitThreeSoldiers, leaderThree);
 
-        List.of(vocational, otm, other).forEach(group -> lessonsWithAttendance(group, random));
+        List.of(vocational, otm, other).forEach(group -> seedLessons(group, random));
         questionnaires(unitOneSoldiers, psychologist, random);
         seedExtras(unitOne, unitThree, unitOneSoldiers, technicalSchool, school, vocational, otm);
     }
@@ -163,11 +156,6 @@ public class DemoDataSeeder implements CommandLineRunner {
         for (int i = 0; i < unitOneSoldiers.size(); i++) {
             unitOneSoldiers.get(i).setSubdivision(i % 2 == 0 ? platoonOne : platoonTwo);
         }
-
-        facility(unitOne, "12-sinf", uz.askar.education.facilities.FacilityKind.CLASSROOM, 30,
-                uz.askar.education.facilities.FacilityCondition.GOOD, "Proyektor, 30 o'rindiq", null);
-        facility(unitOne, "Oshxona (o'quv)", uz.askar.education.facilities.FacilityKind.WORKSHOP, 15,
-                uz.askar.education.facilities.FacilityCondition.SATISFACTORY, "Plita, ish stollari", "Ventilyatsiya ta'mirlanishi kerak");
 
         assignment(unitOne, technicalSchool, GroupType.VOCATIONAL, uz.askar.education.assignments.AssignmentStatus.APPROVED);
         assignment(unitOne, school, GroupType.OTM_PREP, uz.askar.education.assignments.AssignmentStatus.APPROVED);
@@ -230,20 +218,6 @@ public class DemoDataSeeder implements CommandLineRunner {
         return subdivisionRepository.save(subdivision);
     }
 
-    private void facility(MilitaryUnit unit, String name, uz.askar.education.facilities.FacilityKind kind, int capacity,
-                          uz.askar.education.facilities.FacilityCondition condition, String equipment, String shortages) {
-        var facility = new uz.askar.education.facilities.Facility();
-        facility.setMilitaryUnit(unit);
-        facility.setName(name);
-        facility.setKind(kind);
-        facility.setCapacity(capacity);
-        facility.setCondition(condition);
-        facility.setEquipment(equipment);
-        facility.setShortages(shortages);
-        facility.setSurveyDate(LocalDate.now().minusDays(30));
-        facilityRepository.save(facility);
-    }
-
     private void assignment(MilitaryUnit unit, EducationInstitution institution, GroupType direction,
                             uz.askar.education.assignments.AssignmentStatus status) {
         var assignment = new uz.askar.education.assignments.Assignment();
@@ -265,7 +239,7 @@ public class DemoDataSeeder implements CommandLineRunner {
         assignmentRepository.save(assignment);
     }
 
-    private void lessonsWithAttendance(StudyGroup group, Random random) {
+    private void seedLessons(StudyGroup group, Random random) {
         LocalDate today = LocalDate.now();
         for (LocalDate day = today.minusDays(LESSON_HISTORY_DAYS); !day.isAfter(today); day = day.plusDays(1)) {
             if (day.getDayOfWeek() == DayOfWeek.SATURDAY || day.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -283,27 +257,8 @@ public class DemoDataSeeder implements CommandLineRunner {
             if (!leaveTodayOpen) {
                 lesson.setStatus(LessonStatus.HELD);
                 lesson.setTeacherPresent(true);
-                lesson.setAttendanceRecorded(true);
-                lesson.setAttendanceRecordedAt(LocalDateTime.now());
             }
-            Lesson saved = lessons.save(lesson);
-            if (!leaveTodayOpen) {
-                recordAttendance(saved, group, random);
-            }
-        }
-    }
-
-    private void recordAttendance(Lesson lesson, StudyGroup group, Random random) {
-        AbsenceReason[] reasons = AbsenceReason.values();
-        for (Soldier soldier : group.getSoldiers()) {
-            boolean present = random.nextDouble() < PRESENCE_RATE;
-            Attendance attendance = new Attendance();
-            attendance.setLesson(lesson);
-            attendance.setSoldier(soldier);
-            attendance.setStatus(present ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT);
-            attendance.setReason(present ? null : reasons[random.nextInt(reasons.length)]);
-            attendance.setRecordedBy(group.getLeader().getUsername());
-            attendances.save(attendance);
+            lessons.save(lesson);
         }
     }
 

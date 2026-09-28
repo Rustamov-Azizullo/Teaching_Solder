@@ -15,7 +15,6 @@ function useLessonMutation<TVariables, TResult>(mutationFn: (variables: TVariabl
   const queryClient = useQueryClient();
   return useMutation({ mutationFn, onSuccess: () => Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.lessons }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.attendance }),
         queryClient.invalidateQueries({ queryKey: queryKeys.dashboard }),
       ]) });
 }

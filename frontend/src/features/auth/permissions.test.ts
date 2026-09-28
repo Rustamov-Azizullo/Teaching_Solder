@@ -2,7 +2,6 @@ import { can } from './permissions';
 
 describe('can', () => {
   it.each([
-    ['GROUP_LEADER', 'attendanceWrite', true],
     ['GROUP_LEADER', 'soldierWrite', false],
     ['TMIBB', 'dashboardOtm', true],
     ['TMIBB', 'dashboardVocational', false],
@@ -18,6 +17,5 @@ describe('can', () => {
   it('denies every capability when the role is undefined', () => {
     expect(can(undefined, 'admin')).toBe(false);
     expect(can(undefined, 'soldierRead')).toBe(false);
-    expect(can(undefined, 'attendanceWrite')).toBe(false);
   });
 });

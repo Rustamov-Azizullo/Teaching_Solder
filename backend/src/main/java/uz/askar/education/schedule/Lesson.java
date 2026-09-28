@@ -11,14 +11,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import uz.askar.education.groups.StudyGroup;
 
-/** Mashg'ulot: dars jadvali (M7) va davomat (M8) uchun umumiy yozuv. */
+/** Mashg'ulot: dars jadvali (M7) yozuvi. */
 @Entity
 @Table(name = "lessons")
 @Getter
@@ -48,6 +47,4 @@ public class Lesson {
 
     private String changeReason;
     private Boolean teacherPresent;
-    private boolean attendanceRecorded;
-    private LocalDateTime attendanceRecordedAt;
 }

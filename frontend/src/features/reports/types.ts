@@ -1,4 +1,4 @@
-export type ReportType = 'ATTENDANCE_DAILY' | 'ATTENDANCE_WEEKLY' | 'COURSE_COMPLETION' | 'OTM_ADMISSIONS' | 'YEARLY_SUMMARY';
+export type ReportType = 'COURSE_COMPLETION' | 'OTM_ADMISSIONS' | 'YEARLY_SUMMARY';
 export type ReportFormat = 'XLSX' | 'PDF';
 export type ReportGroupType = 'VOCATIONAL' | 'OTM_PREP';
 

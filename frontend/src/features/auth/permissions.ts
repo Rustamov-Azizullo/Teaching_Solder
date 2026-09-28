@@ -33,7 +33,6 @@ export const capabilities = {
     'SYSTEM_ADMIN', 'HKTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'COMBAT_TRAINING_DEPT', 'EDUCATION_DEPT',
   ],
   resultWrite: ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  ktaCompare: ['SYSTEM_ADMIN', 'HKTB'],
   admissionRead: [
     'SYSTEM_ADMIN', 'HKTB', 'TMIBB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'EDUCATION_DEPT',
   ],
@@ -46,7 +45,6 @@ export const capabilities = {
   ],
   leaderAssign: ['SYSTEM_ADMIN', 'UNIT_COMMANDER'],
   scheduleWrite: ['SYSTEM_ADMIN', 'JTB', 'UNIT_COMMANDER', 'UNIT_OPERATOR'],
-  attendanceWrite: ['SYSTEM_ADMIN', 'UNIT_COMMANDER', 'GROUP_LEADER'],
   dashboardVocational: [
     'SYSTEM_ADMIN', 'HKTB', 'JTB', 'DISTRICT_OFFICER', 'UNIT_COMMANDER', 'UNIT_OPERATOR', 'COMBAT_TRAINING_DEPT',
   ],

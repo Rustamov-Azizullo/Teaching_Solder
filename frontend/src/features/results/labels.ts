@@ -18,13 +18,4 @@ export const resultLabels = {
   confirmApprove: "Tasdiqlangandan keyin natijalarni o'zgartirib bo'lmaydi. Tasdiqlaysizmi?",
   minutes: 'Imtihon qaydnomasi skani',
   onlyVocational: "Kurs natijalari faqat kasb kurslari uchun kiritiladi",
-  kta: {
-    title: 'KTA bilan solishtirish',
-    subtitle: "Bizdagi sertifikatlar KTA ma'lumotlari bilan tekshiriladi",
-    api: 'API orqali tekshirish',
-    file: 'Zaxira: XLSX yuklash (JShShIR, sertifikat raqami)',
-    ours: 'Bizda', theirs: 'KTA da', problem: 'Nomuvofiqlik', unit: 'Qism',
-    none: 'Nomuvofiqliklar topilmadi',
-    found: (n: number) => `Nomuvofiqliklar: ${n}`,
-  },
 } as const;

@@ -15,7 +15,6 @@ export type Lesson = {
   status: LessonStatus;
   changeReason: string | null;
   teacherPresent: boolean | null;
-  attendanceRecorded: boolean;
 };
 
 export type LessonRequest = {

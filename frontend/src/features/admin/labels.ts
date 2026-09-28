@@ -26,7 +26,7 @@ export const adminLabels = {
   },
   integrations: {
     title: 'Integratsiya jurnali',
-    subtitle: "Manba tizim, BMBA va KTA ga har bir murojaat: vaqti, holati, xatosi",
+    subtitle: "Manba tizim va BMBA ga har bir murojaat: vaqti, holati, xatosi",
     at: 'Vaqt', system: 'Tizim', operation: 'Amal', reference: 'Havola', status: 'Holat', message: 'Xabar', duration: 'ms', actor: 'Kim',
   },
   cycles: {
@@ -45,11 +45,10 @@ export const adminLabels = {
   },
   settings: {
     title: 'Tizim sozlamalari',
-    subtitle: 'Anketa, davomat va dars vaqti sozlamalari',
+    subtitle: 'Anketa va dars vaqti sozlamalari',
     saved: 'Sozlamalar saqlandi',
     labels: {
       'survey.futurePlan.mode': 'Anketa 15-savol tanlov rejimi',
-      'attendance.editHours': 'Davomatni tahrirlash muddati (soat)',
       'lesson.defaultStart': 'Standart dars boshlanishi',
       'lesson.defaultEnd': 'Standart dars tugashi',
       'lesson.defaultAcademicHours': "Standart o'quv soatlari",

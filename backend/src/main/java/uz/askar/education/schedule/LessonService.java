@@ -88,9 +88,6 @@ public class LessonService {
     @Transactional
     public LessonDto update(Long lessonId, LessonRequest request) {
         Lesson lesson = findInScope(lessonId);
-        if (lesson.isAttendanceRecorded()) {
-            throw new BusinessRuleException("Davomat kiritilgan mashg'ulotni o'zgartirib bo'lmaydi");
-        }
         requireWithinGroupPeriod(lesson.getGroup(), request.lessonDate());
         apply(lesson, request);
         audit.record("UPDATE", "Lesson", lessonId, "sana=" + lesson.getLessonDate());
@@ -100,16 +97,13 @@ public class LessonService {
     @Transactional
     public LessonDto cancel(Long lessonId, CancelRequest request) {
         Lesson lesson = findInScope(lessonId);
-        if (lesson.isAttendanceRecorded()) {
-            throw new BusinessRuleException("Davomat kiritilgan mashg'ulotni bekor qilib bo'lmaydi");
-        }
         lesson.setStatus(LessonStatus.CANCELLED);
         lesson.setChangeReason(request.reason());
         audit.record("CANCEL", "Lesson", lessonId, request.reason());
         return toDto(lesson);
     }
 
-    /** Boshqa modullar (davomat) uchun: vakolat doirasida mashg'ulotni topish. */
+    /** Vakolat doirasida mashg'ulotni topish. */
     public Lesson findInScope(Long lessonId) {
         Lesson lesson = lessons.findById(lessonId).orElseThrow(() -> new NotFoundException("Mashg'ulot topilmadi"));
         groupService.findInScope(lesson.getGroup().getId());
@@ -119,7 +113,7 @@ public class LessonService {
     public LessonDto toDto(Lesson l) {
         return new LessonDto(l.getId(), l.getGroup().getId(), l.getGroup().getName(), l.getGroup().getType(),
                 l.getLessonDate(), l.getStartTime(), l.getEndTime(), l.getAcademicHours(), l.getTopic(), l.getKind(),
-                l.getStatus(), l.getChangeReason(), l.getTeacherPresent(), l.isAttendanceRecorded());
+                l.getStatus(), l.getChangeReason(), l.getTeacherPresent());
     }
 
     private void apply(Lesson lesson, LessonRequest request) {

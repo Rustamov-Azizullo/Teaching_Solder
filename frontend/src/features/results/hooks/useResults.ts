@@ -26,6 +26,3 @@ export function useApproveResults(groupId: number) {
     },
   });
 }
-
-export const useKtaApi = () => useMutation({ mutationFn: resultApi.ktaViaApi });
-export const useKtaFile = () => useMutation({ mutationFn: (file: File) => resultApi.ktaViaFile(file) });

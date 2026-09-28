@@ -4,11 +4,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -92,26 +90,6 @@ class ApiIntegrationTest {
         mvc.perform(get("/api/soldiers/source-lookup").param("pinfl", "91234567890123")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isServiceUnavailable());
-    }
-
-    @Test
-    void attendanceRequiresEveryMemberAndReasonForAbsence() throws Exception {
-        String token = token("katta2");
-        String groupsJson = mvc.perform(get("/api/groups").header("Authorization", "Bearer " + token))
-                .andReturn().getResponse().getContentAsString();
-        long groupId = Long.parseLong(groupsJson.replaceAll(".*?\"id\":(\\d+).*", "$1"));
-        String lessonsJson = mvc.perform(get("/api/lessons").param("date", LocalDate.now().toString())
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        long lessonId = Long.parseLong(lessonsJson.replaceAll(".*?\"id\":(\\d+).*", "$1"));
-
-        mvc.perform(put("/api/lessons/" + lessonId + "/attendance").header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"teacherPresent\":true,\"entries\":[{\"soldierId\":1,\"status\":\"PRESENT\"}]}"))
-                .andExpect(status().isConflict());
-        mvc.perform(get("/api/lessons/" + lessonId + "/attendance").header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.roster", hasSize(12)));
-        org.junit.jupiter.api.Assertions.assertTrue(groupId > 0);
     }
 
     private String token(String username) throws Exception {

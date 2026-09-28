@@ -17,7 +17,6 @@ export function GroupDetail({ groupId }: { groupId: number }) {
   const canEdit = useCan('groupWrite');
   const canAssignLeader = useCan('leaderAssign');
   const canEditSchedule = useCan('scheduleWrite');
-  const canRecordAttendance = useCan('attendanceWrite');
   const canSeeResults = useCan('resultRead');
   const { data, isLoading, error, refetch } = useGroup(groupId);
   const [isEditOpen, setEditOpen] = useState(false);
@@ -53,7 +52,6 @@ export function GroupDetail({ groupId }: { groupId: number }) {
                     groupStart={group.startDate}
                     groupEnd={group.endDate}
                     canEdit={canEditSchedule}
-                    canRecordAttendance={canRecordAttendance}
                   />
                 ),
               },

@@ -63,15 +63,6 @@ public class GroupController {
         return groupService.assignLeader(id, request);
     }
 
-    @PutMapping("/groups/{id}/facility")
-    @PreAuthorize(Access.GROUP_LEADER_ASSIGN)
-    public GroupDto assignFacility(@PathVariable Long id, @RequestBody FacilityRequest request) {
-        return groupService.assignFacility(id, request.facilityId());
-    }
-
-    public record FacilityRequest(@jakarta.validation.constraints.NotNull Long facilityId) {
-    }
-
     @PutMapping("/groups/{id}/members")
     @PreAuthorize(Access.GROUP_WRITE)
     public GroupDto replaceMembers(@PathVariable Long id, @RequestBody MembersRequest request) {

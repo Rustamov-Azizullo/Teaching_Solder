@@ -73,7 +73,7 @@ Muddatli harbiy xizmatchilarni kasbga va oliy ta'limga tayyorlash jarayonini raq
 1. Har bir askarning yagona elektron **shaxsiy yig'ma jildini** yuritish (ma'lumoti, sertifikatlari, yutuqlari, o'qish tarixi).
 2. Askar ma'lumotlarini **JShShIR kiritish orqali** manba tizimdan olish va yetishmagan ma'lumotlarni tizimda to'ldirish.
 3. Texnikum va maktablarni harbiy qismlarga **biriktirish**, shartnoma va qo'shma rejalarni qayd etish.
-4. O'quv guruhlari, o'qituvchilar (ma'lumot sifatida), dars jadvali va **kunlik davomatni** elektron yuritish.
+4. O'quv guruhlari, o'qituvchilar (ma'lumot sifatida) va dars jadvalini elektron yuritish.
 5. So'rovnomalar orqali OTMga kirish istagidagi nomzodlarni va qiziqqan kasblarni aniqlash.
 6. Kurs natijalari, imtihonlar va **sertifikatlarni** hisobga olish.
 7. Qism → okrug → vazirlik darajasida **dashboardlar** (yo'nalishlar bo'yicha alohida diagrammalar bilan) va hisobotlar shakllantirish.
@@ -99,7 +99,6 @@ Muddatli harbiy xizmatchilarni kasbga va oliy ta'limga tayyorlash jarayonini raq
 | MBMM | Mudofaani boshqarish milliy markazi |
 | MIO | Mudofaa ishlari organlari |
 | HMS | Harbiy-ma'muriy sektor |
-| KTA | Kasbiy ta'lim agentligi |
 | BMBA | Bilim va malakalarni baholash agentligi |
 | OTM | Oliy ta'lim muassasasi |
 | JShShIR | Jismoniy shaxsning shaxsiy identifikatsiya raqami |
@@ -118,9 +117,9 @@ Tizim yillik siklga bog'langan bosqichli jarayonni avtomatlashtiradi. Har bir bo
 
 | Bosqich | Davr | Asosiy harakatlar | Tizimdagi aksi |
 |---|---|---|---|
-| 1 | Fevral — mart | Targ'ibot; chaqiriluvchilar hujjatlarini (sertifikat, diplom, yutuqlar) aniqlash va PDF nusxalarini yig'ma jildga kiritish; **1 fevralgacha** texnikumlarni qismlarga biriktirish takliflari; **1 aprelgacha** qo'shma qaror, kasblar ro'yxati va o'quv dasturlari; **20 martgacha** kun tartibi va vaqt taqsimoti; **30 martgacha** o'quv-moddiy baza xatlovi | JShShIR orqali ma'lumot olish va to'ldirish (M2), biriktirish takliflari (M3), ma'lumotnomalar (M1), xatlov (M4), muddat nazorati (M13) |
+| 1 | Fevral — mart | Targ'ibot; chaqiriluvchilar hujjatlarini (sertifikat, diplom, yutuqlar) aniqlash va PDF nusxalarini yig'ma jildga kiritish; **1 fevralgacha** texnikumlarni qismlarga biriktirish takliflari; **1 aprelgacha** qo'shma qaror, kasblar ro'yxati va o'quv dasturlari; **20 martgacha** kun tartibi va vaqt taqsimoti | JShShIR orqali ma'lumot olish va to'ldirish (M2), biriktirish takliflari (M3), ma'lumotnomalar (M1), muddat nazorati (M13) |
 | 2 | Aprel | Boshlang'ich harbiy tayyorgarlik davrida ma'lumot berish; psixolog so'rovnomasi; guruhlar shakllantirish | So'rovnoma (M5), guruhlar (M6) |
-| 3 | May — dekabr | **1 maydan** kurslar boshlanadi; guruh kattasi biriktiriladi; har kuni **15:00–17:25 (3 o'quv soati)** mashg'ulotlar; kunlik davomat kiritiladi; kurs yakuni → HKTB; vazirlik miqyosida KTA ma'lumotlari bilan solishtirish | Jadval (M7), davomat (M8), natijalar va sertifikatlar (M9), dashboard — "Kasb kurslari" diagrammalari (M12) |
+| 3 | May — dekabr | **1 maydan** kurslar boshlanadi; guruh kattasi biriktiriladi; har kuni **15:00–17:25 (3 o'quv soati)** mashg'ulotlar; kurs yakuni → HKTB | Jadval (M7), natijalar va sertifikatlar (M9), dashboard — "Kasb kurslari" diagrammalari (M12) |
 | 4 | Yanvar — fevral | Xizmat tugashiga bir oy qolganda o'qitilgan askarlar ro'yxatlarini bandlik bo'yicha idoralar va hokimliklarga yuborish | Bandlik ro'yxatlari eksporti (M11) |
 
 ### 4.2. "B" yo'nalishi — OTMga tayyorlash
@@ -128,20 +127,10 @@ Tizim yillik siklga bog'langan bosqichli jarayonni avtomatlashtiradi. Har bir bo
 | Bosqich | Davr | Asosiy harakatlar | Tizimdagi aksi |
 |---|---|---|---|
 | 1 | Fevral — mart | Targ'ibot; til, fan va milliy sertifikatlar, yutuqlar va oliy ma'lumot hujjatlarini aniqlash, PDF nusxalarini bazaga kiritish | M2 (JShShIR orqali + qo'lda to'ldirish) |
-| 2 | Aprel | OTMga kirish tartibi haqida ma'lumot; psixolog so'rovnomasi; tayyorlov guruhlari va nomzodlar ro'yxati; maktablar/o'quv markazlarini biriktirish; ikki tomonlama shartnoma va qo'shma reja; fanlar bo'yicha o'qituvchilar ro'yxati; o'qituvchilarning qismga kirish-chiqish tartibi; sinflar ajratish | M5, M6, M3, M4 |
-| 3 | May — iyun | **1 maydan** tayyorlov kurslari; guruh kattasi; har kuni 15:00–17:25; kunlik davomat kiritiladi; iyunda nomzodlarni **BMBA platformasida** ro'yxatdan o'tkazish va imtiyozlarni yuklash nazorati | M7, M8, M10, dashboard — "OTM tayyorlov kurslari" diagrammalari (M12) |
+| 2 | Aprel | OTMga kirish tartibi haqida ma'lumot; psixolog so'rovnomasi; tayyorlov guruhlari va nomzodlar ro'yxati; maktablar/o'quv markazlarini biriktirish; ikki tomonlama shartnoma va qo'shma reja; fanlar bo'yicha o'qituvchilar ro'yxati; o'qituvchilarning qismga kirish-chiqish tartibi; sinflar ajratish | M5, M6, M3 |
+| 3 | May — iyun | **1 maydan** tayyorlov kurslari; guruh kattasi; har kuni 15:00–17:25; iyunda nomzodlarni **BMBA platformasida** ro'yxatdan o'tkazish va imtiyozlarni yuklash nazorati | M7, M10, dashboard — "OTM tayyorlov kurslari" diagrammalari (M12) |
 | 4 | Iyul | BMBA test sinovlarida ishtirokni ta'minlash; natijalar va qabul qilinganlarni umumlashtirib HKTBga yuborish | M10, M12 |
 | 5 | Sentabr — fevral | OTMga kirganlar uchun onlayn o'qishni tashkil etish; fevralda ularni **muddatidan bir oy oldin zaxiraga bo'shatish** | M10, M11 |
-
-### 4.3. Davomat monitoringi — yo'nalishlar bo'yicha alohida ko'rsatish
-
-Algoritmda kunlik davomat ikki yo'nalish bo'yicha turli bo'limlar tomonidan umumlashtirilishi nazarda tutilgan (kasb kurslari — jangovar tayyorgarlik bo'limi, OTM tayyorlov kurslari — tarbiyaviy va mafkuraviy ishlar bo'limi). Tizimda bu ma'lumotlar hech qaysi bo'limga yoki tashqi platformaga **yo'naltirilmaydi va yuborilmaydi**. Buning o'rniga:
-
-- davomat bitta joyda — guruh kattasi tomonidan kiritiladi;
-- **dashboardda ikki yo'nalish alohida bloklarda, alohida diagrammalar** bilan ko'rsatiladi: "Kasb kurslari davomati" va "OTM tayyorlov kurslari davomati";
-- tegishli mas'ullar (jumladan qismning jangovar tayyorgarlik va tarbiyaviy ishlar bo'limlari) o'z yo'nalishini dashboard orqali kuzatadi.
-
-Diagrammalar tarkibi M12-modulda batafsil keltirilgan.
 
 ---
 
@@ -152,15 +141,15 @@ Tizimga faqat Mudofaa vazirligi tizimidagi xodimlar kiradi. Tizim ierarxik tuzil
 | № | Rol | Vakolat doirasi | Asosiy huquqlar |
 |---|---|---|---|
 | 1 | Tizim administratori | Butun tizim | Foydalanuvchilar, rollar, ma'lumotnomalar (jumladan fanlar va kasblar), integratsiya sozlamalari, audit jurnali |
-| 2 | MV HKTB xodimi | Respublika | Barcha dashboard va hisobotlar, biriktirishlarni tasdiqlash, kasblar ro'yxati va dasturlar, KTA ma'lumotlari bilan solishtirish, bandlik ro'yxatlarini eksport qilish |
+| 2 | MV HKTB xodimi | Respublika | Barcha dashboard va hisobotlar, biriktirishlarni tasdiqlash, kasblar ro'yxati va dasturlar, bandlik ro'yxatlarini eksport qilish |
 | 3 | MV JTB xodimi | Respublika | Kun tartibi, vaqt taqsimoti va jangovar/ma'naviy-ma'rifiy dasturlarni kiritish; kasb kurslari dashboardi |
 | 4 | TMIBB / MBMM xodimi | Respublika | OTM tayyorlov kurslari dashboardi va hisobotlarini ko'rish |
 | 5 | Harbiy okrug mas'uli | Okrug | Okrugdagi qismlar dashboardi, biriktirish takliflarini yuborish, BMBA ro'yxatdan o'tish nazorati |
 | 6 | Harbiy qism qo'mondoni | Qism | Guruhlar, guruh kattalarini tayinlash, o'qituvchilarga kirish ruxsati, sinflar ajratish, kurs yakunini tasdiqlash |
-| 7 | Qism mas'ul xodimi (operator) | Qism | Biriktirilgan muassasalar, shartnomalar, o'qituvchilar ma'lumotlari, xatlov, imtihon natijalari va sertifikatlarni kiritish |
+| 7 | Qism mas'ul xodimi (operator) | Qism | Biriktirilgan muassasalar, shartnomalar, o'qituvchilar ma'lumotlari, imtihon natijalari va sertifikatlarni kiritish |
 | 8 | Qism jangovar tayyorgarlik bo'limi | Qism | "Kasb kurslari" dashboardi va hisobotlarini ko'rish |
 | 9 | Qism tarbiyaviy ishlar bo'limi | Qism | "OTM tayyorlov kurslari" dashboardi va hisobotlarini ko'rish |
-| 10 | Guruh kattasi | O'z guruhi | Kunlik davomat, o'tilgan mashg'ulotlar soni va mavzusini kiritish |
+| 10 | Guruh kattasi | O'z guruhi | O'tilgan mashg'ulotlar soni va mavzusini kiritish |
 | 11 | Harbiy psixolog (sotsiolog) | Qism | So'rovnomalarni askar bilan birgalikda o'z profilidan to'ldirish, natijalarni umumlashtirish |
 | 12 | Mudofaa ishlari organi xodimi | Tuman/shahar | JShShIR orqali askar ma'lumotlarini olish, yetishmagan ma'lumot va PDF hujjatlarni kiritish |
 
@@ -270,7 +259,7 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
 - Kasbiy ko'nikmalar (anketa III bo'limi): xizmatga qadar kasb/faoliyat, sovrindorlik, kasb va fan sertifikatlari — tasdiqlovchi **PDF nusxalar** bilan.
 - Kasbga o'quvchanligi haqida belgi.
 - So'rovnoma natijalari (anketa IV–V bo'limlari) — M5 da saqlanadi va yig'ma jildda ko'rinadi.
-- Ta'lim yo'li tarixi: qaysi guruhda o'qigan, davomat foizi, natija, sertifikat, OTM natijasi, bandlik ro'yxatiga kiritilganligi.
+- Ta'lim yo'li tarixi: qaysi guruhda o'qigan, natija, sertifikat, OTM natijasi, bandlik ro'yxatiga kiritilganligi.
 - Askar boshqa qismga o'tkazilganda yig'ma jild u bilan birga ko'chadi (o'tkazish tarixi saqlanadi).
 - Qidiruv va filtrlash: JShShIR, F.I.Sh., qism, kasb, sertifikat turi, holat bo'yicha.
 
@@ -280,13 +269,6 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
 - **Maktab / o'quv markazini qismga biriktirish** (qo'shma qaror yoki buyruq asosida).
 - Qism va maktab o'rtasidagi **ikki tomonlama shartnoma** va **qo'shma reja** — rekvizitlari va skan nusxasi bilan (qism xodimi yuklaydi).
 - Muassasa tomonidan qog'ozda taqdim etilgan **o'qituvchilar ro'yxati** qism xodimi tomonidan tizimga kiritiladi (M6).
-
-### M4. O'quv-moddiy baza xatlovi
-
-- Har bir qism bo'yicha o'quv sinflari, o'quv joylari, jihozlar va ularning holati.
-- Qaysi kasb/fan uchun yaroqliligi belgilanadi.
-- Xatlov dalolatnomasini yuklash imkoniyati; yetishmovchiliklar ro'yxati.
-- Qism qo'mondoni tomonidan guruhlarga **sinf ajratish**.
 
 ### M5. So'rovnomalar
 
@@ -311,7 +293,7 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
   - qaysi tashkilotdan kelgani (texnikum / maktab / o'quv markazi — ma'lumotnomadan).
 - O'qituvchini guruhlarga biriktirish.
 - O'qituvchilarning **qismga kirish-chiqish ruxsati**: buyruq rekvizitlari, amal qilish muddati; muddat tugashidan oldin tizim ichida ogohlantirish.
-- O'qituvchining mashg'ulotga kelgani guruh kattasi tomonidan davomat bilan birga belgilanadi.
+- O'qituvchining mashg'ulotga kelgan-kelmagani guruh kattasi tomonidan qayd etiladi.
 
 ### M7. Dars jadvali va kun tartibi
 
@@ -319,15 +301,7 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
 - Standart vaqt: **15:00–17:25, 3 o'quv soati**; o'zgartirish faqat vakolatli rol tomonidan, sababi ko'rsatilib.
 - Nazariy va amaliy mashg'ulotlarni ajratish.
 - Bayram, dala mashg'ulotlari va boshqa sabablarga ko'ra mashg'ulot bekor qilinishini qayd etish.
-
-### M8. Kunlik davomat va mashg'ulotlar hisobi
-
-- Guruh kattasi har kuni mashg'ulot yakunida davomatni kiritadi: har bir askar uchun `keldi` / `kelmadi` (sababi: navbatchilik, kasallik, xizmat vazifasi, sababsiz).
-- O'tilgan mashg'ulotlar soni va mavzusi; o'qituvchi kelgan-kelmagani.
-- Kiritish **mobil qurilmadan qulay** bo'lishi kerak (bir necha bosishda).
-- Davomat kiritilmagan guruhlar bo'yicha kun oxirida tizim ichida **ogohlantirish** (guruh kattasi va qism qo'mondoniga).
-- Davomat hech qaysi bo'limga yoki tashqi platformaga yuborilmaydi — kiritilishi bilan **dashboard diagrammalarida** avtomatik aks etadi (4.3-band, M12).
-- Kiritilgan davomatni tahrirlash faqat belgilangan muddat ichida (masalan, 24 soat) mumkin; keyin — faqat qism qo'mondoni tasdig'i bilan, o'zgarishlar tarixi saqlanadi.
+- O'tilgan mashg'ulotlar soni va mavzusi guruh kattasi tomonidan kiritiladi.
 
 ### M9. Kurs yakuni, imtihonlar va sertifikatlar
 
@@ -335,7 +309,6 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
 - Holatlar: `o'qidi`, `imtihondan o'tdi`, `sertifikat oldi`, `o'qishni tugatmadi` (sababi bilan).
 - Sertifikat rekvizitlari (raqami, sanasi, bergan muassasa) va PDF nusxasi.
 - Qism qo'mondoni kurs yakunini tasdiqlaydi → ma'lumot HKTB dashboardida aks etadi.
-- HKTB uchun KTA ma'lumotlari bilan **solishtirish** vositasi: KTA tizimidan berilgan sertifikatlar **API orqali** olinadi (JShShIR bo'yicha) va nomuvofiqliklar ro'yxati avtomatik shakllantiriladi. KTA tizimi javob bermagan holatlar uchun zaxira sifatida XLSX import saqlanadi.
 
 ### M10. OTMga qabul jarayoni
 
@@ -362,20 +335,12 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
 
 | Diagramma | Turi | Mazmuni |
 |---|---|---|
-| Kunlik davomat dinamikasi | Chiziqli | Tanlangan davr bo'yicha kunlik davomat foizi |
-| Haftalik umumlashma | Ustunli | Haftalar kesimida o'rtacha davomat va o'tilgan soatlar |
-| Davomat kesimi | Ustunli (gorizontal) | Okruglar / qismlar / kasblar bo'yicha davomat foizi — yuqori darajadan pastiga "chuqurlashish" (drill-down) imkoniyati bilan |
-| Kelmaslik sabablari | Doiraviy | Navbatchilik, kasallik, xizmat vazifasi, sababsiz |
 | Kurs natijalari | Ustunli (yig'ma) | O'qiganlar, imtihondan o'tganlar, sertifikat olganlar |
 
 **2-blok. OTM tayyorlov kurslari**
 
 | Diagramma | Turi | Mazmuni |
 |---|---|---|
-| Kunlik davomat dinamikasi | Chiziqli | Tanlangan davr bo'yicha kunlik davomat foizi |
-| Haftalik umumlashma | Ustunli | Haftalar kesimida o'rtacha davomat va o'tilgan soatlar |
-| Davomat kesimi | Ustunli (gorizontal) | Okruglar / qismlar / fanlar bo'yicha (drill-down bilan) |
-| Kelmaslik sabablari | Doiraviy | Sabablar taqsimoti |
 | OTMga qabul voronkasi | Voronka | Nomzodlar → BMBAda ro'yxatdan o'tganlar → testda qatnashganlar → qabul qilinganlar |
 
 **3-blok. So'rovnoma (anketa) natijalari**
@@ -388,14 +353,12 @@ Yig'ma jild asosan elektron anketaning I–III bo'limlari orqali to'ldiriladi (6
 | OTM tayyorgarligi ehtiyoji | Ustunli | 17- va 18-savollar bo'yicha fanlar kesimida askarlar soni |
 | Ta'lim darajasi va sertifikatlar | Ustunli (yig'ma) | Ta'lim turlari, til/kasb/fan sertifikatiga egalar, sovrindorlar |
 
-**Umumiy ko'rsatkichlar paneli:** jami askarlar, guruhlar soni, bugungi davomat (ikki yo'nalish alohida), davomat kiritilmagan guruhlar soni, yaqinlashayotgan nazorat muddatlari.
+**Umumiy ko'rsatkichlar paneli:** jami askarlar, guruhlar soni, yaqinlashayotgan nazorat muddatlari.
 
 **Filtrlar:** davr, okrug, qism, kasb/fan, yillik sikl.
 
 **Hisobotlar:**
 
-- kunlik davomat hisoboti (yo'nalishlar bo'yicha alohida);
-- haftalik umumlashma hisoboti (yo'nalishlar bo'yicha alohida);
 - kurs yakuni hisoboti (HKTB uchun);
 - OTMga qabul natijalari (HKTB uchun);
 - vazirlik miqyosidagi yillik umumlashma.
@@ -415,7 +378,7 @@ Eksport: **XLSX, PDF**. Rasmiy blanklar mavjud emas, shuning uchun hisobot shakl
 - **Audit jurnali:** kim, qachon, qaysi yozuvni ko'rdi/o'zgartirdi (eski va yangi qiymatlari bilan); JShShIR bo'yicha so'rovlar ham jurnallanadi.
 - Integratsiya jurnali: har bir so'rovning vaqti, holati, xatolari.
 - Yillik siklni ochish/yopish (yangi chaqiruv yilini boshlash).
-- Tizim sozlamalari: ma'lumotlarni saqlash muddati, anketa tanlov rejimlari, davomatni tahrirlash muddati, nazorat muddatlari.
+- Tizim sozlamalari: ma'lumotlarni saqlash muddati, anketa tanlov rejimlari, nazorat muddatlari.
 
 ---
 
@@ -435,9 +398,8 @@ Eksport: **XLSX, PDF**. Rasmiy blanklar mavjud emas, shuning uchun hisobot shakl
 |---|---|---|---|---|
 | 1 | Manba tizim (chaqiriluvchilar bazasi) | Kiruvchi | JShShIR bo'yicha askarning shaxsiy ma'lumotlari, ma'lumoti va mavjud hujjatlari | API — JShShIR bo'yicha so'rov. Tizim nomi va API spetsifikatsiyasi askar ma'lumotlarini kiritish moduli (M2, anketa) ishlab chiqilayotganda taqdim etiladi. Ungacha anketa to'liq qo'lda kiritish rejimida ishlab chiqiladi |
 | 2 | BMBA elektron platformasi | Kiruvchi | Ro'yxatdan o'tganlik, imtiyozlar, test natijalari, qabul natijalari | **API** (JShShIR bo'yicha); zaxira — qo'lda kiritish |
-| 3 | Kasbiy ta'lim agentligi | Kiruvchi | Berilgan sertifikatlar (solishtirish uchun) | **API** (JShShIR bo'yicha); zaxira — XLSX import |
-| 4 | Bandlik bo'yicha idoralar va hokimliklar | Chiquvchi | Kasbga o'qitilgan askarlar ro'yxati | XLSX / PDF eksport |
-| 5 | Davlat ma'lumotnomalari | Kiruvchi | Hududlar, ta'lim muassasalari reyestri | Boshlang'ich yuklash XLSX orqali, keyin administrator yuritadi |
+| 3 | Bandlik bo'yicha idoralar va hokimliklar | Chiquvchi | Kasbga o'qitilgan askarlar ro'yxati | XLSX / PDF eksport |
+| 4 | Davlat ma'lumotnomalari | Kiruvchi | Hududlar, ta'lim muassasalari reyestri | Boshlang'ich yuklash XLSX orqali, keyin administrator yuritadi |
 
 > "E-tarbiya" platformasi bilan integratsiya talab qilinmaydi: OTM tayyorlov kurslari bo'yicha ma'lumotlar tizim dashboardida ko'rsatiladi (M12).
 
@@ -447,7 +409,7 @@ Eksport: **XLSX, PDF**. Rasmiy blanklar mavjud emas, shuning uchun hisobot shakl
 - JShShIR bo'yicha so'rov uchun javob kutish vaqti cheklanadi (timeout); javob bo'lmasa xodimga tushunarli xabar chiqadi va qo'lda kiritish taklif etiladi.
 - API mavjud bo'lmagan manbalar uchun **XLSX/CSV shablon orqali ommaviy import** (validatsiya va xatolar hisoboti bilan) qo'llab-quvvatlanadi.
 - Barcha so'rovlar va almashuvlar jurnallanadi.
-- BMBA va KTA API spetsifikatsiyalari tegishli integratsiya ishlab chiqilayotganda olinadi; har bir tashqi tizim uchun alohida adapter yoziladi.
+- BMBA API spetsifikatsiyasi tegishli integratsiya ishlab chiqilayotganda olinadi.
 - Tarmoq ulanishi va huquqiy asos masalalari buyurtmachi tomonidan hal qilinadi va ushbu TT doirasiga kirmaydi.
 
 ---
@@ -463,14 +425,12 @@ Eksport: **XLSX, PDF**. Rasmiy blanklar mavjud emas, shuning uchun hisobot shakl
 | **Biriktirish** | Qism, muassasa, asos hujjati, holati, muddati | Shartnoma, Qo'shma reja |
 | **Kasb** | Nomi, kodi, o'quv dasturi, soatlar hajmi, faolligi | Guruh |
 | **Fan** (dinamik) | Nomi, kodi, tayyorlov dasturi, soatlar hajmi, faolligi, amal qilish yillari | Guruh |
-| **O'quv resursi** | Sinf/joy, jihozlar, holati | Qism, Guruh |
 | **Anketa** (so'rovnoma) | Yillik sikl, holati (qoralama / yakunlangan), to'ldirgan psixolog, sana, qiziqqan kasb yo'nalishi, kelgusi rejalar, imzolangan skan | Askar, Qism, Anketa javoblari |
 | **Anketa javobi (OTM rejasi)** | Ustuvorlik (1–3), OTM, ta'lim yo'nalishi | Anketa |
 | **Kasb yo'nalishi** | Nomi, tavsifi, faolligi; qism bo'yicha faollashtirish | Anketa, Qism, Kasb |
 | **Guruh** | Turi (kasb / OTM), qism, muassasa, sanalar, sinf, guruh kattasi | Askarlar, O'qituvchilar, Jadval |
 | **O'qituvchi** (ma'lumot yozuvi) | F.I.Sh., mutaxassisligi, tashkiloti, kirish ruxsati rekvizitlari va muddati | Guruhlar |
-| **Mashg'ulot** | Sana, vaqt, mavzu, turi (nazariy/amaliy), holati, o'qituvchi keldi/kelmadi | Guruh, Davomat |
-| **Davomat** | Askar, mashg'ulot, holat, sababi, kim kiritgan | Mashg'ulot |
+| **Mashg'ulot** | Sana, vaqt, mavzu, turi (nazariy/amaliy), holati, o'qituvchi keldi/kelmadi | Guruh |
 | **Kurs natijasi** | Imtihon bahosi, holat, sertifikat rekvizitlari | Askar, Guruh |
 | **OTM arizasi** | BMBA holati, imtiyozlar, test bali, OTM, yo'nalish, onlayn o'qish, zaxiraga bo'shatish | Askar |
 | **Bandlik ro'yxati** | Hudud, qabul qiluvchi idora, tayyorlangan sana, fayl | Askarlar |
@@ -485,7 +445,6 @@ Eksport: **XLSX, PDF**. Rasmiy blanklar mavjud emas, shuning uchun hisobot shakl
 ### 9.1. Unumdorlik va masshtablanuvchanlik
 
 - Tizim respublika miqyosidagi yillik chaqiruv hajmiga mo'ljallanadi va ma'lumotlar hajmi ortganda gorizontal kengaytirilishi mumkin bo'lishi kerak (aniq hajm yuklama sinovi bosqichida buyurtmachi bilan belgilanadi).
-- Kun oxiridagi davomat kiritish cho'qqisi (17:25 dan keyin) ko'p sonli guruh kattalarining bir vaqtda ishlashini hisobga olib loyihalanadi.
 - Oddiy sahifalarning javob vaqti — 2 soniyadan oshmasligi; dashboard diagrammalari — 3 soniyagacha (agregatlar oldindan hisoblanadi yoki keshlanadi); og'ir hisobotlar fon rejimida tayyorlanadi.
 
 ### 9.2. Ishonchlilik
@@ -497,7 +456,7 @@ Eksport: **XLSX, PDF**. Rasmiy blanklar mavjud emas, shuning uchun hisobot shakl
 ### 9.3. Foydalanish qulayligi
 
 - Interfeys tili: **o'zbek tili (lotin yozuvi)**. Barcha matnlar alohida lug'at fayllarida saqlanadi (kodga yozilmaydi).
-- **Moslashuvchan (responsive) dizayn:** guruh kattasi davomatni, psixolog so'rovnomani telefon yoki planshetdan kiritishi kerak.
+- **Moslashuvchan (responsive) dizayn:** guruh kattasi mashg'ulot ma'lumotlarini, psixolog so'rovnomani telefon yoki planshetdan kiritishi kerak.
 - Past tezlikli internet sharoitida ishlash (yengil sahifalar). Oflayn rejim talab qilinmaydi; aloqa uzilganda foydalanuvchiga ma'lumot saqlanmagani haqida aniq xabar ko'rsatiladi.
 - Minimal texnik bilim talab qiladigan oddiy interfeys; har bir rol uchun qisqa foydalanuvchi qo'llanmasi.
 
@@ -569,11 +528,9 @@ src/
 │   ├── soldiers/        # M2 — yig'ma jild, JShShIR bo'yicha qidiruv
 │   ├── dictionaries/    # M1 — fanlar, kasblar va boshqa ma'lumotnomalar
 │   ├── assignments/     # M3 — biriktirishlar
-│   ├── facilities/      # M4 — o'quv-moddiy baza
 │   ├── surveys/         # M5 — so'rovnomalar
 │   ├── groups/          # M6 — guruhlar va o'qituvchilar
 │   ├── schedule/        # M7 — jadval
-│   ├── attendance/      # M8 — davomat
 │   ├── results/         # M9 — natijalar va sertifikatlar
 │   ├── admissions/      # M10 — OTMga qabul
 │   ├── employment/      # M11 — bandlik ro'yxatlari
@@ -592,10 +549,10 @@ src/
 |---|---|---|
 | **0. Tahlil** | Jarayonlarni buyurtmachi bilan tasdiqlash, 14-bo'limdagi savollarga javob olish | Tasdiqlangan TT |
 | **1. Loyihalash** | Ma'lumotlar modeli, API spetsifikatsiyasi, interfeys maketlari (asosiy ekranlar va dashboard) | Arxitektura hujjati, maketlar |
-| **2. MVP** | M1 (dinamik ma'lumotnomalar), elektron anketa va M2 (avval to'liq qo'lda kiritish; API spetsifikatsiyasi olingach — JShShIR orqali avtomatik to'ldirish), M5 (anketa natijalari), M6 (guruhlar va o'qituvchilar), M7 (jadval), M8 (davomat), M12 (dashboard — ikki yo'nalish diagrammalari), M14 (rollar, audit) | Bir necha pilot qismda ishlay oladigan tizim |
+| **2. MVP** | M1 (dinamik ma'lumotnomalar), elektron anketa va M2 (avval to'liq qo'lda kiritish; API spetsifikatsiyasi olingach — JShShIR orqali avtomatik to'ldirish), M5 (anketa natijalari), M6 (guruhlar va o'qituvchilar), M7 (jadval), M12 (dashboard — ikki yo'nalish diagrammalari), M14 (rollar, audit) | Bir necha pilot qismda ishlay oladigan tizim |
 | **3. Pilot** | 1–2 harbiy okrug qismlarida sinov, foydalanuvchilar fikrini yig'ish | Pilot hisoboti, tuzatishlar |
-| **4. To'liq funksional** | M3, M4, M5, M9, M10, M11, M13; hisobotlar va eksportlar | To'liq tizim |
-| **5. Qo'shimcha integratsiyalar** | BMBA va KTA bilan API integratsiyasi | Test natijalari va sertifikatlarni avtomatik olish, solishtirish |
+| **4. To'liq funksional** | M3, M5, M9, M10, M11, M13; hisobotlar va eksportlar | To'liq tizim |
+| **5. Qo'shimcha integratsiyalar** | BMBA bilan API integratsiyasi | Test natijalari va qabul natijalarini avtomatik olish |
 | **6. Joriy etish** | Respublika bo'ylab ishga tushirish, foydalanuvchilarni o'qitish, qo'llanmalar | Ekspluatatsiyaga topshirish |
 
 ### 12.1. Kalendar reja (qo'lda to'ldiriladi)
@@ -623,7 +580,7 @@ src/
 - Modul (unit) va integratsion testlar — avtomatlashtirilgan.
 - Har bir rol uchun ssenariy bo'yicha funksional sinov.
 - Manba tizim bilan integratsiya sinovi (topilgan, topilmagan JShShIR, manba tizim ishlamayotgan holat).
-- Yuklama sinovi (davomat kiritish cho'qqisi, dashboard agregatlari).
+- Yuklama sinovi (dashboard agregatlari).
 - Xavfsizlik sinovi (10-bo'lim, 11-band).
 - Pilot qismlarda foydalanuvchilar tomonidan qabul sinovi.
 
@@ -631,17 +588,15 @@ src/
 
 1. JShShIR kiritilganda askar ma'lumotlari manba tizimdan avtomatik olinadi, yetishmagan maydonlarni qo'lda to'ldirish mumkin, har bir maydonning manbasi ko'rinadi.
 2. Manba tizim javob bermaganda ham askarni qo'lda ro'yxatga olish mumkin.
-3. Guruh kattasi telefon orqali 30 kishilik guruh davomatini 1 daqiqadan kamroq vaqtda kirita oladi.
-4. Kiritilgan davomat dashboardda tegishli yo'nalish blokida ("Kasb kurslari" yoki "OTM tayyorlov kurslari") alohida diagrammalarda darhol aks etadi.
-5. Dashboardda okrug → qism darajasiga chuqurlashish (drill-down) ishlaydi va vakolat doirasidan tashqari ma'lumot ko'rinmaydi.
-6. Administrator yangi fan qo'shganda u darhol guruh yaratish, so'rovnoma va hisobotlarda ishlatiladi.
-7. Psixolog elektron anketani askar bilan birgalikda o'z profilidan to'ldira oladi; anketa amaldagi qog'oz anketaning barcha bandlarini qamrab oladi; V bo'lim faqat "oliy ta'limga kirish" tanlanganda ochiladi va majburiy bo'ladi; natijalar dashboardning "So'rovnoma natijalari" blokida avtomatik aks etadi.
-8. Qism uchun faollashtirilgan kasb yo'nalishlari o'zgartirilganda anketada darhol yangi ro'yxat ko'rinadi, oldin to'ldirilgan anketalar javoblari saqlanib qoladi.
-9. Yakunlangan anketa qog'oz shakliga mos PDF ko'rinishida chop etiladi.
-10. O'qituvchilar tizimga kirmasdan, faqat ma'lumot yozuvi sifatida (F.I.Sh., mutaxassisligi, tashkiloti) yuritiladi.
-11. Barcha o'zgarishlar va JShShIR so'rovlari audit jurnalida aks etadi.
-12. Algoritmdagi barcha nazorat muddatlari bo'yicha tizim ichidagi eslatmalar ishlaydi.
-13. Bandlik ro'yxati askarning yashash hududi bo'yicha to'g'ri guruhlanib, XLSX/PDF shaklida eksport qilinadi.
+3. Dashboardda okrug → qism darajasiga chuqurlashish (drill-down) ishlaydi va vakolat doirasidan tashqari ma'lumot ko'rinmaydi.
+4. Administrator yangi fan qo'shganda u darhol guruh yaratish, so'rovnoma va hisobotlarda ishlatiladi.
+5. Psixolog elektron anketani askar bilan birgalikda o'z profilidan to'ldira oladi; anketa amaldagi qog'oz anketaning barcha bandlarini qamrab oladi; V bo'lim faqat "oliy ta'limga kirish" tanlanganda ochiladi va majburiy bo'ladi; natijalar dashboardning "So'rovnoma natijalari" blokida avtomatik aks etadi.
+6. Qism uchun faollashtirilgan kasb yo'nalishlari o'zgartirilganda anketada darhol yangi ro'yxat ko'rinadi, oldin to'ldirilgan anketalar javoblari saqlanib qoladi.
+7. Yakunlangan anketa qog'oz shakliga mos PDF ko'rinishida chop etiladi.
+8. O'qituvchilar tizimga kirmasdan, faqat ma'lumot yozuvi sifatida (F.I.Sh., mutaxassisligi, tashkiloti) yuritiladi.
+9. Barcha o'zgarishlar va JShShIR so'rovlari audit jurnalida aks etadi.
+10. Algoritmdagi barcha nazorat muddatlari bo'yicha tizim ichidagi eslatmalar ishlaydi.
+11. Bandlik ro'yxati askarning yashash hududi bo'yicha to'g'ri guruhlanib, XLSX/PDF shaklida eksport qilinadi.
 
 ### 13.3. Topshiriladigan hujjatlar
 
@@ -658,7 +613,6 @@ src/
 
 | Masala | Qaror |
 |---|---|
-| Davomat hisobotlari | Bo'limlarga yuborilmaydi — dashboardda yo'nalishlar bo'yicha alohida diagrammalarda |
 | Askar ma'lumotlari | JShShIR orqali manba tizimdan, qolgani anketa orqali qo'lda; API spetsifikatsiyasi M2 ishlab chiqilayotganda beriladi |
 | Tashqi tashkilot xodimlari | Tizimga kirmaydi; o'qituvchilar faqat ma'lumot yozuvi |
 | Fanlar ro'yxati | Dinamik |
@@ -666,7 +620,7 @@ src/
 | Bildirishnomalar | Faqat tizim ichida |
 | Anketa 15-savoli | Tanlov rejimi sozlanadigan |
 | Anketa 16-savoli | Erkin matn |
-| BMBA va KTA | API orqali integratsiya |
+| BMBA | API orqali integratsiya |
 | Tarmoq, huquqiy asos, maxfiylik darajasi, infratuzilma | Buyurtmachi hal qiladi, TT doirasidan tashqarida |
 | Interfeys tili | O'zbek (lotin) |
 | Oflayn rejim | Talab qilinmaydi |

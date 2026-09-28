@@ -57,10 +57,6 @@ public class StudyGroup {
     private String classroom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id")
-    private uz.askar.education.facilities.Facility facility;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_user_id")
     private AppUser leader;
 

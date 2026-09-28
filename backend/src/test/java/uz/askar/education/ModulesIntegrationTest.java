@@ -128,8 +128,7 @@ class ModulesIntegrationTest {
     @Test
     void everyReportCanBeExportedAsXlsxAndPdf() throws Exception {
         String hktb = token("hktb");
-        for (String type : new String[] {"ATTENDANCE_DAILY", "ATTENDANCE_WEEKLY", "COURSE_COMPLETION",
-                "OTM_ADMISSIONS", "YEARLY_SUMMARY"}) {
+        for (String type : new String[] {"COURSE_COMPLETION", "OTM_ADMISSIONS", "YEARLY_SUMMARY"}) {
             for (String format : new String[] {"XLSX", "PDF"}) {
                 mvc.perform(get("/api/reports/" + type).param("format", format).headers(auth(hktb)))
                         .andExpect(status().isOk());
@@ -194,10 +193,7 @@ class ModulesIntegrationTest {
     }
 
     @Test
-    void ktaComparisonAndFacilitiesAreAvailable() throws Exception {
-        mvc.perform(get("/api/results/kta-comparison").headers(auth(token("hktb")))).andExpect(status().isOk());
-        mvc.perform(get("/api/facilities").headers(auth(token("qomondon1"))))
-                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+    void dashboardCourseResultsAreAvailable() throws Exception {
         mvc.perform(get("/api/dashboard/vocational/results").headers(auth(token("hktb"))))
                 .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(4)));
     }

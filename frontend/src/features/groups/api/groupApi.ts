@@ -15,8 +15,6 @@ export const groupApi = {
     apiClient.put<Group>(`/groups/${id}/members`, { soldierIds }).then((r) => r.data),
   replaceTeachers: (id: number, teacherIds: number[]) =>
     apiClient.put<Group>(`/groups/${id}/teachers`, { teacherIds }).then((r) => r.data),
-  assignFacility: (id: number, facilityId: number) =>
-    apiClient.put<Group>(`/groups/${id}/facility`, { facilityId }).then((r) => r.data),
   leaderOptions: (unitId: number) =>
     apiClient.get<LeaderOption[]>(`/military-units/${unitId}/group-leaders`).then((r) => r.data),
 };

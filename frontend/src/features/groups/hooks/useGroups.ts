@@ -37,9 +37,6 @@ export const useReplaceMembers = (id: number) =>
 export const useReplaceTeachers = (id: number) =>
   useGroupMutation((teacherIds: number[]) => groupApi.replaceTeachers(id, teacherIds));
 
-export const useAssignFacility = (id: number) =>
-  useGroupMutation((facilityId: number) => groupApi.assignFacility(id, facilityId));
-
 export function useLeaderOptions(unitId: number | undefined, enabled: boolean) {
   return useQuery({
     queryKey: ['group-leaders', unitId],

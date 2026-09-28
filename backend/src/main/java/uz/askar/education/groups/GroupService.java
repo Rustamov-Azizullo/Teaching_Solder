@@ -47,7 +47,6 @@ public class GroupService {
     private final TeacherRepository teachers;
     private final TeacherService teacherService;
     private final uz.askar.education.cycles.CycleService cycleService;
-    private final uz.askar.education.facilities.FacilityService facilityService;
     private final AppUserRepository users;
     private final CurrentUser currentUser;
     private final AuditService audit;
@@ -141,20 +140,6 @@ public class GroupService {
         group.getTeachers().clear();
         group.getTeachers().addAll(found);
         audit.record("UPDATE_TEACHERS", "StudyGroup", id, "o'qituvchilar soni: " + found.size());
-        return toDto(group);
-    }
-
-    /** Qism qo'mondoni guruhga sinf (xatlovdagi o'quv joyi) ajratadi (TT M4). */
-    @Transactional
-    public GroupDto assignFacility(Long id, Long facilityId) {
-        StudyGroup group = findInScope(id);
-        var facility = facilityService.findInScope(facilityId);
-        if (!facility.getMilitaryUnit().getId().equals(group.getMilitaryUnit().getId())) {
-            throw new BusinessRuleException("Sinf boshqa harbiy qismga tegishli");
-        }
-        group.setFacility(facility);
-        group.setClassroom(facility.getName());
-        audit.record("ASSIGN_FACILITY", "StudyGroup", id, facility.getName());
         return toDto(group);
     }
 

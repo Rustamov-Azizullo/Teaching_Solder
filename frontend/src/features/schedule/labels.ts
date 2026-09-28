@@ -19,13 +19,11 @@ export const scheduleLabels = {
   cancel: 'Bekor qilish',
   cancelReason: 'Bekor qilish sababi (bayram, dala mashg\'uloti va h.k.)',
   cancelled: "Mashg'ulot bekor qilindi",
-  attendance: 'Davomat',
   topic: 'Mavzu',
   kind: 'Turi',
   changeReason: 'Vaqt o\'zgartirilsa — sababi',
   today: {
     title: "Bugungi mashg'ulotlar",
-    subtitle: 'Davomat kiritish uchun mashg\'ulotni tanlang',
     empty: "Bugun mashg'ulot rejalashtirilmagan",
   },
 } as const;

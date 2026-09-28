@@ -1,20 +1,14 @@
 package uz.askar.education.reports;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.askar.education.admissions.AdmissionService;
-import uz.askar.education.attendance.AttendanceRepository;
-import uz.askar.education.attendance.AttendanceRow;
 import uz.askar.education.audit.AuditService;
 import uz.askar.education.common.ForbiddenException;
 import uz.askar.education.export.ExportFormat;
@@ -38,13 +32,9 @@ import uz.askar.education.surveys.QuestionnaireRepository;
 @RequiredArgsConstructor
 public class ReportService {
 
-    private static final double PERCENT = 100.0;
-    private static final double ROUND = 10.0;
-
     public record ReportFile(String fileName, byte[] content, ExportFormat format) {
     }
 
-    private final AttendanceRepository attendances;
     private final CourseResultRepository results;
     private final AdmissionService admissions;
     private final StudyGroupRepository groups;
@@ -58,8 +48,6 @@ public class ReportService {
     public ReportFile generate(ReportType type, GroupType groupType, LocalDate from, LocalDate to, ExportFormat format) {
         requireAllowed(type, groupType);
         TableData data = switch (type) {
-            case ATTENDANCE_DAILY -> attendanceDaily(groupType, to);
-            case ATTENDANCE_WEEKLY -> attendanceWeekly(groupType, from, to);
             case COURSE_COMPLETION -> courseCompletion();
             case OTM_ADMISSIONS -> otmAdmissions();
             case YEARLY_SUMMARY -> yearlySummary(to.getYear());
@@ -67,38 +55,6 @@ public class ReportService {
         audit.record("EXPORT", "Report", type.name(), format + ", qatorlar: " + data.rows().size());
         return new ReportFile(type.name().toLowerCase() + "-" + LocalDate.now() + "." + format.extension(),
                 exporter.export(data, format), format);
-    }
-
-    private TableData attendanceDaily(GroupType type, LocalDate date) {
-        var scope = currentUser.scope();
-        List<AttendanceRow> rows = attendances.findRows(type, date, date, scope.districtFilter(), scope.unitFilter());
-        Map<Long, List<AttendanceRow>> byGroup = rows.stream().collect(Collectors.groupingBy(AttendanceRow::groupId));
-        List<List<String>> table = byGroup.values().stream().map(list -> {
-            long present = list.stream().filter(AttendanceRow::isPresent).count();
-            AttendanceRow first = list.get(0);
-            return List.of(first.districtName(), first.unitName(), first.groupName(), String.valueOf(present),
-                    String.valueOf(list.size() - present), percent(present, list.size()));
-        }).sorted(Comparator.comparing((List<String> r) -> r.get(1)).thenComparing(r -> r.get(2))).toList();
-        return new TableData("Kunlik davomat hisoboti — " + typeLabel(type),
-                meta("Sana: " + date), List.of("Okrug", "Qism", "Guruh", "Keldi", "Kelmadi", "Davomat %"), table);
-    }
-
-    private TableData attendanceWeekly(GroupType type, LocalDate from, LocalDate to) {
-        var scope = currentUser.scope();
-        List<AttendanceRow> rows = attendances.findRows(type, from, to, scope.districtFilter(), scope.unitFilter());
-        Map<LocalDate, List<AttendanceRow>> byWeek = rows.stream().collect(Collectors.groupingBy(
-                r -> r.lessonDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), TreeMap::new,
-                Collectors.toList()));
-        List<List<String>> table = new ArrayList<>();
-        byWeek.forEach((week, list) -> {
-            long present = list.stream().filter(AttendanceRow::isPresent).count();
-            int hours = list.stream().collect(Collectors.toMap(AttendanceRow::lessonId, AttendanceRow::academicHours,
-                    (a, b) -> a)).values().stream().mapToInt(Integer::intValue).sum();
-            table.add(List.of(week.toString(), String.valueOf(list.size()), String.valueOf(present),
-                    percent(present, list.size()), String.valueOf(hours)));
-        });
-        return new TableData("Haftalik umumlashma hisoboti — " + typeLabel(type), meta("Davr: " + from + " — " + to),
-                List.of("Hafta boshi", "Belgilar soni", "Keldi", "Davomat %", "O'tilgan soat"), table);
     }
 
     private TableData courseCompletion() {
@@ -146,11 +102,6 @@ public class ReportService {
     private void requireAllowed(ReportType type, GroupType groupType) {
         Role role = currentUser.role();
         boolean allowed = switch (type) {
-            case ATTENDANCE_DAILY, ATTENDANCE_WEEKLY -> groupType == GroupType.VOCATIONAL
-                    ? hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.JTB, Role.DISTRICT_OFFICER, Role.UNIT_COMMANDER,
-                            Role.UNIT_OPERATOR, Role.COMBAT_TRAINING_DEPT)
-                    : hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.TMIBB, Role.DISTRICT_OFFICER, Role.UNIT_COMMANDER,
-                            Role.UNIT_OPERATOR, Role.EDUCATION_DEPT);
             case COURSE_COMPLETION -> hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.DISTRICT_OFFICER,
                     Role.UNIT_COMMANDER, Role.UNIT_OPERATOR);
             case OTM_ADMISSIONS -> hasAny(role, Role.SYSTEM_ADMIN, Role.HKTB, Role.TMIBB, Role.DISTRICT_OFFICER,
@@ -186,10 +137,6 @@ public class ReportService {
         return list.stream().filter(r -> r.getStatus() == status).count();
     }
 
-    private String percent(long part, long total) {
-        return total == 0 ? "0.0" : String.valueOf(Math.round(part * PERCENT * ROUND / total) / ROUND);
-    }
-
     private String yesNo(boolean value) {
         return value ? "Ha" : "Yo'q";
     }
@@ -198,7 +145,4 @@ public class ReportService {
         return value == null ? "" : value;
     }
 
-    private String typeLabel(GroupType type) {
-        return type == GroupType.VOCATIONAL ? "Kasb kurslari" : "OTM tayyorlov kurslari";
-    }
 }

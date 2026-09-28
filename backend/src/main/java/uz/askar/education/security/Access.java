@@ -40,8 +40,6 @@ public final class Access {
     public static final String RESULT_READ =
             "hasAnyRole('SYSTEM_ADMIN','HKTB','DISTRICT_OFFICER','UNIT_COMMANDER','UNIT_OPERATOR','COMBAT_TRAINING_DEPT','EDUCATION_DEPT')";
 
-    public static final String KTA_COMPARE = "hasAnyRole('SYSTEM_ADMIN','HKTB')";
-
     public static final String ADMISSION_WRITE = "hasAnyRole('SYSTEM_ADMIN','UNIT_COMMANDER','UNIT_OPERATOR')";
 
     public static final String ADMISSION_READ =
@@ -60,8 +58,6 @@ public final class Access {
                     + "'COMBAT_TRAINING_DEPT','EDUCATION_DEPT','GROUP_LEADER','PSYCHOLOGIST')";
 
     public static final String SCHEDULE_WRITE = "hasAnyRole('SYSTEM_ADMIN','JTB','UNIT_COMMANDER','UNIT_OPERATOR')";
-
-    public static final String ATTENDANCE_WRITE = "hasAnyRole('SYSTEM_ADMIN','UNIT_COMMANDER','GROUP_LEADER')";
 
     public static final String DASHBOARD_VOCATIONAL =
             "hasAnyRole('SYSTEM_ADMIN','HKTB','JTB','DISTRICT_OFFICER','UNIT_COMMANDER','UNIT_OPERATOR',"

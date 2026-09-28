@@ -31,12 +31,3 @@ export type ResultInput = {
   certificateDate?: string;
   certificateIssuer?: string;
 };
-
-export type Mismatch = {
-  pinfl: string;
-  fullName: string;
-  unitName: string;
-  ourCertificate: string | null;
-  ktaCertificate: string | null;
-  problem: string;
-};

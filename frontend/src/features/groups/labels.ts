@@ -31,7 +31,6 @@ export const groupLabels = {
     startDate: 'Boshlanish sanasi',
     endDate: 'Tugash sanasi',
     classroom: 'Sinf (xona)',
-    facility: 'Sinf ajratish (xatlovdan)',
     leader: 'Guruh kattasi',
     leaderOrder: 'Buyruq',
     orderNo: 'Buyruq raqami',

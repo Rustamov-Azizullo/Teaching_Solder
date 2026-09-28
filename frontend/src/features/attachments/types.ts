@@ -1,4 +1,4 @@
-export type AttachmentOwnerType = 'SOLDIER' | 'ASSIGNMENT' | 'FACILITY' | 'RESULT' | 'QUESTIONNAIRE';
+export type AttachmentOwnerType = 'SOLDIER' | 'ASSIGNMENT' | 'RESULT' | 'QUESTIONNAIRE';
 
 export type Attachment = {
   id: number;
