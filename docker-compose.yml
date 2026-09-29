@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: askar_talimi
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD ni .env faylida belgilang}
     ports:
       - "5432:5432"
     volumes:
@@ -25,13 +25,20 @@ services:
     environment:
       DB_URL: jdbc:postgresql://db:5432/askar_talimi
       DB_USER: postgres
-      DB_PASSWORD: postgres
-      JWT_SECRET: ${JWT_SECRET:-change-me-change-me-change-me-change-me-0123}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD ni .env faylida belgilang}
+      # prod profili standart maxfiy qiymatlar bilan ishga tushishni rad etadi.
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET ni .env faylida belgilang (kamida 32 belgi)}
+      STORAGE_SECRET: ${STORAGE_SECRET:?STORAGE_SECRET ni .env faylida belgilang}
+      INITIAL_PASSWORD: ${INITIAL_PASSWORD:-}
       CORS_ORIGINS: http://localhost:8088
-      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
       SERVER_PORT: "8081"
-    ports:
-      - "8081:8081"
+    volumes:
+      - file-data:/app/data/files
+    # Backend faqat frontend (nginx) orqali ochiladi: 8081 portini tashqariga chiqarmang.
+    expose:
+      - "8081"
 
   frontend:
     build: ./frontend
@@ -42,3 +49,4 @@ services:
 
 volumes:
   db-data:
+  file-data:

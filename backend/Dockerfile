@@ -7,6 +7,10 @@ RUN mvn -q package -DskipTests
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/education-0.1.0.jar app.jar
+# Ilova root huquqisiz ishlaydi; fayllar /app/data/files ga yoziladi.
+RUN groupadd --system app && useradd --system --gid app --home /app app \
+    && mkdir -p /app/data/files && chown -R app:app /app
+COPY --from=build --chown=app:app /app/target/education-0.1.0.jar app.jar
+USER app
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

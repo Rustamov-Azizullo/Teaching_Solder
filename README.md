@@ -23,8 +23,15 @@ Boshqa sozlamalar uchun muhit o'zgaruvchilari: `DB_URL`, `DB_USER`, `DB_PASSWORD
 cd backend
 mvn spring-boot:run
 ```
-Birinchi ishga tushishda Flyway sxemani yaratadi va **demo ma'lumotlar** (qismlar, askarlar, guruhlar, davomat, anketalar)
-yoziladi. O'chirish: `SEED_DEMO_DATA=false`. Productionda `JWT_SECRET` ni albatta o'zgartiring.
+Birinchi ishga tushishda Flyway sxemani yaratadi va bo'sh bazaga to'rt boshlang'ich foydalanuvchi yoziladi:
+`megasuperadmin`, `superadmin`, `admin` (Admin, 1-harbiy okrug), `user` (User, 101-harbiy qism).
+Parol `INITIAL_PASSWORD` muhit o'zgaruvchisidan olinadi; berilmasa, har bir hisobga tasodifiy parol yaratilib
+backend logiga **bir marta** yoziladi (`Boshlang'ich hisob yaratildi: login=… parol=…`).
+To'liq demo ma'lumot (qismlar, askarlar, guruhlar, anketalar) kerak bo'lsa: `SEED_DEMO_DATA=true` (demo hisoblar paroli quyida).
+
+**Maxfiy qiymatlar.** `JWT_SECRET` (kamida 32 belgi), `STORAGE_SECRET` va `DB_PASSWORD` standart qiymatlarda qolsa, backend
+ogohlantiradi; `prod` profilida (`SPRING_PROFILES_ACTIVE=prod`) esa ishga tushmaydi. Swagger/OpenAPI sukut bo'yicha o'chirilgan
+(`DOCS_ENABLED=true` bilan yoqiladi). Kirish sahifasidagi demo yozuvi `VITE_SHOW_DEMO_HINT=true` bilan ko'rsatiladi.
 
 ### 3. Frontend (port 5173)
 ```bash
@@ -35,16 +42,18 @@ npm run dev
 Dev serverda `/api` so'rovlari `http://localhost:8081` ga proksi qilinadi (`VITE_BACKEND_URL` bilan o'zgartiriladi).
 
 ### To'liq stek (Docker)
+`.env` fayliga `DB_PASSWORD`, `JWT_SECRET`, `STORAGE_SECRET` (va ixtiyoriy `INITIAL_PASSWORD`) yozing, so'ng:
 ```bash
 docker compose up --build     # frontend: http://localhost:8088
 ```
+Backend (8081) tashqariga ochilmaydi, unga faqat frontend (nginx) orqali `/api` yo'lida kiriladi. Yuklangan fayllar `file-data` volumida saqlanadi.
 
-## Demo foydalanuvchilar (parol: `Parol123!`)
+## Demo foydalanuvchilar (faqat `SEED_DEMO_DATA=true` bilan; parol: `Parol123!`)
 
 | Login | Rol (hudud) | Nimani ko'radi |
 |---|---|---|
-| `megasuperadmin` | Mega SuperAdmin (respublika) | Hammasi; ruxsatlarni boshqarish |
-| `superadmin`, `admin`, `hktb`, `jtb`, `tmibb` | SuperAdmin (respublika) | Hammasi; ruxsatlarni boshqarish |
+| `megasuperadmin` | Mega SuperAdmin (vazirlik) | Hammasi; ruxsatlarni boshqarish |
+| `superadmin`, `admin`, `hktb`, `jtb`, `tmibb` | SuperAdmin (vazirlik) | Hammasi; ruxsatlarni boshqarish |
 | `okrug1`, `adminuser` | Admin (1-okrug) | Faqat o'z okrugi; o'z okrugidagi foydalanuvchilarni boshqarish |
 | `qomondon1`, `qomondon2` | User (101 / 201-qism) + qo'mondon ruxsatlari | Faqat o'z qismi; guruh kattasini tayinlash, standart dars vaqtini o'zgartirish |
 | `operator1` | User (101-qism) + operator ruxsatlari | Askar, guruh, o'qituvchi, natija kiritish |
