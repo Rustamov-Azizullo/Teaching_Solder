@@ -8,7 +8,6 @@ export function useDictionaryTypes() {
   return useQuery({ queryKey: ['dictionary-types'], queryFn: dictionaryApi.types, staleTime: REFERENCE_STALE_TIME_MS });
 }
 
-/** Ma'lumotnoma elementlari. `unitId` berilsa, kasb yo'nalishlari shu qism uchun faollarigacha toraytiriladi. */
 export function useDictionary(type: DictionaryType, options: { activeOnly?: boolean; unitId?: number } = {}) {
   return useQuery({
     queryKey: ['dictionary', type, options],

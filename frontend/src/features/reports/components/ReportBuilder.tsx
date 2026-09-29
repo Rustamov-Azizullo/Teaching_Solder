@@ -2,25 +2,19 @@ import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Select, Space } from 'antd';
 import { useState } from 'react';
 import { getErrorMessage } from '@/lib/apiClient';
-import { API_DATE_FORMAT, dayjs } from '@/lib/dayjs';
 import { notify } from '@/lib/notify';
 import { downloadReport } from '../api/reportApi';
 import { reportLabels, reportTypeLabels } from '../labels';
-import type { ReportFormat, ReportGroupType, ReportType } from '../types';
-
-const DEFAULT_RANGE_DAYS = 7;
-const DEFAULT_GROUP_TYPE: ReportGroupType = 'VOCATIONAL';
+import type { ReportFormat, ReportType } from '../types';
 
 export function ReportBuilder() {
-  const [type, setType] = useState<ReportType>('COURSE_COMPLETION');
-  const [groupType] = useState<ReportGroupType>(DEFAULT_GROUP_TYPE);
+  const [type, setType] = useState<ReportType>('WEEKLY_UNIT_SUMMARY');
   const [busy, setBusy] = useState<ReportFormat | null>(null);
 
   const run = async (format: ReportFormat) => {
     setBusy(format);
     try {
-      const range = [dayjs().subtract(DEFAULT_RANGE_DAYS, 'day'), dayjs()];
-      await downloadReport({ type, format, groupType, from: range[0].format(API_DATE_FORMAT), to: range[1].format(API_DATE_FORMAT) });
+      await downloadReport({ type, format });
       notify.success(reportLabels.ready);
     } catch (error) {
       notify.error(await readableError(error));

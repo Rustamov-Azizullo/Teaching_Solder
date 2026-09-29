@@ -26,8 +26,8 @@ describe('can', () => {
   it.each([
     ['SUPER_ADMIN', [], 'systemConfig', false],
     ['SUPER_ADMIN', ['SYSTEM_CONFIG'], 'systemConfig', true],
-    ['ADMIN', ['ASSIGNMENT_DECIDE'], 'assignmentDecide', true],
-    ['ADMIN', ['ASSIGNMENT_READ'], 'assignmentDecide', false],
+    ['ADMIN', ['DEADLINE_MANAGE'], 'deadlineManage', true],
+    ['ADMIN', ['REPORTS'], 'deadlineManage', false],
     ['USER', ['EMPLOYMENT'], 'employment', true],
     ['USER', [], 'soldierRead', false],
     ['USER', ['GROUP_LEADER_ASSIGN'], 'leaderAssign', true],

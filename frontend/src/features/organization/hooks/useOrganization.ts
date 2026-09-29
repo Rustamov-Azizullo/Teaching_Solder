@@ -16,6 +16,10 @@ export function useTerritorialDistricts(regionId: number | undefined) {
   });
 }
 
+export function useLocationTree() {
+  return useQuery({ queryKey: ['locations', 'tree'], queryFn: organizationApi.locationTree });
+}
+
 export function useMilitaryDistricts() {
   return useQuery({ queryKey: ['military-districts'], queryFn: organizationApi.militaryDistricts });
 }

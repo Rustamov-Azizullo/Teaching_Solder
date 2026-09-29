@@ -1,5 +1,5 @@
 import { DownloadOutlined, InboxOutlined } from '@ant-design/icons';
-import { Alert, Button, Modal, Space, Table, Upload } from 'antd';
+import { Alert, Button, Modal, Space, Upload } from 'antd';
 import { useState } from 'react';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
@@ -8,6 +8,7 @@ import { soldierApi } from '../api/soldierApi';
 import { useImportSoldiers } from '../hooks/useSoldiers';
 import { soldierLabels } from '../labels';
 import type { ImportResult } from '../types';
+import { NumberedTable } from '@/components/ui';
 
 const t = soldierLabels.import;
 
@@ -36,7 +37,7 @@ export function SoldierImportModal({ open, onClose }: { open: boolean; onClose: 
           <>
             <Alert type={result.errors.length ? 'warning' : 'success'} showIcon message={t.result(result.imported, result.errors.length)} />
             {result.errors.length > 0 && (
-              <Table
+              <NumberedTable
                 size="small"
                 rowKey="row"
                 pagination={{ pageSize: 8, hideOnSinglePage: true }}

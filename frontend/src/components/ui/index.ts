@@ -3,4 +3,4 @@ export { FullPageSpinner } from './FullPageSpinner';
 export { PageHeader } from './PageHeader';
 export { QueryBoundary } from './QueryBoundary';
 export { ChartCard } from './ChartCard';
-export { KpiCard } from './KpiCard';
+export { NumberedTable } from './NumberedTable';

@@ -1,39 +1,12 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
 import { dashboardApi } from '../api/dashboardApi';
 import type { DashboardFilters } from '../types';
-import { queryKeys } from '@/lib/queryKeys';
 
-export function useCourseResults(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>) {
+export function useOverview(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>) {
   return useQuery({
-    queryKey: [...queryKeys.dashboard, 'course-results', filters],
-    queryFn: () => dashboardApi.courseResults(filters),
-    placeholderData: keepPreviousData,
-  });
-}
-
-export function useSurveyBlock(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>, enabled: boolean) {
-  return useQuery({
-    queryKey: [...queryKeys.dashboard, 'surveys', filters],
-    queryFn: () => dashboardApi.surveys(filters),
-    enabled,
-    placeholderData: keepPreviousData,
-  });
-}
-
-export function useGeography(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>, enabled: boolean) {
-  return useQuery({
-    queryKey: [...queryKeys.dashboard, 'geography', filters],
-    queryFn: () => dashboardApi.geography(filters),
-    enabled,
-    placeholderData: keepPreviousData,
-  });
-}
-
-export function useOtmDistricts(filters: Pick<DashboardFilters, 'districtId' | 'unitId'>, enabled: boolean) {
-  return useQuery({
-    queryKey: [...queryKeys.dashboard, 'otm-districts', filters],
-    queryFn: () => dashboardApi.otmDistricts(filters),
-    enabled,
+    queryKey: [...queryKeys.dashboard, 'overview', filters],
+    queryFn: () => dashboardApi.overview(filters),
     placeholderData: keepPreviousData,
   });
 }

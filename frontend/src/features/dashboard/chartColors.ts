@@ -1,11 +1,9 @@
 /** Barcha diagrammalar uchun yagona palitra (rangni ko'r foydalanuvchilar uchun ham ajralib turadigan). */
 export const chartColors = {
-  primary: '#1677ff',
-  secondary: '#52c41a',
-  accent: '#fa8c16',
-  danger: '#f5222d',
-  muted: '#8c8c8c',
-  series: ['#1677ff', '#52c41a', '#fa8c16', '#eb2f96', '#722ed1', '#13c2c2', '#faad14', '#8c8c8c'],
+  primary: '#3b6fe8',
+  secondary: '#16a34a',
+  accent: '#f59e0b',
+  danger: '#dc2626',
+  muted: '#64748b',
+  series: ['#3b6fe8', '#16a34a', '#f59e0b', '#db2777', '#7c3aed', '#0891b2', '#ea580c', '#64748b'],
 } as const;
-
-export const CHART_HEIGHT = 260;

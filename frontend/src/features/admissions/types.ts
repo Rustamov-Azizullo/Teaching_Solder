@@ -5,6 +5,9 @@ export type AdmissionRow = {
   soldierId: number;
   fullName: string;
   pinfl: string;
+  districtId: number;
+  districtName: string;
+  unitId: number;
   unitName: string;
   bmbaRegistered: boolean;
   benefitsUploaded: boolean;
@@ -19,6 +22,6 @@ export type AdmissionRow = {
   bmbaSyncedAt: string | null;
 };
 
-export type AdmissionUpdate = Omit<AdmissionRow, 'soldierId' | 'fullName' | 'pinfl' | 'unitName' | 'serviceEndDate' | 'bmbaSyncedAt'>;
+export type AdmissionUpdate = Omit<AdmissionRow, 'soldierId' | 'fullName' | 'pinfl' | 'districtId' | 'districtName' | 'unitId' | 'unitName' | 'serviceEndDate' | 'bmbaSyncedAt'>;
 export type FunnelStep = { label: string; count: number };
 export type SyncResult = { synced: number; notFound: number; failed: number };

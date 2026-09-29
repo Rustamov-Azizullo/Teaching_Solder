@@ -6,7 +6,7 @@ export type LocationOptionGroup = { label: string; options: LocationOption[] };
 /** antd `Select` bir ro'yxatda oddiy va guruhlangan variantlarni qabul qiladi. */
 export type LocationSelectOptions = Array<LocationOption | LocationOptionGroup>;
 
-/** Rolning hududiy darajasi; respublika rollari (`null`) hududga biriktirilmaydi. */
+/** Rolning hududiy darajasi; vazirlik rollari (`null`) hududga biriktirilmaydi. */
 const ROLE_LOCATION_LEVEL: Record<Role, LocationLevel | null> = {
   MEGA_SUPER_ADMIN: null,
   SUPER_ADMIN: null,

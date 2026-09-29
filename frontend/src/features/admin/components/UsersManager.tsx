@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Popconfirm, Space, Table, Tag, Typography } from 'antd';
+import { Button, Popconfirm, Space, Tag, Typography } from 'antd';
 import { useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { useAuth } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
@@ -31,10 +31,10 @@ export function UsersManager() {
       <Typography.Text type="secondary">{adminLabels.users.addHint}</Typography.Text>
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(users) => (
-          <Table<UserRow>
+          <NumberedTable<UserRow>
             rowKey="id"
             dataSource={users}
-            pagination={{ pageSize: 15, hideOnSinglePage: true }}
+            pagination={{ defaultPageSize: 15, showSizeChanger: true, pageSizeOptions: [10, 15, 30, 50], showTotal: (total) => `Jami: ${total}` }}
             scroll={{ x: 'max-content' }}
             columns={[
               { title: adminLabels.users.username, dataIndex: 'username' },

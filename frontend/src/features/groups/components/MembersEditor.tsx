@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSoldierSearch } from '@/features/soldiers';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
-import { useReplaceMembers } from '../hooks/useGroups';
+import { useReplaceMembers, useSoldiersInOtherGroups } from '../hooks/useGroups';
 import { groupLabels } from '../labels';
 import type { Group } from '../types';
 import { notify } from '@/lib/notify';
@@ -12,13 +12,17 @@ const MAX_UNIT_SOLDIERS = 100;
 
 export function MembersEditor({ group, canEdit }: { group: Group; canEdit: boolean }) {
   const { data } = useSoldierSearch({ unitId: group.militaryUnitId, page: 0, size: MAX_UNIT_SOLDIERS });
+  const { data: takenSoldierIds } = useSoldiersInOtherGroups(group.id);
   const { mutateAsync, isPending } = useReplaceMembers(group.id);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   useEffect(() => setSelectedKeys(group.members.map((member) => String(member.id))), [group.members]);
 
   const candidates = new Map<string, string>();
-  data?.content.forEach((soldier) => candidates.set(String(soldier.id), soldier.fullName));
+  const takenIds = new Set(takenSoldierIds);
+  data?.content
+    .filter((soldier) => !takenIds.has(soldier.id))
+    .forEach((soldier) => candidates.set(String(soldier.id), soldier.fullName));
   group.members.forEach((member) => candidates.set(String(member.id), member.fullName));
 
   const handleSave = async () => {

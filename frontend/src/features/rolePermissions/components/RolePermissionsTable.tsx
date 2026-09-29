@@ -1,16 +1,20 @@
 import { LockOutlined } from '@ant-design/icons';
-import { Checkbox, Table, Tooltip } from 'antd';
+import { Checkbox, Table, Tooltip, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { permissionLabels, roleLabels, useAuth, type PermissionKey } from '@/features/auth';
 import { rolePermissionsLabels } from '../labels';
 import type { ConfigurableRole, RolePermissionRow } from '../types';
 import { PERMISSION_GROUPS } from '../utils/permissionGroups';
+import { PERMISSION_PAGES } from '../utils/permissionPages';
 import { CONFIGURABLE_ROLES, canEditRole } from '../utils/rolePermissionMatrix';
 
 const ROLE_COLUMN_WIDTH = 130;
 
 type RolePermissionsTableProps = {
+  /** Ko'rsatiladigan (qidiruv bilan filtrlangan) qatorlar. */
   rows: RolePermissionRow[];
+  /** Barcha qatorlar: ustun sarlavhasidagi hisob va "hammasini belgilash" shularga tegishli. */
+  allRows: RolePermissionRow[];
   onToggle: (role: ConfigurableRole, permission: PermissionKey, granted: boolean) => void;
   onToggleAll: (role: ConfigurableRole, granted: boolean) => void;
 };
@@ -24,17 +28,17 @@ function groupRowSpan(rows: RolePermissionRow[], index: number): number {
   return span;
 }
 
-export function RolePermissionsTable({ rows, onToggle, onToggleAll }: RolePermissionsTableProps) {
+export function RolePermissionsTable({ rows, allRows, onToggle, onToggleAll }: RolePermissionsTableProps) {
   const { user } = useAuth();
 
   const roleHeader = (role: ConfigurableRole) => {
     const isEditable = canEditRole(user?.role, role);
-    const grantedCount = rows.filter((row) => row.granted[role]).length;
+    const grantedCount = allRows.filter((row) => row.granted[role]).length;
     return (
-      <Tooltip title={rolePermissionsLabels.granted(grantedCount, rows.length)}>
+      <Tooltip title={rolePermissionsLabels.granted(grantedCount, allRows.length)}>
         <Checkbox
-          checked={grantedCount === rows.length}
-          indeterminate={grantedCount > 0 && grantedCount < rows.length}
+          checked={grantedCount === allRows.length}
+          indeterminate={grantedCount > 0 && grantedCount < allRows.length}
           disabled={!isEditable}
           onChange={(event) => onToggleAll(role, event.target.checked)}
           aria-label={rolePermissionsLabels.selectAll(roleLabels[role])}
@@ -55,6 +59,12 @@ export function RolePermissionsTable({ rows, onToggle, onToggleAll }: RolePermis
       render: (_: unknown, row) => rolePermissionsLabels.groups[PERMISSION_GROUPS[row.permission]],
     },
     { title: rolePermissionsLabels.permission, dataIndex: 'permission', render: (permission: PermissionKey) => permissionLabels[permission] },
+    {
+      title: rolePermissionsLabels.pages,
+      key: 'pages',
+      responsive: ['lg'],
+      render: (_: unknown, row) => <Typography.Text type="secondary">{PERMISSION_PAGES[row.permission]}</Typography.Text>,
+    },
     ...CONFIGURABLE_ROLES.map((role) => ({
       title: roleHeader(role),
       key: role,
@@ -79,7 +89,9 @@ export function RolePermissionsTable({ rows, onToggle, onToggleAll }: RolePermis
       pagination={false}
       size="small"
       bordered
+      sticky
       scroll={{ x: 'max-content' }}
+      locale={{ emptyText: rolePermissionsLabels.noMatches }}
     />
   );
 }

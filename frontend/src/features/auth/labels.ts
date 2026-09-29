@@ -1,5 +1,13 @@
 export const authLabels = {
   title: 'Tizimga kirish',
+  welcome: 'Xush kelibsiz',
+  loginSubtitle: 'Hisobingizga kirish uchun login va parolni kiriting',
+  brandFeatures: [
+    { key: 'soldiers', title: "Yig'ma jild va anketalar", text: "Har bir askarning shaxsiy jildi va kasbiy qiziqish anketasi bir joyda" },
+    { key: 'courses', title: 'Kasb va OTM tayyorlov', text: "Guruhlar va kurs natijalarini yuritish" },
+    { key: 'monitoring', title: 'Hududiy monitoring', text: "Okrug va qismlar kesimida real vaqt dashboardi" },
+  ],
+  brandFooter: "Xavfsiz kirish · Barcha amallar audit jurnaliga yoziladi",
   username: 'Login',
   password: 'Parol',
   usernameRequired: 'Loginni kiriting',

@@ -1,7 +1,7 @@
 import { CheckCircleOutlined } from '@ant-design/icons';
-import { Alert, Button, DatePicker, Input, InputNumber, Popconfirm, Select, Space, Table } from 'antd';
+import { Alert, Button, DatePicker, Input, InputNumber, Popconfirm, Select, Space } from 'antd';
 import { useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { AttachmentPanel } from '@/features/attachments';
 import { useCan } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
@@ -37,7 +37,7 @@ function SheetBody({ sheet }: { sheet: ResultsSheet }) {
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       {sheet.approved && <Alert type="success" showIcon message={resultLabels.approved(sheet.approvedBy)} />}
-      <Table<ResultRow> rowKey="soldierId" size="small" pagination={false} dataSource={sheet.rows} scroll={{ x: 'max-content' }}
+      <NumberedTable<ResultRow> rowKey="soldierId" size="small" pagination={false} dataSource={sheet.rows} scroll={{ x: 'max-content' }}
         columns={[
           { title: c.name, dataIndex: 'fullName' },
           { title: c.status, render: (_: unknown, r) => (

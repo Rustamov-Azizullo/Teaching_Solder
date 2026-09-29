@@ -1,6 +1,6 @@
 export type Role = 'MEGA_SUPER_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | 'USER';
 
-/** Backenddagi `LocationLevel` enum: respublika (ildiz) -> harbiy okrug -> harbiy qism. */
+/** Backenddagi `LocationLevel` enum: vazirlik (ildiz) -> harbiy okrug -> harbiy qism. */
 export type LocationLevel = 'REPUBLIC' | 'DISTRICT' | 'UNIT';
 
 /** Backenddagi `Permission` enum kalitlari (rol-ruxsat matritsasi va shaxsiy ruxsatlar shu kalitlar bilan ishlaydi). */
@@ -14,9 +14,6 @@ export type PermissionKey =
   | 'QUESTIONNAIRE_READ'
   | 'QUESTIONNAIRE_WRITE'
   | 'ATTACHMENT_WRITE'
-  | 'ASSIGNMENT_READ'
-  | 'ASSIGNMENT_PROPOSE'
-  | 'ASSIGNMENT_DECIDE'
   | 'DEADLINE_MANAGE'
   | 'RESULT_READ'
   | 'RESULT_WRITE'
@@ -27,8 +24,6 @@ export type PermissionKey =
   | 'GROUP_READ'
   | 'GROUP_WRITE'
   | 'GROUP_LEADER_ASSIGN'
-  | 'SCHEDULE_WRITE'
-  | 'SCHEDULE_TIME_OVERRIDE'
   | 'REPORTS'
   | 'DASHBOARD_VOCATIONAL'
   | 'DASHBOARD_OTM'
@@ -43,7 +38,7 @@ export type AuthUser = {
   locationId: number | null;
   locationName: string | null;
   locationLevel: LocationLevel | null;
-  /** Hududdan hisoblanadi (faqat qism darajasida); guruh/biriktirish formalarida standart qism sifatida o'qiladi. */
+  /** Hududdan hisoblanadi (faqat qism darajasida); guruh formalarida standart qism sifatida o'qiladi. */
   militaryUnitId: number | null;
   active: boolean;
   /** Foydalanuvchining amaldagi barcha ruxsatlari (rol + shaxsiy). */

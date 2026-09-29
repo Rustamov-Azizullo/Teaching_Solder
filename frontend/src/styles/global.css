@@ -1,4 +1,10 @@
 @import './print.css';
+@import './login.css';
+
+/* Yuqori panel balandligi: AppLayout va dashboard hisob-kitobi shu qiymatdan foydalanadi. */
+:root {
+  --app-header-height: 64px;
+}
 
 html,
 body,
@@ -18,4 +24,103 @@ body {
   .app-content {
     padding: 24px;
   }
+}
+
+/* Dashboard: yuqorida ko'rsatkichlar qatori, ostida ikki ustun (chapda diagramma + jadval, o'ngda kartalar).
+   Kompyuterda hammasi bitta ekranga sig'adi; telefonda oddiy scroll. */
+.dashboard-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.dashboard-kpis {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dashboard-body,
+.dashboard-col,
+.dashboard-split,
+.dashboard-overview-row,
+.dashboard-districts {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-col > *,
+.dashboard-split > *,
+.dashboard-overview-row > *,
+.dashboard-districts > * {
+  min-height: 260px;
+}
+
+@media (min-width: 576px) {
+  .dashboard-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .dashboard-root {
+    height: calc(100vh - var(--app-header-height, 64px) - 48px);
+    /* Bundan past ekranda sahifa scroll qiladi: kartalar o'qib bo'lmaydigan darajada torayib ketmasin. */
+    min-height: 660px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-kpis {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .dashboard-body {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+
+  .dashboard-col,
+  .dashboard-col > *,
+  .dashboard-split,
+  .dashboard-split > * {
+    min-height: 0;
+  }
+
+  .dashboard-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+
+  .dashboard-col--full {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  /* SuperAdmin: yuqorida okruglar kesimi kartalari bir qatorda. */
+  .dashboard-overview-row {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
+  }
+
+  .dashboard-overview-row .dashboard-districts {
+    display: contents;
+  }
+
+  .dashboard-overview-row > *,
+  .dashboard-overview-row .dashboard-districts > * {
+    min-height: 0;
+  }
+
+  .dashboard-overview-row + .dashboard-body {
+    flex: 1.3;
+  }
+}
+
+.notification-item:hover,
+.notification-item:focus-visible {
+  background: rgba(128, 128, 128, 0.12);
+  outline: none;
 }

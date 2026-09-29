@@ -1,15 +1,18 @@
 import { CloudSyncOutlined, EditOutlined } from '@ant-design/icons';
-import { Alert, Button, Space, Table, Tabs, Tag } from 'antd';
+import { Alert, Button, Space, Tabs, Tag } from 'antd';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { useCan } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
 import { notify } from '@/lib/notify';
 import { formatDate } from '@/utils/format';
+import { useLocationTree } from '@/features/organization';
 import { useAdmissions, useBmbaSync, useReserveList } from '../hooks/useAdmissions';
 import { admissionLabels, onlineStatusLabels } from '../labels';
 import type { AdmissionRow } from '../types';
+import { useAdmissionFilters } from '../hooks/useAdmissionFilters';
+import { AdmissionFilters } from './AdmissionFilters';
 import { AdmissionFunnel } from './AdmissionFunnel';
 import { AdmissionModal } from './AdmissionModal';
 
@@ -17,10 +20,22 @@ const yes = (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? 'Ha' : "Yo
 const c = admissionLabels.columns;
 
 function CandidateTable({ rows, canEdit, onEdit }: { rows: AdmissionRow[]; canEdit: boolean; onEdit: (r: AdmissionRow) => void }) {
+  const { data: locations = [] } = useLocationTree();
+  const filters = useAdmissionFilters(rows, locations);
   return (
-    <Table<AdmissionRow> rowKey="soldierId" size="middle" dataSource={rows} scroll={{ x: 'max-content' }} pagination={{ pageSize: 15, hideOnSinglePage: true }}
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      <AdmissionFilters filters={filters} />
+      <CandidateRows rows={filters.filteredRows} canEdit={canEdit} onEdit={onEdit} />
+    </Space>
+  );
+}
+
+function CandidateRows({ rows, canEdit, onEdit }: { rows: AdmissionRow[]; canEdit: boolean; onEdit: (r: AdmissionRow) => void }) {
+  return (
+    <NumberedTable<AdmissionRow> rowKey="soldierId" size="middle" dataSource={rows} scroll={{ x: 'max-content' }} pagination={{ pageSize: 15, hideOnSinglePage: true }}
       columns={[
         { title: c.name, dataIndex: 'fullName', render: (n: string, r) => <Link to={`/soldiers/${r.soldierId}`}>{n}</Link> },
+        { title: c.district, dataIndex: 'districtName' },
         { title: c.unit, dataIndex: 'unitName' },
         { title: c.bmba, dataIndex: 'bmbaRegistered', render: yes },
         { title: c.benefits, dataIndex: 'benefitsUploaded', render: yes },

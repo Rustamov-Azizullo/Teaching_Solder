@@ -1,10 +1,10 @@
 import type { PermissionKey } from '@/features/auth';
 
-export type PermissionGroup = 'system' | 'soldiers' | 'questionnaires' | 'assignments' | 'training' | 'admissions' | 'reporting';
+export type PermissionGroup = 'system' | 'soldiers' | 'questionnaires' | 'deadlines' | 'training' | 'admissions' | 'reporting';
 
 /** Bo'limlar tartibi (jadvalda shu tartibda ko'rsatiladi). */
 export const PERMISSION_GROUP_ORDER: readonly PermissionGroup[] = [
-  'system', 'soldiers', 'questionnaires', 'assignments', 'training', 'admissions', 'reporting',
+  'system', 'soldiers', 'questionnaires', 'deadlines', 'training', 'admissions', 'reporting',
 ];
 
 /** Har bir ruxsat aynan bitta bo'limga tegishli; yangi `PermissionKey` qo'shilsa, TypeScript shu yerda xato beradi. */
@@ -19,15 +19,10 @@ export const PERMISSION_GROUPS: Record<PermissionKey, PermissionGroup> = {
   ATTACHMENT_WRITE: 'soldiers',
   QUESTIONNAIRE_READ: 'questionnaires',
   QUESTIONNAIRE_WRITE: 'questionnaires',
-  ASSIGNMENT_READ: 'assignments',
-  ASSIGNMENT_PROPOSE: 'assignments',
-  ASSIGNMENT_DECIDE: 'assignments',
-  DEADLINE_MANAGE: 'assignments',
+  DEADLINE_MANAGE: 'deadlines',
   GROUP_READ: 'training',
   GROUP_WRITE: 'training',
   GROUP_LEADER_ASSIGN: 'training',
-  SCHEDULE_WRITE: 'training',
-  SCHEDULE_TIME_OVERRIDE: 'training',
   RESULT_READ: 'training',
   RESULT_WRITE: 'training',
   ADMISSION_READ: 'admissions',

@@ -24,6 +24,7 @@ export const adminApi = {
     apiClient.get<IntegrationPage>('/integration-logs', { params: { page, size } }).then((r) => r.data),
   cycles: () => apiClient.get<CycleRow[]>('/cycles').then((r) => r.data),
   openCycle: (year: number) => apiClient.post<CycleRow>(`/cycles/${year}/open`).then((r) => r.data),
+  reopenCycle: (year: number) => apiClient.post<CycleRow>(`/cycles/${year}/reopen`).then((r) => r.data),
   closeCycle: (year: number) => apiClient.post<CycleRow>(`/cycles/${year}/close`).then((r) => r.data),
   runRetention: () => apiClient.post<{ warned: number; anonymized: number }>('/retention/run').then((r) => r.data),
   settings: () => apiClient.get<SettingsMap>('/settings').then((r) => r.data),

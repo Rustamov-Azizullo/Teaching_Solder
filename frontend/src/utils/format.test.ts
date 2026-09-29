@@ -1,4 +1,4 @@
-import { formatDate, formatDateTime, formatPercent, formatTime } from './format';
+import { formatDate, formatDateTime, formatPercent, formatTime, formatRelativeTime } from './format';
 
 describe('formatDate', () => {
   it('formats an ISO date as DD.MM.YYYY', () => {
@@ -37,5 +37,23 @@ describe('formatTime', () => {
 
   it('leaves an already short time unchanged', () => {
     expect(formatTime('09:30')).toBe('09:30');
+  });
+});
+
+describe('formatRelativeTime', () => {
+  const now = new Date('2026-09-28T12:00:00Z');
+
+  it.each([
+    ['2026-09-28T11:59:40Z', 'hozirgina'],
+    ['2026-09-28T11:55:00Z', '5 daqiqa oldin'],
+    ['2026-09-28T09:00:00Z', '3 soat oldin'],
+    ['2026-09-26T12:00:00Z', '2 kun oldin'],
+  ])('%s -> %s', (value, expected) => {
+    expect(formatRelativeTime(value, now)).toBe(expected);
+  });
+
+  it('falls back to a plain date after a week and to a dash without a value', () => {
+    expect(formatRelativeTime('2026-09-01T12:00:00Z', now)).toBe('01.09.2026');
+    expect(formatRelativeTime(null, now)).toBe('—');
   });
 });

@@ -8,7 +8,7 @@ import { AppLayout } from './layout/AppLayout';
 type PageModule = Record<string, ComponentType>;
 
 /** Sahifaga kirish sharti: dinamik ruxsat (capability) yoki faqat SuperAdmin/Mega SuperAdmin. */
-type RouteAccess = Capability | 'permissionManager';
+type RouteAccess = Capability | readonly Capability[] | 'permissionManager';
 
 function guard(access: RouteAccess | undefined, content: ReactNode): ReactNode {
   if (!access) return content;
@@ -46,7 +46,7 @@ export const router = createBrowserRouter([
           page('groups', () => import('@/pages/GroupsPage'), 'GroupsPage', 'groupRead'),
           page('groups/:groupId', () => import('@/pages/GroupDetailPage'), 'GroupDetailPage', 'groupRead'),
           page('teachers', () => import('@/pages/TeachersPage'), 'TeachersPage', 'groupRead'),
-          page('dictionaries', () => import('@/pages/DictionariesPage'), 'DictionariesPage', 'unitDirections'),
+          page('dictionaries', () => import('@/pages/DictionariesPage'), 'DictionariesPage', ['dictionaryWrite', 'unitDirections']),
           page('users', () => import('@/pages/UsersPage'), 'UsersPage', 'admin'),
           page('audit', () => import('@/pages/AuditPage'), 'AuditPage', 'systemConfig'),
           page('settings', () => import('@/pages/SettingsPage'), 'SettingsPage', 'systemConfig'),
@@ -54,7 +54,6 @@ export const router = createBrowserRouter([
           page('admin/locations', () => import('@/pages/LocationsPage'), 'LocationsPage', 'permissionManager'),
           page('profile', () => import('@/pages/ProfilePage'), 'ProfilePage'),
           page('subdivisions', () => import('@/pages/SubdivisionsPage'), 'SubdivisionsPage', 'soldierRead'),
-          page('assignments', () => import('@/pages/AssignmentsPage'), 'AssignmentsPage', 'assignmentRead'),
           page('admissions', () => import('@/pages/AdmissionsPage'), 'AdmissionsPage', 'admissionRead'),
           page('employment', () => import('@/pages/EmploymentPage'), 'EmploymentPage', 'employment'),
           page('reports', () => import('@/pages/ReportsPage'), 'ReportsPage', 'reports'),

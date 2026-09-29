@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { groupApi, teacherApi } from '../api/groupApi';
-import type { GroupRequest, GroupType, InstitutionRequest, LeaderRequest, TeacherRequest } from '../types';
+import type { ContractRequest, GroupRequest, GroupType, InstitutionRequest, TeacherRequest } from '../types';
 import { queryKeys } from '@/lib/queryKeys';
 
 export function useGroups(type?: GroupType) {
@@ -9,6 +9,11 @@ export function useGroups(type?: GroupType) {
 
 export function useGroup(id: number) {
   return useQuery({ queryKey: [...queryKeys.groups, id], queryFn: () => groupApi.get(id) });
+}
+
+/** Shu guruhdan tashqari, boshqa guruhlarda turgan askarlar id lari. */
+export function useSoldiersInOtherGroups(id: number) {
+  return useQuery({ queryKey: [...queryKeys.groups, id, 'soldiers-in-other-groups'], queryFn: () => groupApi.soldiersInOtherGroups(id) });
 }
 
 /** Guruh o'zgarganda ro'yxat va tafsilot keshini yangilaydi. */
@@ -28,8 +33,9 @@ export const useCreateGroup = () => useGroupMutation((request: GroupRequest) => 
 
 export const useUpdateGroup = (id: number) => useGroupMutation((request: GroupRequest) => groupApi.update(id, request));
 
-export const useAssignLeader = (id: number) =>
-  useGroupMutation((request: LeaderRequest) => groupApi.assignLeader(id, request));
+export const useDeleteGroup = () => useGroupMutation((id: number) => groupApi.remove(id));
+
+export const useRemoveLeader = (id: number) => useGroupMutation(() => groupApi.removeLeader(id));
 
 export const useReplaceMembers = (id: number) =>
   useGroupMutation((soldierIds: number[]) => groupApi.replaceMembers(id, soldierIds));
@@ -37,20 +43,13 @@ export const useReplaceMembers = (id: number) =>
 export const useReplaceTeachers = (id: number) =>
   useGroupMutation((teacherIds: number[]) => groupApi.replaceTeachers(id, teacherIds));
 
-export function useLeaderOptions(unitId: number | undefined, enabled: boolean) {
-  return useQuery({
-    queryKey: ['group-leaders', unitId],
-    queryFn: () => groupApi.leaderOptions(unitId as number),
-    enabled: enabled && unitId !== undefined,
-  });
-}
-
 export function useTeachers() {
   return useQuery({ queryKey: ['teachers'], queryFn: teacherApi.list });
 }
 
-export function useInstitutions() {
-  return useQuery({ queryKey: ['institutions'], queryFn: teacherApi.institutions });
+/** `unitId` berilsa, faqat shu harbiy qism bilan shartnomasi bor muassasalar; `enabled: false` — qism tanlanmaguncha so'ralmaydi. */
+export function useInstitutions(unitId?: number, enabled = true) {
+  return useQuery({ queryKey: ['institutions', unitId ?? null], queryFn: () => teacherApi.institutions(unitId), enabled });
 }
 
 export function useSaveTeacher(id?: number) {
@@ -61,10 +60,49 @@ export function useSaveTeacher(id?: number) {
   });
 }
 
-export function useCreateInstitution() {
+export function useSaveInstitution(id?: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (request: InstitutionRequest) => teacherApi.createInstitution(request),
+    mutationFn: (request: InstitutionRequest) =>
+      id === undefined ? teacherApi.createInstitution(request) : teacherApi.updateInstitution(id, request),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['institutions'] }),
+  });
+}
+
+export const useContracts = () => useQuery({ queryKey: ['institution-contracts'], queryFn: teacherApi.contracts });
+
+function useContractMutation<TVariables>(fn: (variables: TVariables) => Promise<unknown>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['institution-contracts'] }),
+      queryClient.invalidateQueries({ queryKey: ['institutions'] }),
+    ]),
+  });
+}
+
+export const useCreateContract = () => useContractMutation(teacherApi.createContract);
+export const useUpdateContract = () =>
+  useContractMutation(({ current, next }: { current: ContractRequest; next: ContractRequest }) => teacherApi.updateContract(current, next));
+export const useDeleteContract = () => useContractMutation(teacherApi.removeContract);
+
+export function useDeleteInstitution() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => teacherApi.removeInstitution(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['institutions'] }),
+  });
+}
+
+export function useDeleteTeacher() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => teacherApi.remove(id),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['teachers'] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.groups }),
+      ]),
   });
 }

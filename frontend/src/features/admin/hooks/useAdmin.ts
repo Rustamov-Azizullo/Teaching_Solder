@@ -82,6 +82,7 @@ export function useCycleActions() {
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['cycles'] });
   return {
     open: useMutation({ mutationFn: (year: number) => adminApi.openCycle(year), onSuccess: refresh }),
+    reopen: useMutation({ mutationFn: (year: number) => adminApi.reopenCycle(year), onSuccess: refresh }),
     close: useMutation({ mutationFn: (year: number) => adminApi.closeCycle(year), onSuccess: refresh }),
   };
 }

@@ -1,5 +1,5 @@
-import { Card, Table } from 'antd';
-import { QueryBoundary } from '@/components/ui';
+import { Card } from 'antd';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { formatDateTime } from '@/utils/format';
 import { useTransfers } from '../hooks/useSoldiers';
 import { soldierLabels } from '../labels';
@@ -14,7 +14,7 @@ export function TransferHistory({ soldierId }: { soldierId: number }) {
     <Card title={t.history} size="small">
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(records) => (
-          <Table<TransferRecord>
+          <NumberedTable<TransferRecord>
             rowKey="id"
             size="small"
             pagination={false}

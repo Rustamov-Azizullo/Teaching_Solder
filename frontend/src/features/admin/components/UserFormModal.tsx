@@ -12,17 +12,18 @@ import { LocationSelect } from './LocationSelect';
 import { UserPermissionsPanel } from './UserPermissionsPanel';
 
 type FormValues = {
-  newPassword?: string; fullName: string; role: Role;
+  username: string; newPassword?: string; fullName: string; role: Role;
   locationId?: number; active: boolean;
 };
 
-/** Respublika rollari hududga biriktirilmaydi — eski qiymat yuborilmasligi uchun tozalanadi. */
+/** Vazirlik rollari hududga biriktirilmaydi — eski qiymat yuborilmasligi uchun tozalanadi. */
 function locationIdFor(values: FormValues): number | undefined {
   return locationLevelForRole(values.role) ? values.locationId : undefined;
 }
 
 function toUpdateRequest(values: FormValues): UpdateUserRequest {
   return {
+    username: values.username.trim(),
     fullName: values.fullName,
     role: values.role,
     locationId: locationIdFor(values),
@@ -43,7 +44,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   const open = user !== null;
   const [form] = Form.useForm<FormValues>();
   const role = Form.useWatch('role', form);
-  const { user: viewer } = useAuth();
+  const { user: viewer, logout } = useAuth();
   const { data: roles = [] } = useRoles();
   const { mutateAsync, isPending } = useUpdateUser(user?.id ?? 0);
   const locationLevel = locationLevelForRole(role);
@@ -52,7 +53,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   useEffect(() => {
     if (!open) return;
     form.resetFields();
-    if (user) form.setFieldsValue({ fullName: user.fullName, role: user.role, active: user.active, locationId: user.locationId ?? undefined });
+    if (user) form.setFieldsValue({ username: user.username, fullName: user.fullName, role: user.role, active: user.active, locationId: user.locationId ?? undefined });
   }, [open, user, form]);
 
   const handleOk = async () => {
@@ -62,6 +63,11 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
       await mutateAsync(toUpdateRequest(values));
       notify.success(common.states.saved);
       onClose();
+      // Sessiya login (JWT subject) bilan bog'liq: o'z loginini o'zgartirgan foydalanuvchi qayta kirishi shart.
+      if (user.id === viewer?.id && values.username.trim() !== user.username) {
+        notify.warning(u.selfRenamed);
+        logout();
+      }
     } catch (error) {
       notify.error(getErrorMessage(error));
     }
@@ -77,6 +83,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
           if ('role' in changed) form.setFieldsValue({ locationId: undefined });
         }}
       >
+        <Form.Item name="username" label={u.username} rules={[...required, { min: 3, max: 60 }]}><Input autoComplete="off" /></Form.Item>
         <Form.Item name="fullName" label={common.fields.fullName} rules={required}><Input /></Form.Item>
         <Form.Item name="role" label={u.role} rules={required}>
           <Select options={roles.map((option) => ({ value: option.code, label: option.label }))} />

@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/apiClient';
-import type { MilitaryDistrict, MilitaryUnit, Region, SubdivisionNode, TerritorialDistrict } from '../types';
+import type { LocationNode, MilitaryDistrict, MilitaryUnit, Region, SubdivisionNode, TerritorialDistrict } from '../types';
 
 export const organizationApi = {
   regions: () => apiClient.get<Region[]>('/regions').then((r) => r.data),
@@ -13,5 +13,6 @@ export const organizationApi = {
   updateSubdivision: (id: number, name: string, parentId: number | null) =>
     apiClient.put<SubdivisionNode>(`/subdivisions/${id}`, { name, parentId }).then((r) => r.data),
   deleteSubdivision: (id: number) => apiClient.delete(`/subdivisions/${id}`).then(() => undefined),
+  locationTree: () => apiClient.get<LocationNode[]>('/locations/tree').then((r) => r.data),
   militaryUnits: () => apiClient.get<MilitaryUnit[]>('/military-units').then((r) => r.data),
 };

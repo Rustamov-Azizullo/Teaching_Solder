@@ -1,12 +1,12 @@
 export const dictionaryLabels = {
   title: "Ma'lumotnomalar",
   subtitle: "Fanlar, kasblar va boshqa dinamik ro'yxatlar",
-  add: "Yangi yozuv",
-  editTitle: 'Yozuvni tahrirlash',
-  createTitle: "Yangi yozuv qo'shish",
+  add: "Qo'shish",
+  editTitle: "Ma'lumotni tahrirlash",
+  createTitle: "Ma'lumotni qo'shish",
   hours: 'Soat',
-  confirmDelete: "Yozuv o'chirilsinmi? Bu amalni qaytarib bo'lmaydi",
-  deleted: "Yozuv o'chirildi",
+  confirmDelete: "Ma'lumotni o'chirilsinmi? Bu amalni qaytarib bo'lmaydi",
+  deleted: "Ma'lumotni o'chirildi",
   codeHint: 'Lotin harflari, masalan MATH',
   unitDirectionsTitle: "Qism uchun faol kasb yo'nalishlari",
   unitDirectionsHint:

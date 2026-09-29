@@ -3,12 +3,12 @@ import type { CreateUserRequest, RoleOption } from '../types';
 
 export type LocationUserValues = { username: string; password: string; fullName: string; role?: Role };
 
-/** Hudud darajasiga mos rollar (okrug -> Admin, qism -> User, respublika -> SuperAdmin/Mega SuperAdmin). */
+/** Hudud darajasiga mos rollar (okrug -> Admin, qism -> User, vazirlik -> SuperAdmin/Mega SuperAdmin). */
 export function rolesForLevel(roles: RoleOption[], level: LocationLevel): RoleOption[] {
   return roles.filter((option) => option.scopeLevel === level);
 }
 
-/** Respublika rollari hududga biriktirilmaydi, shuning uchun `locationId` faqat okrug/qism uchun yuboriladi. */
+/** Vazirlik rollari hududga biriktirilmaydi, shuning uchun `locationId` faqat okrug/qism uchun yuboriladi. */
 export function toCreateUserRequest(
   values: LocationUserValues,
   level: LocationLevel,

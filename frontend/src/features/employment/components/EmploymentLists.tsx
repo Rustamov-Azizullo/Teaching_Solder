@@ -1,7 +1,7 @@
 import { FileExcelOutlined, FilePdfOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Empty, Input, Space, Table, Tabs } from 'antd';
+import { Alert, Button, Card, Empty, Input, Space, Tabs } from 'antd';
 import { useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { getErrorMessage } from '@/lib/apiClient';
 import { notify } from '@/lib/notify';
 import { formatDate, formatDateTime } from '@/utils/format';
@@ -32,7 +32,7 @@ function RegionCard({ group, agency }: { group: RegionGroup; agency: string }) {
         <Button size="small" icon={<FileExcelOutlined />} loading={exporter.isPending} onClick={() => run('XLSX')}>{employmentLabels.exportXlsx}</Button>
         <Button size="small" icon={<FilePdfOutlined />} loading={exporter.isPending} onClick={() => run('PDF')}>{employmentLabels.exportPdf}</Button>
       </Space>}>
-      <Table<EmploymentRow> rowKey="soldierId" size="small" pagination={false} scroll={{ x: 'max-content' }} dataSource={group.rows}
+      <NumberedTable<EmploymentRow> rowKey="soldierId" size="small" pagination={false} scroll={{ x: 'max-content' }} dataSource={group.rows}
         columns={[
           { title: c.name, dataIndex: 'fullName' },
           { title: c.birth, dataIndex: 'birthDate', render: formatDate },
@@ -70,7 +70,7 @@ export function EmploymentLists() {
       { key: 'h', label: employmentLabels.tabs.history, children: (
         <QueryBoundary isLoading={history.isLoading} error={history.error} data={history.data} onRetry={history.refetch}>
           {(rows) => (
-            <Table<HistoryRow> rowKey="id" size="small" dataSource={rows} scroll={{ x: 'max-content' }} pagination={{ pageSize: 15, hideOnSinglePage: true }}
+            <NumberedTable<HistoryRow> rowKey="id" size="small" dataSource={rows} scroll={{ x: 'max-content' }} pagination={{ pageSize: 15, hideOnSinglePage: true }}
               columns={[
                 { title: c.at, dataIndex: 'generatedAt', render: formatDateTime }, { title: c.region, dataIndex: 'regionName' },
                 { title: c.agency, dataIndex: 'agency' }, { title: c.count, dataIndex: 'soldierCount' },

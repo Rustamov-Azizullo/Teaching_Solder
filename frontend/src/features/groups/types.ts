@@ -21,15 +21,13 @@ export type Teacher = {
   id: number;
   fullName: string;
   specialty: string;
+  specialtyIds: number[];
   institutionId: number;
   institutionName: string;
-  militaryUnitId: number;
-  accessOrderNo: string | null;
-  accessValidUntil: string | null;
-  accessExpiringSoon: boolean;
 };
 
-export type Member = { id: number; pinfl: string; fullName: string };
+/** `pinfl` — faqat askarlarni ko'rish huquqi bor foydalanuvchiga beriladi. */
+export type Member = { id: number; pinfl: string | null; fullName: string };
 
 export type Group = {
   id: number;
@@ -43,9 +41,7 @@ export type Group = {
   startDate: string;
   endDate: string;
   classroom: string | null;
-  leader: NamedRef | null;
-  leaderOrderNo: string | null;
-  leaderOrderDate: string | null;
+  leader: GroupLeaderInfo | null;
   members: Member[];
   teachers: Teacher[];
 };
@@ -60,19 +56,33 @@ export type GroupRequest = {
   startDate: string;
   endDate: string;
   classroom?: string;
+  leader?: GroupLeaderInput;
 };
 
-export type LeaderRequest = { userId: number; orderNo: string; orderDate: string };
+export type GroupLeaderInfo = {
+  id: number;
+  fullName: string;
+  pinfl: string | null;
+  militaryRank: string | null;
+  phone: string | null;
+};
+
+/** Guruh shakllantirilayotganda kiritiladigan guruh kattasi; harbiy qism guruhdan aniqlanadi. */
+export type GroupLeaderInput = { fullName: string; pinfl: string; militaryRank?: string; phone?: string };
 
 export type TeacherRequest = {
   fullName: string;
-  specialty: string;
+  specialtyIds: number[];
   institutionId: number;
-  militaryUnitId: number;
-  accessOrderNo?: string;
-  accessValidUntil?: string;
 };
 
-export type Institution = { id: number; type: InstitutionType; name: string };
-export type InstitutionRequest = { type: InstitutionType; name: string };
-export type LeaderOption = { id: number; fullName: string };
+/** `professionIds`/`subjectIds` — muassasada o'qitiladigan kasblar va fanlar (ma'lumotnoma id lari). */
+export type Institution = { id: number; type: InstitutionType; name: string; professionIds: number[]; subjectIds: number[] };
+export type InstitutionRequest = { type: InstitutionType; name: string; professionIds?: number[]; subjectIds?: number[] };
+
+/** Muassasaning harbiy qismga biriktirilishi (shartnoma). */
+export type InstitutionContract = {
+  institutionId: number; institutionName: string; institutionType: InstitutionType;
+  unitId: number; unitName: string; districtName: string;
+};
+export type ContractRequest = { institutionId: number; unitId: number };

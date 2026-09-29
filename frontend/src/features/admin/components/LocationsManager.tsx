@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, UserAddOutlined } from '@ant-design/icons';
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Tag } from 'antd';
 import { useMemo, useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
 import { notify } from '@/lib/notify';
@@ -13,7 +13,7 @@ import { LocationFormModal, type LocationFormTarget } from './LocationFormModal'
 import { LocationUserModal } from './LocationUserModal';
 
 const labels = adminLabels.locations;
-/** Respublika rollari hududga biriktirilmaydi (`locationId = null`), shuning uchun ular ildiz qatorida ko'rsatiladi. */
+/** Vazirlik rollari hududga biriktirilmaydi (`locationId = null`), shuning uchun ular ildiz qatorida ko'rsatiladi. */
 const REPUBLIC_KEY = 'REPUBLIC';
 
 function groupUsersByLocation(users: UserRow[]): Map<number | typeof REPUBLIC_KEY, UserRow[]> {
@@ -77,7 +77,7 @@ export function LocationsManager() {
     <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
       {() => (
         <>
-          <Table<LocationTreeNode>
+          <NumberedTable<LocationTreeNode>
             rowKey="id"
             size="middle"
             dataSource={tree}

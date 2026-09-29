@@ -1,12 +1,17 @@
-import { UserSwitchOutlined } from '@ant-design/icons';
-import { Button, Descriptions } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Button, Descriptions, Popconfirm } from 'antd';
+import { common } from '@/lib/i18n';
 import { formatDate } from '@/utils/format';
 import { groupLabels, groupTypeLabels } from '../labels';
-import type { Group } from '../types';
+import type { Group, GroupLeaderInfo } from '../types';
 
-type GroupInfoProps = { group: Group; canAssignLeader: boolean; onAssignLeader: () => void };
+function describeLeader(leader: GroupLeaderInfo): string {
+  return [leader.fullName, leader.militaryRank, leader.pinfl, leader.phone].filter(Boolean).join(', ');
+}
 
-export function GroupInfo({ group, canAssignLeader, onAssignLeader }: GroupInfoProps) {
+type GroupInfoProps = { group: Group; canAssignLeader: boolean; onRemoveLeader: () => void };
+
+export function GroupInfo({ group, canAssignLeader, onRemoveLeader }: GroupInfoProps) {
   const f = groupLabels.fields;
   return (
     <Descriptions bordered size="small" column={{ xs: 1, md: 2 }}>
@@ -20,9 +25,11 @@ export function GroupInfo({ group, canAssignLeader, onAssignLeader }: GroupInfoP
       <Descriptions.Item label={f.endDate}>{formatDate(group.endDate)}</Descriptions.Item>
       <Descriptions.Item label={f.classroom}>{group.classroom ?? '—'}</Descriptions.Item>
       <Descriptions.Item label={f.leader}>
-        {group.leader ? `${group.leader.name} (${f.leaderOrder} ${group.leaderOrderNo}, ${formatDate(group.leaderOrderDate)})` : groupLabels.noLeader}
-        {canAssignLeader && (
-          <Button type="link" icon={<UserSwitchOutlined />} onClick={onAssignLeader}>{groupLabels.assignLeader}</Button>
+        {group.leader ? describeLeader(group.leader) : groupLabels.noLeader}
+        {canAssignLeader && group.leader && (
+          <Popconfirm title={groupLabels.removeLeader + '?'} okText={common.actions.delete} cancelText={common.actions.cancel} onConfirm={onRemoveLeader}>
+            <Button type="link" danger icon={<DeleteOutlined />}>{groupLabels.removeLeader}</Button>
+          </Popconfirm>
         )}
       </Descriptions.Item>
     </Descriptions>

@@ -139,7 +139,7 @@ export type SoldierFormValues = {
   awards?: { kindId: number; place: AwardPlace }[];
 };
 
-export type SoldierSearchParams = { query?: string; unitId?: number; subdivisionId?: number; page: number; size: number };
+export type SoldierSearchParams = { query?: string; districtId?: number; unitId?: number; subdivisionId?: number; page: number; size: number };
 
 export type TransferRecord = {
   id: number;

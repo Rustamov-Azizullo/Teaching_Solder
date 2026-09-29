@@ -5,7 +5,6 @@
 export const queryKeys = {
   soldiers: ['soldiers'] as const,
   groups: ['groups'] as const,
-  lessons: ['lessons'] as const,
   dashboard: ['dashboard'] as const,
   questionnaire: ['questionnaire'] as const,
   users: ['users'] as const,

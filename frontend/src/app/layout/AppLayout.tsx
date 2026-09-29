@@ -2,7 +2,7 @@ import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { Button, Drawer, Layout, Menu, Space, Typography, theme } from 'antd';
 import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { can, isPermissionManager, useAuth, type AuthUser } from '@/features/auth';
+import { can, canAny, isPermissionManager, useAuth, type AuthUser, type Capability } from '@/features/auth';
 import { NotificationBell } from '@/features/notifications';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { common } from '@/lib/i18n';
@@ -10,9 +10,9 @@ import { navItems, type NavItem } from '../navigation';
 import { ThemeModeSwitch } from '../theme/ThemeModeSwitch';
 
 const { Header, Sider, Content } = Layout;
-const SIDER_WIDTH = 230;
+const SIDER_WIDTH = 240;
 const MOBILE_QUERY = '(max-width: 991px)';
-const HEADER_HEIGHT = 64;
+const HEADER_HEIGHT = 'var(--app-header-height)';
 const HEADER_Z_INDEX = 100;
 
 /** Dashboard menyusi: uch blokdan kamida bittasiga ruxsat bo'lsa ko'rsatiladi. */
@@ -22,7 +22,7 @@ function isNavItemVisible(item: NavItem, user: AuthUser | null): boolean {
   if (item.path === '/dashboard') return DASHBOARD_CAPABILITIES.some((capability) => can(user, capability));
   if (item.access === 'any') return true;
   if (item.access === 'permissionManager') return isPermissionManager(user);
-  return can(user, item.access);
+  return Array.isArray(item.access) ? canAny(user, item.access) : can(user, item.access as Capability);
 }
 
 export function AppLayout() {
@@ -36,6 +36,18 @@ export function AppLayout() {
 
   const visibleItems = useMemo(() => navItems.filter((item) => isNavItemVisible(item, user)), [user]);
   const selectedKey = visibleItems.find((item) => location.pathname.startsWith(item.path))?.path;
+
+  const goHome = () => {
+    setDrawerOpen(false);
+    navigate('/');
+  };
+
+  /** Ilova nomi bosilganda bosh sahifaga (ruxsatga mos birinchi ish sahifasi, odatda dashboard) qaytadi. */
+  const brand = (
+    <a onClick={goHome} role="link" aria-label={common.appName} style={{ color: 'inherit', cursor: 'pointer' }}>
+      <Typography.Title level={4} style={{ margin: 0 }}>{common.appName}</Typography.Title>
+    </a>
+  );
 
   const menu = (
     <Menu
@@ -53,7 +65,7 @@ export function AppLayout() {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {isMobile ? (
-        <Drawer open={isDrawerOpen} onClose={() => setDrawerOpen(false)} placement="left" width={SIDER_WIDTH} title={common.appName} styles={{ body: { padding: 0 } }}>
+        <Drawer open={isDrawerOpen} onClose={() => setDrawerOpen(false)} placement="left" width={SIDER_WIDTH} title={brand} styles={{ body: { padding: 0 } }}>
           {menu}
         </Drawer>
       ) : (
@@ -63,9 +75,7 @@ export function AppLayout() {
           className="no-print"
           style={{ borderRight: border, position: 'sticky', top: 0, height: '100vh', overflowY: 'auto', flex: `0 0 ${SIDER_WIDTH}px` }}
         >
-          <div style={{ padding: 16 }}>
-            <Typography.Title level={4} style={{ margin: 0 }}>{common.appName}</Typography.Title>
-          </div>
+          <div style={{ padding: 16 }}>{brand}</div>
           {menu}
         </Sider>
       )}

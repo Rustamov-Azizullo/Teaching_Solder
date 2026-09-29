@@ -34,11 +34,11 @@ export type CreateUserRequest = {
   password: string;
   fullName: string;
   role: Role;
-  /** Respublika rollari uchun berilmaydi; okrug roli uchun okrug, qism roli uchun qism hududi. */
+  /** Vazirlik rollari uchun berilmaydi; okrug roli uchun okrug, qism roli uchun qism hududi. */
   locationId?: number;
 };
 
-export type UpdateUserRequest = Omit<CreateUserRequest, 'username' | 'password'> & { active: boolean; newPassword?: string };
+export type UpdateUserRequest = Omit<CreateUserRequest, 'password'> & { active: boolean; newPassword?: string };
 
 /** `GET /api/users/{id}/permissions`: `granted` — shaxsiy ruxsat, `grantedByRole` — rol orqali allaqachon bor. */
 export type UserPermissionState = { permission: PermissionKey; granted: boolean; grantedByRole: boolean };

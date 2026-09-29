@@ -1,32 +1,37 @@
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChartCard, QueryBoundary } from '@/components/ui';
+import { Funnel, FunnelChart, LabelList, ResponsiveContainer, Tooltip } from 'recharts';
+import { ChartCard } from '@/components/ui';
+import { useChartTheme } from '@/hooks/useChartTheme';
 import { useFunnel } from '../hooks/useAdmissions';
 import { admissionLabels } from '../labels';
 
-const COLORS = ['#1677ff', '#13c2c2', '#fa8c16', '#52c41a'];
-const HEIGHT = 240;
-const LABEL_WIDTH = 190;
+const FUNNEL_COLORS = ['#3b6fe8', '#0891b2', '#f59e0b', '#16a34a'];
 
 /** Voronka: nomzodlar → BMBAda ro'yxatdan o'tganlar → testda qatnashganlar → qabul qilinganlar. */
 export function AdmissionFunnel() {
   const { data, isLoading, error, refetch } = useFunnel();
+  const chartTheme = useChartTheme();
+  const steps = (data ?? []).map((step, index) => ({
+    ...step,
+    fill: FUNNEL_COLORS[index % FUNNEL_COLORS.length],
+  }));
+
   return (
-    <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
-      {(steps) => (
-        <ChartCard title={admissionLabels.funnel} isEmpty={steps.every((s) => s.count === 0)}>
-          <ResponsiveContainer width="100%" height={HEIGHT}>
-            <BarChart data={steps} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" allowDecimals={false} />
-              <YAxis type="category" dataKey="label" width={LABEL_WIDTH} tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="count" name="Askarlar" radius={[0, 4, 4, 0]}>
-                {steps.map((step, index) => <Cell key={step.label} fill={COLORS[index % COLORS.length]} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-      )}
-    </QueryBoundary>
+    <ChartCard
+      title={admissionLabels.funnel}
+      isLoading={isLoading}
+      error={error}
+      onRetry={() => void refetch()}
+      isEmpty={steps.every((step) => step.count === 0)}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <FunnelChart margin={{ right: 8 }}>
+          <Tooltip contentStyle={chartTheme.tooltip} />
+          <Funnel dataKey="count" nameKey="label" data={steps} isAnimationActive={false}>
+            <LabelList position="inside" dataKey="count" fill="#fff" stroke="none" fontSize={13} />
+            <LabelList position="right" dataKey="label" fill={chartTheme.text} stroke="none" fontSize={11} />
+          </Funnel>
+        </FunnelChart>
+      </ResponsiveContainer>
+    </ChartCard>
   );
 }

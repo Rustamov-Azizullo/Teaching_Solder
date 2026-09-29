@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Tag } from 'antd';
 import { useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { useCan } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
@@ -41,7 +41,7 @@ export function DictionaryTable({ type }: { type: DictionaryType }) {
       )}
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(items) => (
-          <Table<DictionaryItem>
+          <NumberedTable<DictionaryItem>
             rowKey="id"
             size="middle"
             dataSource={items}

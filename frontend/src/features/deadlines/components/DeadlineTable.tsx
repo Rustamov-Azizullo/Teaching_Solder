@@ -1,8 +1,8 @@
 import { CheckOutlined, EditOutlined, PlusOutlined, SendOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Table, Tag } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Tag } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { roleLabels, useCan, type Role } from '@/features/auth';
 import { getErrorMessage } from '@/lib/apiClient';
 import { API_DATE_FORMAT, DISPLAY_DATE_FORMAT, dayjs } from '@/lib/dayjs';
@@ -17,7 +17,7 @@ type FormValues = { name: string; description?: string; deadlineDate: Dayjs; res
 
 const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({ value, label }));
 const required = [{ required: true, message: common.fields.required }];
-/** Muddat buzilsa, respublika darajasiga (SuperAdmin) xabar beriladi. */
+/** Muddat buzilsa, vazirlik darajasiga (SuperAdmin) xabar beriladi. */
 const DEFAULT_ESCALATION_ROLE: Role = 'SUPER_ADMIN';
 const f = deadlineLabels.fields;
 
@@ -82,7 +82,7 @@ export function DeadlineTable() {
       )}
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(items) => (
-          <Table<Deadline> rowKey="id" dataSource={items} pagination={false} scroll={{ x: 'max-content' }}
+          <NumberedTable<Deadline> rowKey="id" dataSource={items} pagination={false} scroll={{ x: 'max-content' }}
             columns={[
               { title: c.name, dataIndex: 'name' },
               { title: c.date, dataIndex: 'deadlineDate', render: formatDate },

@@ -1,10 +1,10 @@
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table } from 'antd';
+import { Button, Input, Space } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { useCan } from '@/features/auth';
-import { MilitaryUnitSelect, SubdivisionTreeSelect } from '@/features/organization';
+import { DistrictUnitSelect, SubdivisionTreeSelect, type DistrictUnitSelection } from '@/features/organization';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { formatDate } from '@/utils/format';
 import { soldierLabels } from '../labels';
@@ -12,19 +12,20 @@ import { useSoldierSearch } from '../hooks/useSoldiers';
 import { SoldierImportModal } from './SoldierImportModal';
 import type { SoldierSummary } from '../types';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 11;
 
 export function SoldierList() {
   const navigate = useNavigate();
   const canCreate = useCan('soldierWrite');
   const [query, setQuery] = useState('');
-  const [unitId, setUnitId] = useState<number | undefined>();
+  const [{ districtId, unitId }, setPlace] = useState<DistrictUnitSelection>({});
   const [subdivisionId, setSubdivisionId] = useState<number | undefined>();
   const [isImportOpen, setImportOpen] = useState(false);
   const [page, setPage] = useState(0);
   const debouncedQuery = useDebouncedValue(query);
   const { data, isLoading, isFetching, error, refetch } = useSoldierSearch({
     query: debouncedQuery,
+    districtId,
     unitId,
     subdivisionId,
     page,
@@ -40,7 +41,8 @@ export function SoldierList() {
           style={{ width: 280 }}
           onChange={(event) => { setQuery(event.target.value); setPage(0); }}
         />
-        <MilitaryUnitSelect allowClear value={unitId} onChange={(value) => { setUnitId(value); setSubdivisionId(undefined); setPage(0); }} />
+        <DistrictUnitSelect allowClearUnit value={{ districtId, unitId }}
+          onChange={(place) => { setPlace(place); setSubdivisionId(undefined); setPage(0); }} />
         <SubdivisionTreeSelect unitId={unitId} value={subdivisionId} placeholder={soldierLabels.subdivisionFilter} onChange={(value) => { setSubdivisionId(value); setPage(0); }} />
         {canCreate && (
           <>
@@ -53,7 +55,7 @@ export function SoldierList() {
       </Space>
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(result) => (
-          <Table<SoldierSummary>
+          <NumberedTable<SoldierSummary>
             rowKey="id"
             loading={isFetching}
             dataSource={result.content}

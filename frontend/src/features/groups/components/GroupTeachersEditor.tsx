@@ -2,19 +2,21 @@ import { Alert, Button, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
-import { useReplaceTeachers, useTeachers } from '../hooks/useGroups';
+import { useInstitutions, useReplaceTeachers, useTeachers } from '../hooks/useGroups';
 import { groupLabels } from '../labels';
 import type { Group } from '../types';
 import { notify } from '@/lib/notify';
 
 export function GroupTeachersEditor({ group, canEdit }: { group: Group; canEdit: boolean }) {
   const { data: teachers = [] } = useTeachers();
+  const { data: contractedInstitutions = [] } = useInstitutions(group.militaryUnitId);
   const { mutateAsync, isPending } = useReplaceTeachers(group.id);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   useEffect(() => setSelectedIds(group.teachers.map((teacher) => teacher.id)), [group.teachers]);
 
-  const unitTeachers = teachers.filter((teacher) => teacher.militaryUnitId === group.militaryUnitId);
+  // Faqat guruh harbiy qismi bilan shartnomasi bor muassasalarning o'qituvchilari.
+  const unitTeachers = teachers.filter((teacher) => contractedInstitutions.some((institution) => institution.id === teacher.institutionId));
 
   const handleSave = async () => {
     try {

@@ -1,4 +1,4 @@
-import { Alert, Button, Modal, Table } from 'antd';
+import { Alert, Button, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { getErrorMessage } from '@/lib/apiClient';
 import { common } from '@/lib/i18n';
@@ -6,6 +6,7 @@ import { notify } from '@/lib/notify';
 import { useSourceRefresh } from '../hooks/useSoldiers';
 import { soldierLabels } from '../labels';
 import type { FieldDiff } from '../types';
+import { NumberedTable } from '@/components/ui';
 
 const t = soldierLabels.refresh;
 
@@ -44,7 +45,7 @@ export function SourceRefreshModal({ soldierId, open, onClose }: { soldierId: nu
       {diffs.length > 0 && (
         <>
           <Alert type="info" showIcon message={t.hint} style={{ marginBottom: 12 }} />
-          <Table<FieldDiff>
+          <NumberedTable<FieldDiff>
             rowKey="field"
             size="small"
             pagination={false}

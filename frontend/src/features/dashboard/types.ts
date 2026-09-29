@@ -1,31 +1,26 @@
-export type CountItem = { label: string; count: number };
-export type SubjectNeed = { subject: string; specialtyCount: number; mandatoryCount: number };
-export type CompletionRow = { unitId: number; unitName: string; soldiers: number; finalized: number; percent: number };
-
-export type SurveyBlock = {
-  totalSoldiers: number;
-  finalizedQuestionnaires: number;
-  completion: CompletionRow[];
-  interests: CountItem[];
-  futurePlans: CountItem[];
-  subjectNeeds: SubjectNeed[];
-  education: { educationLevels: CountItem[]; certificatesAndAwards: CountItem[] };
-};
-
 export type DashboardFilters = {
   districtId?: number;
   unitId?: number;
 };
 
-export type UnitContract = { unitId: number; unitName: string; status: string; contractNo: string | null; contractDate: string | null };
-export type InstitutionContracts = { id: number; name: string; type: string; units: UnitContract[] };
-export type RegionInstitutions = {
-  region: string;
-  soldiers: number;
-  institutionCount: number;
-  contractCount: number;
-  institutions: InstitutionContracts[];
-};
 export type UnitSoldiers = { id: number; name: string; soldiers: number };
 export type DistrictSoldiers = { id: number; name: string; soldiers: number; units: UnitSoldiers[] };
-export type GeographyBlock = { totalSoldiers: number; districts: DistrictSoldiers[]; regions: RegionInstitutions[] };
+export type ProfessionRow = { profession: string; soldiers: number; districts: DistrictSoldiers[] };
+export type RegionRow = { name: string; soldiers: number };
+export type ProgramRow = { profession: string; institution: string; soldiers: number };
+export type DistrictRow = {
+  id: number; name: string; soldiers: number; vocational: number; otm: number;
+  professions: number; institutions: number; programs: ProgramRow[];
+};
+export type Overview = {
+  totalSoldiers: number;
+  vocationalStudying: number;
+  otmPreparing: number;
+  unassigned: number;
+  certified: number;
+  higherCompleted: number;
+  higherIncomplete: number;
+  professions: ProfessionRow[];
+  districts: DistrictRow[];
+  regions: RegionRow[];
+};

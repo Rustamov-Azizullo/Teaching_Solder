@@ -17,9 +17,6 @@ const capabilityPermissions = {
   groupWrite: 'GROUP_WRITE',
   transfer: 'TRANSFER',
   attachmentWrite: 'ATTACHMENT_WRITE',
-  assignmentRead: 'ASSIGNMENT_READ',
-  assignmentPropose: 'ASSIGNMENT_PROPOSE',
-  assignmentDecide: 'ASSIGNMENT_DECIDE',
   resultRead: 'RESULT_READ',
   resultWrite: 'RESULT_WRITE',
   admissionRead: 'ADMISSION_READ',
@@ -28,7 +25,6 @@ const capabilityPermissions = {
   deadlineManage: 'DEADLINE_MANAGE',
   reports: 'REPORTS',
   leaderAssign: 'GROUP_LEADER_ASSIGN',
-  scheduleWrite: 'SCHEDULE_WRITE',
   dashboardVocational: 'DASHBOARD_VOCATIONAL',
   dashboardOtm: 'DASHBOARD_OTM',
   dashboardSurveys: 'DASHBOARD_SURVEYS',
@@ -46,6 +42,11 @@ export function can(user: AuthUser | null | undefined, capability: Capability): 
   if (!user) return false;
   if (ALWAYS_ALLOWED_ROLES.includes(user.role)) return true;
   return user.permissions.includes(capabilityPermissions[capability]);
+}
+
+/** Berilgan imkoniyatlardan kamida bittasi bo'lsa `true`. */
+export function canAny(user: AuthUser | null | undefined, capabilities: readonly Capability[]): boolean {
+  return capabilities.some((capability) => can(user, capability));
 }
 
 export function isPermissionManager(user: AuthUser | null | undefined): boolean {

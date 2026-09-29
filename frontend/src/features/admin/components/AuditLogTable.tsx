@@ -1,6 +1,6 @@
-import { Input, Space, Table } from 'antd';
+import { Input, Space } from 'antd';
 import { useState } from 'react';
-import { QueryBoundary } from '@/components/ui';
+import { NumberedTable, QueryBoundary } from '@/components/ui';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { formatDateTime } from '@/utils/format';
 import { adminLabels } from '../labels';
@@ -25,7 +25,7 @@ export function AuditLogTable() {
       </Space>
       <QueryBoundary isLoading={isLoading} error={error} data={data} onRetry={refetch}>
         {(result) => (
-          <Table<AuditLogRow>
+          <NumberedTable<AuditLogRow>
             rowKey="id"
             size="small"
             loading={isFetching}
