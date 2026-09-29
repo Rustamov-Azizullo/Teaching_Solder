@@ -1,6 +1,7 @@
 package uz.askar.education.auth;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +22,11 @@ public class AuthController {
 
     private final AuthService authService;
     private final CurrentUser currentUser;
+    private final LoginRateLimiter rateLimiter;
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+        rateLimiter.register(http.getRemoteAddr());
         return authService.login(request);
     }
 

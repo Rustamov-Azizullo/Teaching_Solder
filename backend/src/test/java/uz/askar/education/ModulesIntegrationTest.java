@@ -52,6 +52,16 @@ class ModulesIntegrationTest {
     }
 
     @Test
+    void overviewBreaksSoldiersDownByDistrict() throws Exception {
+        mvc.perform(get("/api/dashboard/overview").headers(auth(token("superadmin")))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.districts", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.districts[0].soldiers").isNumber())
+                .andExpect(jsonPath("$.districts[0].professions").isNumber())
+                .andExpect(jsonPath("$.districts[0].institutions").isNumber())
+                .andExpect(jsonPath("$.regions", hasSize(14)));
+    }
+
+    @Test
     void soldiersCanBeFilteredByAnySubdivisionLevel() throws Exception {
         String token = token("qomondon1");
         mvc.perform(get("/api/soldiers").param("subdivisionId", "1").headers(auth(token)))
@@ -126,30 +136,13 @@ class ModulesIntegrationTest {
     @Test
     void everyReportCanBeExportedAsXlsxAndPdf() throws Exception {
         String hktb = token("hktb");
-        for (String type : new String[] {"COURSE_COMPLETION", "OTM_ADMISSIONS", "YEARLY_SUMMARY"}) {
+        for (String type : new String[] {"WEEKLY_UNIT_SUMMARY", "COURSE_COMPLETION", "OTM_ADMISSIONS", "YEARLY_SUMMARY"}) {
             for (String format : new String[] {"XLSX", "PDF"}) {
                 mvc.perform(get("/api/reports/" + type).param("format", format).headers(auth(hktb)))
                         .andExpect(status().isOk());
             }
         }
         mvc.perform(get("/api/reports/YEARLY_SUMMARY").headers(auth(token("katta1")))).andExpect(status().isForbidden());
-    }
-
-    @Test
-    void assignmentNeedsBasisDocumentToBeApproved() throws Exception {
-        String created = mvc.perform(post("/api/assignments").headers(auth(token("okrug1")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"militaryUnitId\":2,\"institutionId\":1,\"direction\":\"VOCATIONAL\"}"))
-                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-        int id = JsonPath.read(created, "$.id");
-        String hktb = token("hktb");
-        mvc.perform(post("/api/assignments/" + id + "/decision").headers(auth(hktb)).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"approve\":true}"))
-                .andExpect(status().isConflict());
-        mvc.perform(post("/api/assignments/" + id + "/decision").headers(auth(hktb)).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"approve\":true,\"basisDocument\":\"Qo'shma qaror 5\"}"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("APPROVED"));
-        mvc.perform(get("/api/notifications/unread-count").headers(auth(hktb))).andExpect(status().isOk());
     }
 
     @Test

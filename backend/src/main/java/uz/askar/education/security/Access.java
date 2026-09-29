@@ -37,12 +37,6 @@ public final class Access {
 
     public static final String ATTACHMENT_WRITE = "@perm.has(authentication,'ATTACHMENT_WRITE')";
 
-    public static final String ASSIGNMENT_PROPOSE = "@perm.has(authentication,'ASSIGNMENT_PROPOSE')";
-
-    public static final String ASSIGNMENT_DECIDE = "@perm.has(authentication,'ASSIGNMENT_DECIDE')";
-
-    public static final String ASSIGNMENT_READ = "@perm.has(authentication,'ASSIGNMENT_READ')";
-
     public static final String DEADLINE_MANAGE = "@perm.has(authentication,'DEADLINE_MANAGE')";
 
     public static final String RESULT_WRITE = "@perm.has(authentication,'RESULT_WRITE')";
@@ -63,7 +57,6 @@ public final class Access {
 
     public static final String GROUP_READ = "@perm.has(authentication,'GROUP_READ')";
 
-    public static final String SCHEDULE_WRITE = "@perm.has(authentication,'SCHEDULE_WRITE')";
 
     public static final String REPORTS = "@perm.has(authentication,'REPORTS')";
 
@@ -72,4 +65,7 @@ public final class Access {
     public static final String DASHBOARD_OTM = "@perm.has(authentication,'DASHBOARD_OTM')";
 
     public static final String DASHBOARD_SURVEYS = "@perm.has(authentication,'DASHBOARD_SURVEYS')";
+
+    /** Yagona dashboard: uchala blokdan kamida bittasini ko'rish ruxsati. */
+    public static final String DASHBOARD_ANY = DASHBOARD_VOCATIONAL + " or " + DASHBOARD_OTM + " or " + DASHBOARD_SURVEYS;
 }

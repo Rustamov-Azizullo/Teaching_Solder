@@ -144,18 +144,6 @@ class DynamicPermissionsIntegrationTest {
                 .andExpect(jsonPath("$.permissions", hasItem("GROUP_READ")));
     }
 
-    @Test
-    void onlyHoldersOfTimeOverridePermissionMayChangeStandardLessonTime() throws Exception {
-        String lesson = "{\"lessonDate\":\"" + LocalDate.now().plusDays(1) + "\",\"startTime\":\"09:00\","
-                + "\"endTime\":\"11:00\",\"academicHours\":2,\"kind\":\"THEORY\",\"changeReason\":\"Dala mashqi\"}";
-        mvc.perform(post("/api/groups/1/lessons").headers(auth(token("operator1")))
-                        .contentType(MediaType.APPLICATION_JSON).content(lesson))
-                .andExpect(status().isForbidden());
-        mvc.perform(post("/api/groups/1/lessons").headers(auth(token("qomondon1")))
-                        .contentType(MediaType.APPLICATION_JSON).content(lesson))
-                .andExpect(status().isCreated());
-    }
-
     private void setRolePermission(String token, String role, String permission, boolean granted) throws Exception {
         mvc.perform(put("/api/role-permissions").headers(auth(token)).contentType(MediaType.APPLICATION_JSON)
                         .content("[{\"role\":\"" + role + "\",\"permission\":\"" + permission + "\",\"granted\":"

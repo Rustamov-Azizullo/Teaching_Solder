@@ -31,6 +31,12 @@ public class CycleController {
         return service.openNew(year);
     }
 
+    @PostMapping("/{year}/reopen")
+    @PreAuthorize(Access.SYSTEM_CONFIG)
+    public CycleDto reopen(@PathVariable int year) {
+        return service.reopen(year);
+    }
+
     @PostMapping("/{year}/close")
     @PreAuthorize(Access.SYSTEM_CONFIG)
     public CycleDto close(@PathVariable int year) {

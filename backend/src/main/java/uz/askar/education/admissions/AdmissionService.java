@@ -30,7 +30,8 @@ public class AdmissionService {
                                   OnlineStatus onlineStatus) {
     }
 
-    public record AdmissionRow(Long soldierId, String fullName, String pinfl, String unitName, boolean bmbaRegistered,
+    public record AdmissionRow(Long soldierId, String fullName, String pinfl, Long districtId, String districtName,
+                               Long unitId, String unitName, boolean bmbaRegistered,
                                boolean benefitsUploaded, boolean testParticipated, Double testScore, boolean admitted,
                                String university, String studyDirection, StudyForm studyForm, OnlineStatus onlineStatus,
                                LocalDate serviceEndDate, LocalDateTime bmbaSyncedAt) {
@@ -44,6 +45,7 @@ public class AdmissionService {
 
     private final AdmissionRepository admissions;
     private final SoldierService soldierService;
+    private final uz.askar.education.cycles.CycleService cycleService;
     private final uz.askar.education.soldiers.SoldierRepository soldiers;
     private final BmbaClient bmbaClient;
     private final IntegrationGateway gateway;
@@ -58,6 +60,7 @@ public class AdmissionService {
 
     @Transactional
     public AdmissionRow update(Long soldierId, AdmissionUpdate update) {
+        cycleService.requireCurrentOpen();
         Soldier soldier = soldierService.findInScope(soldierId);
         if (update.admitted() && (update.university() == null || update.university().isBlank())) {
             throw new BusinessRuleException("Qabul qilingan bo'lsa, OTM nomi ko'rsatilishi shart");
@@ -157,7 +160,9 @@ public class AdmissionService {
 
     private AdmissionRow toRow(Soldier s, Admission a) {
         boolean has = a != null;
-        return new AdmissionRow(s.getId(), s.getFullName(), s.getPinfl(), s.getMilitaryUnit().getName(),
+        return new AdmissionRow(s.getId(), s.getFullName(), s.getPinfl(),
+                s.getMilitaryUnit().getMilitaryDistrict().getId(), s.getMilitaryUnit().getMilitaryDistrict().getName(),
+                s.getMilitaryUnit().getId(), s.getMilitaryUnit().getName(),
                 has && a.isBmbaRegistered(), has && a.isBenefitsUploaded(), has && a.isTestParticipated(),
                 has ? a.getTestScore() : null, has && a.isAdmitted(), has ? a.getUniversity() : null,
                 has ? a.getStudyDirection() : null, has ? a.getStudyForm() : null,

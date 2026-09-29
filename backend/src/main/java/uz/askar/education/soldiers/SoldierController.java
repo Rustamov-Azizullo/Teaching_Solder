@@ -38,11 +38,12 @@ public class SoldierController {
     @PreAuthorize(Access.SOLDIER_READ)
     public PageResponse<SoldierSummary> search(
             @RequestParam(required = false) String query,
+            @RequestParam(required = false) Long districtId,
             @RequestParam(required = false) Long unitId,
             @RequestParam(required = false) Long subdivisionId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return soldierService.search(query, unitId, subdivisionId, page, size);
+        return soldierService.search(query, districtId, unitId, subdivisionId, page, size);
     }
 
     @GetMapping("/{id}")

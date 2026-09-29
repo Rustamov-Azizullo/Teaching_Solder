@@ -25,18 +25,6 @@ public final class DashboardDtos {
                               List<SubjectNeed> subjectNeeds, EducationStats education) {
     }
 
-    /** Muassasaning harbiy qism bilan biriktirilishi/shartnomasi. */
-    public record UnitContract(Long unitId, String unitName, String status, String contractNo, LocalDate contractDate) {
-    }
-
-    public record InstitutionContracts(Long id, String name, String type, List<UnitContract> units) {
-    }
-
-    /** Hudud kesimida: texnikum/muassasalar va ularning harbiy qismlar bilan shartnomalari. */
-    public record RegionInstitutions(String region, long soldiers, long institutionCount, long contractCount,
-                                     List<InstitutionContracts> institutions) {
-    }
-
     public record UnitSoldiers(Long id, String name, long soldiers) {
     }
 
@@ -44,7 +32,35 @@ public final class DashboardDtos {
     public record DistrictSoldiers(Long id, String name, long soldiers, List<UnitSoldiers> units) {
     }
 
-    public record GeographyBlock(long totalSoldiers, List<DistrictSoldiers> districts,
-                                 List<RegionInstitutions> regions) {
+    /** Kasb bo'yicha o'qiyotgan askarlar soni va ularning okrug/harbiy qism kesimidagi taqsimoti. */
+    public record ProfessionRow(String profession, long soldiers, List<DistrictSoldiers> districts) {
+    }
+
+    /** Viloyat (yoki Toshkent shahri, Qoraqalpog'iston Respublikasi) bo'yicha harbiy xizmat o'tayotgan askarlar soni. */
+    public record RegionRow(String name, long soldiers) {
+    }
+
+    /** Okrugda muayyan kasb bo'yicha, muayyan muassasa bilan o'qiyotgan askarlar soni. */
+    public record ProgramRow(String profession, String institution, long soldiers) {
+    }
+
+    /**
+     * Okrug kesimi: jami askarlar, kasb kursi va OTM tayyorlovdagilar, kasblar va muassasalar soni
+     * ({@code programs} — kasb + muassasa bo'yicha tafsilot).
+     */
+    public record DistrictRow(Long id, String name, long soldiers, long vocational, long otm, long professions,
+                              long institutions, List<ProgramRow> programs) {
+    }
+
+    /**
+     * Yagona dashboard ko'rsatkichlari: umumiy raqamlar, kasblar kesimi, okruglar va viloyatlar kesimi.
+     * {@code unassigned} — hech bir kursga biriktirilmagan askarlar.
+     */
+    public record Overview(long totalSoldiers, long vocationalStudying, long otmPreparing, long unassigned,
+                           long certified, long higherCompleted, long higherIncomplete,
+                           List<ProfessionRow> professions, List<DistrictRow> districts, List<RegionRow> regions) {
+    }
+
+    public record GeographyBlock(long totalSoldiers, List<DistrictSoldiers> districts) {
     }
 }

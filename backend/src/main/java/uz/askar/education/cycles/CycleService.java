@@ -36,6 +36,14 @@ public class CycleService {
         }
     }
 
+    /** Berilgan yil sikli yopilgan bo'lsa, istisno tashlaydi (yopilgan sikl ma'lumotlari o'zgartirilmaydi). */
+    @Transactional(readOnly = true)
+    public void requireOpen(int year) {
+        cycles.findById(year).filter(cycle -> !cycle.isOpen()).ifPresent(cycle -> {
+            throw new BusinessRuleException(year + "-yil sikli yopilgan. Administrator uni qayta ochishi kerak");
+        });
+    }
+
     @Transactional
     public CycleDto openNew(int year) {
         if (cycles.existsById(year)) {
@@ -51,6 +59,19 @@ public class CycleService {
         cycle.setStatus("CLOSED");
         cycle.setClosedAt(LocalDateTime.now());
         audit.record("CLOSE_CYCLE", "Cycle", year, "sikl yopildi");
+        return toDto(cycle);
+    }
+
+    /** Yopilgan siklni qayta ochadi; yopilish vaqti tozalanadi. */
+    @Transactional
+    public CycleDto reopen(int year) {
+        Cycle cycle = cycles.findById(year).orElseThrow(() -> new NotFoundException("Sikl topilmadi"));
+        if (cycle.isOpen()) {
+            throw new BusinessRuleException(year + "-yil sikli allaqachon ochiq");
+        }
+        cycle.setStatus("OPEN");
+        cycle.setClosedAt(null);
+        audit.record("REOPEN_CYCLE", "Cycle", year, "sikl qayta ochildi");
         return toDto(cycle);
     }
 

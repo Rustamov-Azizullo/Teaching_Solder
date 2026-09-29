@@ -6,7 +6,7 @@
 -- ilovani bir marta ishga tushirsangiz, Flyway uni avtomatik qo'llaydi.
 --
 -- Hududga biriktirish (app_users.location_id):
---   * megasuperadmin, superadmin — respublika darajasi, hududsiz (NULL);
+--   * megasuperadmin, superadmin — vazirlik darajasi, hududsiz (NULL);
 --   * adminuser (ADMIN, okrug darajasi) — bazadagi birinchi harbiy okrug hududi;
 --   * user (USER, qism darajasi) — bazadagi birinchi harbiy qism hududi.
 -- Hududga biriktirilmagan ADMIN/USER hech qanday ma'lumotni ko'rmaydi, shuning uchun oldingi versiyadagi

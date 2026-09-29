@@ -2,7 +2,7 @@ spring:
   application:
     name: askar-talimi
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/askar_talimi}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/askar_talimi1}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:12345}
   servlet:
@@ -13,11 +13,16 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+    properties:
+      # Lazy bog'liqliklarni bittalab emas, 50 tadan guruhlab yuklaydi (N+1 so'rovlarni kamaytiradi).
+      hibernate.default_batch_fetch_size: 50
   flyway:
     enabled: true
 
 server:
   port: ${SERVER_PORT:8081}
+  # Nginx (ichki tarmoq) yuborgan X-Forwarded-For faqat ishonchli proksidan qabul qilinadi.
+  forward-headers-strategy: native
 
 app:
   jwt:
@@ -32,12 +37,19 @@ app:
   storage:
     dir: ${STORAGE_DIR:./data/files}
     secret: ${STORAGE_SECRET:change-me-storage-secret}
-  seed-demo-data: ${SEED_DEMO_DATA:true}
+  seed-demo-data: ${SEED_DEMO_DATA:false}
+  # Bo'sh bazaga yaratiladigan boshlang'ich hisoblar paroli; bo'sh bo'lsa, har bir hisobga tasodifiy parol yaratilib logga yoziladi.
+  initial-password: ${INITIAL_PASSWORD:}
+  login:
+    max-attempts-per-ip: 20
+    window-minutes: 10
 
 springdoc:
   api-docs:
+    enabled: ${DOCS_ENABLED:false}
     path: /v3/api-docs
   swagger-ui:
+    enabled: ${DOCS_ENABLED:false}
     path: /swagger-ui.html
     operations-sorter: alpha
     tags-sorter: alpha

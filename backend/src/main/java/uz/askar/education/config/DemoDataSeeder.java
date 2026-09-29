@@ -19,6 +19,8 @@ import uz.askar.education.dictionaries.DictionaryItemRepository;
 import uz.askar.education.dictionaries.DictionaryType;
 import uz.askar.education.groups.EducationInstitution;
 import uz.askar.education.groups.EducationInstitutionRepository;
+import uz.askar.education.groups.GroupLeader;
+import uz.askar.education.groups.GroupLeaderRepository;
 import uz.askar.education.groups.GroupType;
 import uz.askar.education.groups.InstitutionType;
 import uz.askar.education.groups.StudyGroup;
@@ -35,10 +37,6 @@ import uz.askar.education.organization.Region;
 import uz.askar.education.organization.RegionRepository;
 import uz.askar.education.organization.TerritorialDistrict;
 import uz.askar.education.organization.TerritorialDistrictRepository;
-import uz.askar.education.schedule.Lesson;
-import uz.askar.education.schedule.LessonKind;
-import uz.askar.education.schedule.LessonRepository;
-import uz.askar.education.schedule.LessonStatus;
 import uz.askar.education.security.Role;
 import uz.askar.education.security.UserPermission;
 import uz.askar.education.security.UserPermissionRepository;
@@ -66,7 +64,7 @@ public class DemoDataSeeder implements CommandLineRunner {
 
     static final String DEMO_PASSWORD = "Parol123!";
     private static final long RANDOM_SEED = 42;
-    private static final int LESSON_HISTORY_DAYS = 21;
+    private static final int DEMO_GROUP_AGE_DAYS = 28;
     private static final int COURSE_MONTHS = 5;
 
     private static final List<String> FIRST_NAMES = List.of("Jasur", "Sardor", "Otabek", "Bekzod", "Dilshod",
@@ -85,10 +83,9 @@ public class DemoDataSeeder implements CommandLineRunner {
     private final TeacherRepository teachers;
     private final SoldierRepository soldiers;
     private final StudyGroupRepository groups;
-    private final LessonRepository lessons;
+    private final GroupLeaderRepository groupLeaders;
     private final QuestionnaireRepository questionnaires;
     private final uz.askar.education.organization.SubdivisionRepository subdivisionRepository;
-    private final uz.askar.education.assignments.AssignmentRepository assignmentRepository;
     private final uz.askar.education.results.CourseResultRepository courseResultRepository;
     private final uz.askar.education.admissions.AdmissionRepository admissionRepository;
     private final LocationService locationService;
@@ -131,13 +128,13 @@ public class DemoDataSeeder implements CommandLineRunner {
         unitUser("jangovar1", "101-qism jangovar tayyorgarlik bo'limi", unitOneLocation,
                 DemoUnitProfile.COMBAT_TRAINING);
         unitUser("tarbiya1", "101-qism tarbiyaviy ishlar bo'limi", unitOneLocation, DemoUnitProfile.EDUCATION);
-        AppUser leaderOne = unitUser("katta1", "Guruh kattasi Nurmatov A.", unitOneLocation,
+        unitUser("katta1", "Guruh kattasi Nurmatov A.", unitOneLocation,
                 DemoUnitProfile.LEADER);
-        AppUser leaderTwo = unitUser("katta2", "Guruh kattasi Ismoilov B.", unitOneLocation,
+        unitUser("katta2", "Guruh kattasi Ismoilov B.", unitOneLocation,
                 DemoUnitProfile.LEADER);
         AppUser psychologist = unitUser("psixolog1", "Harbiy psixolog Sobirova D.", unitOneLocation,
                 DemoUnitProfile.PSYCHOLOGY);
-        AppUser leaderThree = unitUser("katta3", "Guruh kattasi Hamidov S.", unitThreeLocation,
+        unitUser("katta3", "Guruh kattasi Hamidov S.", unitThreeLocation,
                 DemoUnitProfile.LEADER);
         unitUser("qomondon2", "201-qism qo'mondoni", unitThreeLocation, DemoUnitProfile.COMMANDER);
 
@@ -145,6 +142,10 @@ public class DemoDataSeeder implements CommandLineRunner {
                 .filter(r -> r.getName().equals("Toshkent shahri")).findFirst().orElseThrow();
         TerritorialDistrict chilonzor = districts.findByRegionIdOrderByNameAsc(tashkent.getId()).get(0);
         DictionaryItem kinship = dictionaryItems.findByTypeOrderBySortOrderAscNameAsc(DictionaryType.KINSHIP).get(0);
+
+        GroupLeader leaderOne = groupLeader("Nurmatov A.", unitOne);
+        GroupLeader leaderTwo = groupLeader("Ismoilov B.", unitOne);
+        GroupLeader leaderThree = groupLeader("Hamidov S.", unitThree);
 
         Random random = new Random(RANDOM_SEED);
         List<Soldier> unitOneSoldiers = soldiers(unitOne, tashkent, chilonzor, kinship, 24, 1, random);
@@ -164,7 +165,6 @@ public class DemoDataSeeder implements CommandLineRunner {
         StudyGroup other = group("Dasturlash-1", GroupType.VOCATIONAL, unitThree, technicalSchool,
                 item(DictionaryType.PROFESSION, "PROGRAMMER"), List.of(), unitThreeSoldiers, leaderThree);
 
-        List.of(vocational, otm, other).forEach(group -> seedLessons(group, random));
         questionnaires(unitOneSoldiers, psychologist, random);
         seedExtras(unitOne, unitThree, unitOneSoldiers, technicalSchool, school, vocational, otm);
     }
@@ -181,9 +181,6 @@ public class DemoDataSeeder implements CommandLineRunner {
             unitOneSoldiers.get(i).setSubdivision(i % 2 == 0 ? platoonOne : platoonTwo);
         }
 
-        assignment(unitOne, technicalSchool, GroupType.VOCATIONAL, uz.askar.education.assignments.AssignmentStatus.APPROVED);
-        assignment(unitOne, school, GroupType.OTM_PREP, uz.askar.education.assignments.AssignmentStatus.APPROVED);
-        assignment(unitThree, technicalSchool, GroupType.VOCATIONAL, uz.askar.education.assignments.AssignmentStatus.PROPOSED);
 
         List<Soldier> members = vocational.getSoldiers().stream().sorted(java.util.Comparator.comparing(Soldier::getId)).toList();
         uz.askar.education.results.CourseStatus[] pattern = {
@@ -240,50 +237,6 @@ public class DemoDataSeeder implements CommandLineRunner {
         subdivision.setName(name);
         subdivision.setParent(parent);
         return subdivisionRepository.save(subdivision);
-    }
-
-    private void assignment(MilitaryUnit unit, EducationInstitution institution, GroupType direction,
-                            uz.askar.education.assignments.AssignmentStatus status) {
-        var assignment = new uz.askar.education.assignments.Assignment();
-        assignment.setMilitaryUnit(unit);
-        assignment.setInstitution(institution);
-        assignment.setDirection(direction);
-        assignment.setStatus(status);
-        assignment.setProposedBy("okrug1");
-        assignment.setCreatedAt(LocalDateTime.now());
-        assignment.setCycleYear(LocalDate.now().getYear());
-        if (status == uz.askar.education.assignments.AssignmentStatus.APPROVED) {
-            assignment.setBasisDocument("Qo'shma qaror № 12");
-            assignment.setValidFrom(LocalDate.now().minusMonths(2));
-            assignment.setValidTo(LocalDate.now().plusMonths(10));
-            assignment.setContractNo("SH-2026/17");
-            assignment.setContractDate(LocalDate.now().minusMonths(2));
-            assignment.setDecidedBy("hktb");
-        }
-        assignmentRepository.save(assignment);
-    }
-
-    private void seedLessons(StudyGroup group, Random random) {
-        LocalDate today = LocalDate.now();
-        for (LocalDate day = today.minusDays(LESSON_HISTORY_DAYS); !day.isAfter(today); day = day.plusDays(1)) {
-            if (day.getDayOfWeek() == DayOfWeek.SATURDAY || day.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                continue;
-            }
-            Lesson lesson = new Lesson();
-            lesson.setGroup(group);
-            lesson.setLessonDate(day);
-            lesson.setStartTime(LocalTime.of(15, 0));
-            lesson.setEndTime(LocalTime.of(17, 25));
-            lesson.setAcademicHours(3);
-            lesson.setKind(random.nextBoolean() ? LessonKind.THEORY : LessonKind.PRACTICAL);
-            lesson.setTopic("Mavzu " + day.getDayOfMonth());
-            boolean leaveTodayOpen = day.equals(today) && group.getType() == GroupType.OTM_PREP;
-            if (!leaveTodayOpen) {
-                lesson.setStatus(LessonStatus.HELD);
-                lesson.setTeacherPresent(true);
-            }
-            lessons.save(lesson);
-        }
     }
 
     private void questionnaires(List<Soldier> unitSoldiers, AppUser psychologist, Random random) {
@@ -350,9 +303,18 @@ public class DemoDataSeeder implements CommandLineRunner {
         return created;
     }
 
+    private GroupLeader groupLeader(String fullName, MilitaryUnit unit) {
+        GroupLeader leader = new GroupLeader();
+        leader.setFullName(fullName);
+        leader.setPinfl(String.format("%014d", Math.abs((long) fullName.hashCode())));
+        leader.setMilitaryRank("Kichik serjant");
+        leader.setMilitaryUnit(unit);
+        return groupLeaders.save(leader);
+    }
+
     private StudyGroup group(String name, GroupType type, MilitaryUnit unit, EducationInstitution institution,
                              DictionaryItem profession, List<DictionaryItem> subjects, List<Soldier> members,
-                             AppUser leader) {
+                             GroupLeader leader) {
         StudyGroup group = new StudyGroup();
         group.setName(name);
         group.setType(type);
@@ -361,12 +323,10 @@ public class DemoDataSeeder implements CommandLineRunner {
         group.setProfession(profession);
         group.setSubjects(new HashSet<>(subjects));
         group.setSoldiers(new HashSet<>(members));
-        group.setStartDate(LocalDate.now().minusDays(LESSON_HISTORY_DAYS + 7));
+        group.setStartDate(LocalDate.now().minusDays(DEMO_GROUP_AGE_DAYS));
         group.setEndDate(group.getStartDate().plusMonths(COURSE_MONTHS));
         group.setClassroom("12-sinf");
         group.setLeader(leader);
-        group.setLeaderOrderNo("B-" + name.hashCode() % 100);
-        group.setLeaderOrderDate(group.getStartDate());
         group.setCycleYear(LocalDate.now().getYear());
         return groups.save(group);
     }
@@ -376,9 +336,8 @@ public class DemoDataSeeder implements CommandLineRunner {
         teacher.setFullName(fullName);
         teacher.setSpecialty(specialty);
         teacher.setInstitution(institution);
-        teacher.setMilitaryUnit(unit);
-        teacher.setAccessOrderNo("K-17");
-        teacher.setAccessValidUntil(LocalDate.now().plusMonths(6));
+        institution.getContractedUnits().add(unit);
+        institutions.save(institution);
         teachers.save(teacher);
     }
 

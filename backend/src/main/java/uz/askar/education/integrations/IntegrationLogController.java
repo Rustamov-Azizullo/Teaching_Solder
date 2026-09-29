@@ -28,7 +28,7 @@ public class IntegrationLogController {
     @PreAuthorize(Access.SYSTEM_CONFIG)
     public PageResponse<IntegrationLogDto> list(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "30") int size) {
-        return PageResponse.from(logs.findAllByOrderByAtDesc(PageRequest.of(page, Math.min(size, 100))),
+        return PageResponse.from(logs.findAllByOrderByAtDesc(PageRequest.of(Math.max(page, 0), Math.max(1, Math.min(size, 100)))),
                 l -> new IntegrationLogDto(l.getId(), l.getAt(), l.getSystem(), l.getOperation(), l.getReference(),
                         l.isSuccess(), l.getMessage(), l.getDurationMs(), l.getActor()));
     }

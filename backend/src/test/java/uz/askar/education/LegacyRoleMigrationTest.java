@@ -55,7 +55,8 @@ class LegacyRoleMigrationTest {
             assertEquals("ADMIN", single(sql, "SELECT role FROM app_users WHERE id = 5"));
 
             assertEquals(List.of("SOLDIER_READ"), list(sql, "SELECT permission FROM user_permissions WHERE user_id = 4"));
-            assertEquals("22", single(sql, "SELECT COUNT(*) FROM user_permissions WHERE user_id = 3"));
+            // V11 22 ta ruxsat beradi; keyinroq V17 ASSIGNMENT_* (2 ta), V29 SCHEDULE_* (2 ta) ruxsatlarini olib tashlaydi.
+            assertEquals("18", single(sql, "SELECT COUNT(*) FROM user_permissions WHERE user_id = 3"));
             assertEquals("0", single(sql, "SELECT COUNT(*) FROM user_permissions WHERE user_id IN (1, 2, 5)"));
             assertEquals("USER", single(sql, "SELECT responsible_role FROM deadlines"));
             assertEquals("SUPER_ADMIN", single(sql, "SELECT escalation_role FROM deadlines"));

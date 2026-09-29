@@ -127,7 +127,7 @@ public class EmploymentService {
                 .collect(Collectors.toList());
     }
 
-    /** Foydalanuvchi kontekstisiz (rejalashtirilgan ish uchun): butun respublika bo'yicha soni. */
+    /** Foydalanuvchi kontekstisiz (rejalashtirilgan ish uchun): butun vazirlik bo'yicha soni. */
     @Transactional(readOnly = true)
     public int previewSystem(LocalDate today) {
         LocalDate limit = today.plusMonths(months());

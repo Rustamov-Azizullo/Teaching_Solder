@@ -19,7 +19,9 @@ import uz.askar.education.users.UserDtos.UserDto;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private static final String INVALID_CREDENTIALS = "Login yoki parol noto'g'ri";
+    private static final String DUMMY_PASSWORD = "dummy-password-for-timing";
+    private static final String INVALID_CREDENTIALS =
+            "Login yoki parol noto'g'ri, yoki hisob vaqtincha bloklangan. Birozdan keyin qayta urinib ko'ring";
 
     private final AppUserRepository users;
     private final PasswordEncoder passwordEncoder;
@@ -27,20 +29,22 @@ public class AuthService {
     private final AuditService audit;
     private final SecurityProperties securityProperties;
     private final PermissionEvaluatorService permissions;
+    private volatile String dummyPasswordHash;
 
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
     public LoginResponse login(LoginRequest request) {
-        AppUser user = users.findByUsername(request.username()).orElseThrow(() -> failedLogin(request.username()));
-        if (!user.isActive()) {
-            throw failedLogin(request.username());
+        AppUser user = users.findByUsername(request.username()).orElse(null);
+        if (user == null) {
+            passwordEncoder.matches(request.password(), dummyHash());
+            throw failedLogin();
         }
-        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
-            throw new InvalidCredentialsException(
-                    "Hisob vaqtincha bloklangan. Birozdan keyin qayta urinib ko'ring");
+        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());
+        if (!user.isActive() || isLocked(user)) {
+            throw failedLogin();
         }
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (!passwordMatches) {
             registerFailure(user);
-            throw failedLogin(request.username());
+            throw failedLogin();
         }
         user.setFailedAttempts(0);
         user.setLockedUntil(null);
@@ -69,7 +73,19 @@ public class AuthService {
         return UserDto.from(user, permissions.effectivePermissions(user.getId(), user.getRole()));
     }
 
-    private InvalidCredentialsException failedLogin(String username) {
+    /** Mavjud bo'lmagan login uchun ham parol tekshiruvi vaqtini tenglashtiradi (login nomini aniqlashga qarshi). */
+    private String dummyHash() {
+        if (dummyPasswordHash == null) {
+            dummyPasswordHash = passwordEncoder.encode(DUMMY_PASSWORD);
+        }
+        return dummyPasswordHash;
+    }
+
+    private boolean isLocked(AppUser user) {
+        return user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now());
+    }
+
+    private InvalidCredentialsException failedLogin() {
         return new InvalidCredentialsException(INVALID_CREDENTIALS);
     }
 }

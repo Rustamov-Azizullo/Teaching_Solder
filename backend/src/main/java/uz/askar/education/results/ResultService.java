@@ -51,6 +51,7 @@ public class ResultService {
 
     private final CourseResultRepository results;
     private final GroupService groupService;
+    private final uz.askar.education.cycles.CycleService cycleService;
     private final NotificationService notifications;
     private final CurrentUser currentUser;
     private final AuditService audit;
@@ -69,6 +70,10 @@ public class ResultService {
     @Transactional
     public ResultsSheet save(Long groupId, ResultsRequest request) {
         StudyGroup group = groupService.findInScope(groupId);
+        cycleService.requireOpen(group.getCycleYear());
+        if (group.getType() != GroupType.VOCATIONAL) {
+            throw new BusinessRuleException("Kurs natijalari faqat kasb kursi guruhlari uchun kiritiladi");
+        }
         if (group.getCourseApprovedAt() != null) {
             throw new BusinessRuleException("Kurs yakuni tasdiqlangan — natijalarni o'zgartirib bo'lmaydi");
         }
@@ -101,10 +106,14 @@ public class ResultService {
         return sheet(groupId);
     }
 
-    /** Qism qo'mondoni kurs yakunini tasdiqlaydi → ma'lumot respublika dashboardida aks etadi. */
+    /** Qism qo'mondoni kurs yakunini tasdiqlaydi → ma'lumot vazirlik dashboardida aks etadi. */
     @Transactional
     public ResultsSheet approve(Long groupId) {
         StudyGroup group = groupService.findInScope(groupId);
+        cycleService.requireOpen(group.getCycleYear());
+        if (group.getCourseApprovedAt() != null) {
+            throw new BusinessRuleException("Kurs yakuni allaqachon tasdiqlangan");
+        }
         Set<Long> recorded = results.findByGroupId(groupId).stream().map(r -> r.getSoldier().getId())
                 .collect(Collectors.toSet());
         boolean complete = group.getSoldiers().stream().allMatch(s -> recorded.contains(s.getId()));

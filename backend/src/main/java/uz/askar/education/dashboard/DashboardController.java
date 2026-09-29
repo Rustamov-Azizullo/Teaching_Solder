@@ -25,6 +25,14 @@ public class DashboardController {
         return dashboardService.courseResults(districtId, unitId);
     }
 
+    /** Yagona dashboard: kurslar, sertifikat, ta'lim, kasblar kesimi va hududlar bo'yicha tanlovlar. */
+    @GetMapping("/overview")
+    @PreAuthorize(Access.DASHBOARD_ANY)
+    public DashboardDtos.Overview overview(@RequestParam(required = false) Long districtId,
+                                           @RequestParam(required = false) Long unitId) {
+        return dashboardService.overview(districtId, unitId);
+    }
+
     @GetMapping("/surveys")
     @PreAuthorize(Access.DASHBOARD_SURVEYS)
     public SurveyBlock surveys(@RequestParam(required = false) Long districtId,

@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uz.askar.education.groups.GroupDtos.GroupDto;
-import uz.askar.education.groups.GroupDtos.GroupLeaderOption;
 import uz.askar.education.groups.GroupDtos.GroupRequest;
 import uz.askar.education.groups.GroupDtos.GroupSummary;
-import uz.askar.education.groups.GroupDtos.LeaderRequest;
 import uz.askar.education.groups.GroupDtos.MembersRequest;
 import uz.askar.education.groups.GroupDtos.TeachersRequest;
 import uz.askar.education.security.Access;
@@ -57,10 +56,24 @@ public class GroupController {
         return groupService.update(id, request);
     }
 
-    @PutMapping("/groups/{id}/leader")
+    @DeleteMapping("/groups/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(Access.GROUP_WRITE)
+    public void delete(@PathVariable Long id) {
+        groupService.delete(id);
+    }
+
+    @DeleteMapping("/groups/{id}/leader")
     @PreAuthorize(Access.GROUP_LEADER_ASSIGN)
-    public GroupDto assignLeader(@PathVariable Long id, @Valid @RequestBody LeaderRequest request) {
-        return groupService.assignLeader(id, request);
+    public GroupDto removeLeader(@PathVariable Long id) {
+        return groupService.removeLeader(id);
+    }
+
+
+    @GetMapping("/groups/{id}/soldiers-in-other-groups")
+    @PreAuthorize(Access.GROUP_READ)
+    public List<Long> soldiersInOtherGroups(@PathVariable Long id) {
+        return groupService.soldierIdsInOtherGroups(id);
     }
 
     @PutMapping("/groups/{id}/members")
@@ -75,9 +88,4 @@ public class GroupController {
         return groupService.replaceTeachers(id, request.teacherIds());
     }
 
-    @GetMapping("/military-units/{unitId}/group-leaders")
-    @PreAuthorize(Access.GROUP_LEADER_ASSIGN)
-    public List<GroupLeaderOption> leaderOptions(@PathVariable Long unitId) {
-        return groupService.leaderOptions(unitId);
-    }
 }

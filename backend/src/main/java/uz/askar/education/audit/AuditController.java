@@ -29,7 +29,7 @@ public class AuditController {
             @RequestParam(defaultValue = "") String entity,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "30") int size) {
-        var result = logs.search(username, entity, PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE)));
+        var result = logs.search(username, entity, PageRequest.of(Math.max(page, 0), Math.max(1, Math.min(size, MAX_PAGE_SIZE))));
         return PageResponse.from(result, AuditLogDto::from);
     }
 

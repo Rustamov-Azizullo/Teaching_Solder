@@ -34,6 +34,7 @@ public class SoldierTransferService {
     private final MilitaryUnitRepository militaryUnits;
     private final SubdivisionService subdivisionService;
     private final StudyGroupRepository groups;
+    private final uz.askar.education.results.CourseResultRepository courseResults;
     private final CurrentUser currentUser;
     private final AuditService audit;
 
@@ -62,7 +63,12 @@ public class SoldierTransferService {
 
         if (!sameUnit) {
             // Eski qismning guruhlaridan chiqariladi; yig'ma jild o'zi bilan ko'chadi.
-            groups.findBySoldierId(soldierId).forEach(group -> group.getSoldiers().remove(soldier));
+            groups.findBySoldierId(soldierId).forEach(group -> {
+                if (group.getCourseApprovedAt() == null) {
+                    courseResults.deleteByGroupIdAndSoldierIdIn(group.getId(), java.util.Set.of(soldierId));
+                }
+                group.getSoldiers().remove(soldier);
+            });
         }
         if (request.subdivisionId() != null) {
             targetSubdivision = subdivisionService.findInScopeAnyUnit(request.subdivisionId());

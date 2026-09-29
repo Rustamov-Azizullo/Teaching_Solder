@@ -7,33 +7,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.askar.education.audit.AuditService;
 import uz.askar.education.common.BusinessRuleException;
-import uz.askar.education.common.ForbiddenException;
 import uz.askar.education.common.NotFoundException;
 import uz.askar.education.dictionaries.DictionaryItem;
 import uz.askar.education.dictionaries.DictionaryItemRepository;
 import uz.askar.education.dictionaries.DictionaryType;
+import uz.askar.education.common.ForbiddenException;
+import uz.askar.education.groups.GroupDtos.LeaderDto;
+import uz.askar.education.security.Permission;
+import uz.askar.education.security.PermissionEvaluatorService;
 import uz.askar.education.groups.GroupDtos.GroupDto;
-import uz.askar.education.groups.GroupDtos.GroupLeaderOption;
 import uz.askar.education.groups.GroupDtos.GroupRequest;
 import uz.askar.education.groups.GroupDtos.GroupSummary;
-import uz.askar.education.groups.GroupDtos.LeaderRequest;
 import uz.askar.education.groups.GroupDtos.MemberDto;
 import uz.askar.education.organization.MilitaryUnit;
 import uz.askar.education.organization.MilitaryUnitRepository;
 import uz.askar.education.organization.OrganizationDtos.NamedRef;
 import uz.askar.education.security.AccessScope;
 import uz.askar.education.security.CurrentUser;
-import uz.askar.education.security.Permission;
-import uz.askar.education.security.PermissionEvaluatorService;
-import uz.askar.education.security.Role;
 import uz.askar.education.soldiers.Soldier;
 import uz.askar.education.soldiers.SoldierRepository;
-import uz.askar.education.users.AppUser;
-import uz.askar.education.users.AppUserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -49,15 +46,16 @@ public class GroupService {
     private final TeacherRepository teachers;
     private final TeacherService teacherService;
     private final uz.askar.education.cycles.CycleService cycleService;
-    private final AppUserRepository users;
-    private final CurrentUser currentUser;
+    private final uz.askar.education.results.CourseResultRepository courseResults;
+    private final GroupLeaderService groupLeaderService;
     private final PermissionEvaluatorService permissions;
+    private final CurrentUser currentUser;
     private final AuditService audit;
 
     @Transactional(readOnly = true)
     public List<GroupSummary> list(GroupType type) {
         AccessScope scope = currentUser.scope();
-        return groups.search(type, scope.districtFilter(), scope.unitFilter(), leaderRestriction()).stream()
+        return groups.search(type, scope.districtFilter(), scope.unitFilter()).stream()
                 .map(this::toSummary).toList();
     }
 
@@ -70,9 +68,9 @@ public class GroupService {
     public GroupDto create(GroupRequest request) {
         cycleService.requireCurrentOpen();
         StudyGroup group = new StudyGroup();
-        group.setCycleYear(request.startDate().getYear());
         apply(group, request);
         StudyGroup saved = groups.save(group);
+        applyLeader(saved, request);
         audit.record("CREATE", "StudyGroup", saved.getId(), saved.getName());
         return toDto(saved);
     }
@@ -80,31 +78,51 @@ public class GroupService {
     @Transactional
     public GroupDto update(Long id, GroupRequest request) {
         StudyGroup group = findInScope(id);
+        requireEditable(group);
+        requireMembershipCompatible(group, request);
         apply(group, request);
+        applyLeader(group, request);
         audit.record("UPDATE", "StudyGroup", id, group.getName());
         return toDto(group);
     }
 
+    /** Guruhni o'chiradi; darslar va natijalar u bilan birga o'chadi, shuning uchun tasdiqlangan kurs yakuni bo'lsa ruxsat berilmaydi. */
     @Transactional
-    public GroupDto assignLeader(Long id, LeaderRequest request) {
+    public void delete(Long id) {
         StudyGroup group = findInScope(id);
-        AppUser leader = users.findById(request.userId())
-                .orElseThrow(() -> new NotFoundException("Foydalanuvchi topilmadi"));
-        boolean sameUnit = group.getMilitaryUnit().getId().equals(leader.effectiveUnitId());
-        if (leader.getRole() != Role.USER || !leader.isActive() || !sameUnit) {
-            throw new BusinessRuleException("Guruh kattasi shu qismga biriktirilgan faol foydalanuvchi bo'lishi kerak");
+        cycleService.requireOpen(group.getCycleYear());
+        if (group.getCourseApprovedAt() != null) {
+            throw new BusinessRuleException("Kurs yakuni tasdiqlangan guruhni o'chirib bo'lmaydi");
         }
-        group.setLeader(leader);
-        group.setLeaderOrderNo(request.orderNo());
-        group.setLeaderOrderDate(request.orderDate());
-        audit.record("ASSIGN_LEADER", "StudyGroup", id, "guruh kattasi=" + leader.getFullName()
-                + ", buyruq=" + request.orderNo());
+        String name = group.getName();
+        try {
+            groups.delete(group);
+            groups.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessRuleException("Guruh boshqa ma'lumotlarga bog'langan, o'chirib bo'lmaydi");
+        }
+        audit.record("DELETE", "StudyGroup", id, name);
+    }
+
+    @Transactional
+    public GroupDto removeLeader(Long id) {
+        StudyGroup group = findInScope(id);
+        groupLeaderService.detach(group);
+        audit.record("REMOVE_LEADER", "StudyGroup", id, "guruh kattasi olib tashlandi");
         return toDto(group);
+    }
+
+    /** Shu guruhdan tashqari, o'sha harbiy qismning boshqa guruhlariga biriktirilgan askarlar id lari. */
+    @Transactional(readOnly = true)
+    public List<Long> soldierIdsInOtherGroups(Long id) {
+        StudyGroup group = findInScope(id);
+        return groups.findSoldierIdsInOtherGroups(group.getMilitaryUnit().getId(), group.getId());
     }
 
     @Transactional
     public GroupDto replaceMembers(Long id, Set<Long> soldierIds) {
         StudyGroup group = findInScope(id);
+        requireEditable(group);
         Set<Long> ids = soldierIds == null ? Set.of() : soldierIds;
         List<Soldier> found = soldiers.findAllById(ids);
         if (found.size() != ids.size()) {
@@ -114,11 +132,11 @@ public class GroupService {
             if (!soldier.getMilitaryUnit().getId().equals(group.getMilitaryUnit().getId())) {
                 throw new BusinessRuleException(soldier.getFullName() + " boshqa qismga tegishli");
             }
-            if (groups.countOtherMemberships(soldier.getId(), group.getType(), group.getCycleYear(),
-                    group.getId()) > 0) {
-                throw new BusinessRuleException(soldier.getFullName() + " shu turdagi boshqa guruhda allaqachon bor");
+            if (groups.countOtherMemberships(soldier.getId(), group.getId()) > 0) {
+                throw new BusinessRuleException(soldier.getFullName() + " boshqa guruhda allaqachon bor");
             }
         }
+        removeResultsOfDroppedMembers(group, found);
         group.getSoldiers().clear();
         group.getSoldiers().addAll(found);
         audit.record("UPDATE_MEMBERS", "StudyGroup", id, "askarlar soni: " + found.size());
@@ -128,14 +146,17 @@ public class GroupService {
     @Transactional
     public GroupDto replaceTeachers(Long id, Set<Long> teacherIds) {
         StudyGroup group = findInScope(id);
+        requireEditable(group);
         Set<Long> ids = teacherIds == null ? Set.of() : teacherIds;
         List<Teacher> found = teachers.findAllById(ids);
         if (found.size() != ids.size()) {
             throw new NotFoundException("Ba'zi o'qituvchilar topilmadi");
         }
         found.forEach(teacher -> {
-            if (!teacher.getMilitaryUnit().getId().equals(group.getMilitaryUnit().getId())) {
-                throw new BusinessRuleException(teacher.getFullName() + " boshqa qismga biriktirilgan");
+            boolean hasContract = teacher.getInstitution().getContractedUnits().stream()
+                    .anyMatch(unit -> unit.getId().equals(group.getMilitaryUnit().getId()));
+            if (!hasContract) {
+                throw new BusinessRuleException(teacher.getFullName() + " muassasasi bu harbiy qismga biriktirilmagan");
             }
         });
         group.getTeachers().clear();
@@ -144,38 +165,52 @@ public class GroupService {
         return toDto(group);
     }
 
-    @Transactional(readOnly = true)
-    public List<GroupLeaderOption> leaderOptions(Long unitId) {
-        MilitaryUnit unit = militaryUnits.findById(unitId)
-                .orElseThrow(() -> new NotFoundException("Harbiy qism topilmadi"));
-        currentUser.scope().require(unit.getMilitaryDistrict().getId(), unit.getId());
-        return users.findByRoleAndLocationMilitaryUnitIdAndActiveTrue(Role.USER, unitId).stream()
-                .map(user -> new GroupLeaderOption(user.getId(), user.getFullName())).toList();
+    /** Sikli yopilgan yoki kurs yakuni tasdiqlangan guruhning tarkibi va sozlamalari o'zgartirilmaydi. */
+    private void requireEditable(StudyGroup group) {
+        cycleService.requireOpen(group.getCycleYear());
+        if (group.getCourseApprovedAt() != null) {
+            throw new BusinessRuleException("Kurs yakuni tasdiqlangan guruhni o'zgartirib bo'lmaydi");
+        }
     }
 
-    /** Guruhga kirish huquqi: vakolat doirasi, guruh kattasi uchun esa faqat o'z guruhi. */
+    /** Harbiy qism yoki tur o'zgarsa, mavjud askarlar va o'qituvchilar yangi sozlamaga mos kelmay qoladi. */
+    private void requireMembershipCompatible(StudyGroup group, GroupRequest request) {
+        boolean unitChanged = !group.getMilitaryUnit().getId().equals(request.militaryUnitId());
+        boolean typeChanged = group.getType() != request.type();
+        boolean hasMembers = !group.getSoldiers().isEmpty() || !group.getTeachers().isEmpty();
+        if ((unitChanged || typeChanged) && hasMembers) {
+            throw new BusinessRuleException("Harbiy qism yoki guruh turini o'zgartirishdan oldin askarlar va "
+                    + "o'qituvchilarni guruhdan chiqaring");
+        }
+    }
+
+    /** Guruhdan chiqarilgan askarlarning kurs natijalari qolib ketmasligi uchun o'chiriladi. */
+    private void removeResultsOfDroppedMembers(StudyGroup group, List<Soldier> newMembers) {
+        Set<Long> keptIds = newMembers.stream().map(Soldier::getId).collect(java.util.stream.Collectors.toSet());
+        Set<Long> droppedIds = group.getSoldiers().stream().map(Soldier::getId)
+                .filter(soldierId -> !keptIds.contains(soldierId)).collect(java.util.stream.Collectors.toSet());
+        if (!droppedIds.isEmpty()) {
+            courseResults.deleteByGroupIdAndSoldierIdIn(group.getId(), droppedIds);
+        }
+    }
+
+    /** Guruhga kirish huquqi: vakolat doirasi. */
     public StudyGroup findInScope(Long id) {
         StudyGroup group = groups.findById(id).orElseThrow(() -> new NotFoundException("Guruh topilmadi"));
         currentUser.scope().require(group.getMilitaryUnit().getMilitaryDistrict().getId(),
                 group.getMilitaryUnit().getId());
-        Long leaderId = leaderRestriction();
-        if (leaderId != null && (group.getLeader() == null || !group.getLeader().getId().equals(leaderId))) {
-            throw new ForbiddenException("Bu guruh sizga biriktirilmagan");
-        }
         return group;
     }
 
-    /**
-     * Guruh kattasi cheklovi (rolga emas, ma'lumotga asoslangan): joriy foydalanuvchi kamida bitta guruhning
-     * kattasi bo'lsa va guruhlarni boshqarish ({@code GROUP_WRITE}) ruxsatiga ega bo'lmasa — faqat o'z
-     * guruh(lar)ini ko'radi. Qaytaradi: cheklov uchun foydalanuvchi identifikatori yoki {@code null} (cheklovsiz).
-     */
-    public Long leaderRestriction() {
-        Long userId = currentUser.id();
-        if (!groups.existsByLeaderId(userId) || permissions.currentUserHas(Permission.GROUP_WRITE)) {
-            return null;
+    /** Guruh kattasi so'rovda berilgan bo'lsagina o'zgaradi; buning uchun alohida ruxsat kerak. */
+    private void applyLeader(StudyGroup group, GroupRequest request) {
+        if (request.leader() == null) {
+            return;
         }
-        return userId;
+        if (!permissions.currentUserHas(Permission.GROUP_LEADER_ASSIGN)) {
+            throw new ForbiddenException("Guruh kattasini kiritish uchun vakolatingiz yetarli emas");
+        }
+        groupLeaderService.assign(group, request.leader());
     }
 
     private void apply(StudyGroup group, GroupRequest request) {
@@ -183,15 +218,29 @@ public class GroupService {
                 .orElseThrow(() -> new NotFoundException("Harbiy qism topilmadi"));
         currentUser.scope().require(unit.getMilitaryDistrict().getId(), unit.getId());
         validateDates(request);
+        group.setCycleYear(request.startDate().getYear());
         group.setName(request.name());
         group.setType(request.type());
         group.setMilitaryUnit(unit);
         group.setStartDate(request.startDate());
         group.setEndDate(request.endDate());
         group.setClassroom(request.classroom());
-        group.setInstitution(request.institutionId() == null ? null : institutions.findById(request.institutionId())
-                .orElseThrow(() -> new NotFoundException("Ta'lim muassasasi topilmadi")));
+        group.setInstitution(contractedInstitution(request.institutionId(), unit));
         applyCurriculum(group, request);
+    }
+
+    /** Muassasa ixtiyoriy, lekin tanlansa guruh harbiy qismi bilan shartnomasi (biriktirilishi) bo'lishi shart. */
+    private EducationInstitution contractedInstitution(Long institutionId, MilitaryUnit unit) {
+        if (institutionId == null) {
+            return null;
+        }
+        EducationInstitution institution = institutions.findById(institutionId)
+                .orElseThrow(() -> new NotFoundException("Ta'lim muassasasi topilmadi"));
+        boolean hasContract = institution.getContractedUnits().stream().anyMatch(item -> item.getId().equals(unit.getId()));
+        if (!hasContract) {
+            throw new BusinessRuleException("Tanlangan harbiy qism bilan bu muassasaning shartnomasi yo'q");
+        }
+        return institution;
     }
 
     private void applyCurriculum(StudyGroup group, GroupRequest request) {
@@ -235,15 +284,15 @@ public class GroupService {
     }
 
     private GroupDto toDto(StudyGroup g) {
+        boolean canSeePinfl = permissions.currentUserHas(Permission.SOLDIER_READ);
         return new GroupDto(g.getId(), g.getName(), g.getType(), g.getMilitaryUnit().getId(),
                 g.getMilitaryUnit().getName(),
                 g.getInstitution() == null ? null : new NamedRef(g.getInstitution().getId(), g.getInstitution().getName()),
                 g.getProfession() == null ? null : new NamedRef(g.getProfession().getId(), g.getProfession().getName()),
                 refs(g.getSubjects()), g.getStartDate(), g.getEndDate(), g.getClassroom(),
-                g.getLeader() == null ? null : new NamedRef(g.getLeader().getId(), g.getLeader().getFullName()),
-                g.getLeaderOrderNo(), g.getLeaderOrderDate(),
+                g.getLeader() == null ? null : LeaderDto.from(g.getLeader()),
                 g.getSoldiers().stream().sorted(Comparator.comparing(Soldier::getFullName))
-                        .map(s -> new MemberDto(s.getId(), s.getPinfl(), s.getFullName())).toList(),
+                        .map(s -> new MemberDto(s.getId(), canSeePinfl ? s.getPinfl() : null, s.getFullName())).toList(),
                 g.getTeachers().stream().sorted(Comparator.comparing(Teacher::getFullName))
                         .map(teacherService::toDto).toList());
     }

@@ -5,5 +5,7 @@ spring:
     password: ""
 app:
   seed-demo-data: true
+  login:
+    max-attempts-per-ip: 100000
   storage:
     dir: ${java.io.tmpdir}/askar-test-files

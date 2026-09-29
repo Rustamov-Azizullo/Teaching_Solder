@@ -37,4 +37,13 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
             order by u.fullName
             """)
     List<AppUser> findInDistrictScope(@Param("districtId") Long districtId);
+
+    /** Token tekshiruvi uchun: foydalanuvchi va uning hududiy biriktirilishi bitta so'rovda. */
+    @Query("""
+            select u from AppUser u
+            left join fetch u.location l
+            left join fetch l.parent
+            where u.id = :id
+            """)
+    Optional<AppUser> findWithLocationById(@Param("id") Long id);
 }

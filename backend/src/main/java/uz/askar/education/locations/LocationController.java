@@ -22,7 +22,7 @@ import uz.askar.education.security.Access;
 @RestController
 @RequestMapping("/api/locations")
 @RequiredArgsConstructor
-@Tag(name = "Hududlar", description = "Foydalanuvchilarni biriktirish uchun hududlar daraxti (respublika / okrug / qism)")
+@Tag(name = "Hududlar", description = "Foydalanuvchilarni biriktirish uchun hududlar daraxti (vazirlik / okrug / qism)")
 public class LocationController {
 
     private final LocationService locationService;
@@ -31,6 +31,13 @@ public class LocationController {
     @GetMapping
     @PreAuthorize(Access.USER_ADMIN_ROLES)
     public List<LocationDto> list() {
+        return locationService.listInScope();
+    }
+
+    /** Filtrlar uchun: vakolat doirasidagi hududlar daraxti (vazirlik / okrug / qism), har qanday kirgan foydalanuvchiga. */
+    @GetMapping("/tree")
+    @PreAuthorize("isAuthenticated()")
+    public List<LocationDto> tree() {
         return locationService.listInScope();
     }
 

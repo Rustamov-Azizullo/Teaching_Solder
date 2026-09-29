@@ -16,6 +16,7 @@ import uz.askar.education.organization.MilitaryDistrictRepository;
 import uz.askar.education.organization.MilitaryUnit;
 import uz.askar.education.organization.MilitaryUnitRepository;
 import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.ScopeLevel;
 
 @Service
 @RequiredArgsConstructor
@@ -46,11 +47,14 @@ public class LocationService {
     /** Joriy foydalanuvchining vakolat doirasidagi hududlar (tekis ro'yxat, {@code parentId} bilan). */
     @Transactional(readOnly = true)
     public List<LocationDto> listInScope() {
-        return locations.findInDistrictScope(currentUser.scope().districtFilter()).stream()
-                .map(LocationDto::from).toList();
+        var scope = currentUser.scope();
+        if (scope.level() == ScopeLevel.UNIT) {
+            return locations.findByUnitScope(scope.unitFilter()).stream().map(LocationDto::from).toList();
+        }
+        return locations.findInDistrictScope(scope.districtFilter()).stream().map(LocationDto::from).toList();
     }
 
-    /** Yangi okrug (respublika ostida) yoki qism (okrug ostida) qo'shadi; mos harbiy okrug/qism yozuvi ham yaratiladi. */
+    /** Yangi okrug (vazirlik ostida) yoki qism (okrug ostida) qo'shadi; mos harbiy okrug/qism yozuvi ham yaratiladi. */
     @Transactional
     public LocationDto create(LocationRequest request) {
         LocationLevel level = request.level();
@@ -62,7 +66,7 @@ public class LocationService {
         LocationLevel expectedParent = level == LocationLevel.DISTRICT ? LocationLevel.REPUBLIC : LocationLevel.DISTRICT;
         if (parent.getLevel() != expectedParent) {
             throw new BadRequestException(level == LocationLevel.DISTRICT
-                    ? "Okrug respublika ostida bo'lishi kerak" : "Qism okrug ostida bo'lishi kerak");
+                    ? "Okrug vazirlik ostida bo'lishi kerak" : "Qism okrug ostida bo'lishi kerak");
         }
         Location location = new Location();
         location.setParent(parent);
@@ -108,12 +112,12 @@ public class LocationService {
         return LocationDto.from(location);
     }
 
-    /** Hududni o'chiradi: respublika, ichki hududlari yoki bog'liq ma'lumotlari (foydalanuvchi, askar, guruh) bor hudud o'chirilmaydi. */
+    /** Hududni o'chiradi: vazirlik, ichki hududlari yoki bog'liq ma'lumotlari (foydalanuvchi, askar, guruh) bor hudud o'chirilmaydi. */
     @Transactional
     public void delete(Long id) {
         Location location = find(id);
         if (location.getLevel() == LocationLevel.REPUBLIC) {
-            throw new BusinessRuleException("Respublika ildizini o'chirib bo'lmaydi");
+            throw new BusinessRuleException("Vazirlik ildizini o'chirib bo'lmaydi");
         }
         if (locations.existsByParentId(id)) {
             throw new BusinessRuleException("Avval ichidagi hududlarni (qismlarni) o'chiring");
@@ -136,7 +140,7 @@ public class LocationService {
         audit.record("DELETE", "Location", id, description);
     }
 
-    /** Harbiy okrug uchun hudud yozuvini qaytaradi, bo'lmasa yaratadi (respublika ildizi ostida). */
+    /** Harbiy okrug uchun hudud yozuvini qaytaradi, bo'lmasa yaratadi (vazirlik ildizi ostida). */
     @Transactional
     public Location ensureForDistrict(MilitaryDistrict district) {
         return locations.findByMilitaryDistrictId(district.getId()).orElseGet(() -> {
@@ -183,6 +187,6 @@ public class LocationService {
 
     private Location republic() {
         return locations.findFirstByLevel(LocationLevel.REPUBLIC)
-                .orElseThrow(() -> new NotFoundException("Respublika hududi topilmadi"));
+                .orElseThrow(() -> new NotFoundException("Vazirlik hududi topilmadi"));
     }
 }

@@ -2,8 +2,10 @@ package uz.askar.education.auth;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -25,6 +27,26 @@ public class TokenService {
         return Duration.ofMinutes(properties.ttlMinutes());
     }
 
+    /**
+     * Token hali ham foydalanuvchining joriy holatiga mos ekanini tekshiradi: hisob faol, rol va hudud da'volari
+     * o'zgarmagan. Aks holda foydalanuvchi o'chirilgan yoki boshqa qismga o'tkazilgan bo'lsa ham eski token yaroqli qolardi.
+     */
+    public boolean matches(Jwt token, AppUser user) {
+        if (!user.isActive() || !user.getRole().name().equals(token.getClaimAsString(CurrentUser.CLAIM_ROLE))) {
+            return false;
+        }
+        if (user.getRole().scopeLevel() == ScopeLevel.REPUBLIC) {
+            return true;
+        }
+        return Objects.equals(user.effectiveDistrictId(), longClaim(token, CurrentUser.CLAIM_DISTRICT_ID))
+                && Objects.equals(user.effectiveUnitId(), longClaim(token, CurrentUser.CLAIM_UNIT_ID));
+    }
+
+    private static Long longClaim(Jwt token, String name) {
+        Object value = token.getClaim(name);
+        return value instanceof Number number ? number.longValue() : null;
+    }
+
     public String issue(AppUser user) {
         Instant now = Instant.now();
         JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
@@ -33,7 +55,7 @@ public class TokenService {
                 .expiresAt(now.plus(lifetime()))
                 .claim(CurrentUser.CLAIM_USER_ID, user.getId())
                 .claim(CurrentUser.CLAIM_ROLE, user.getRole().name());
-        // Respublika darajasidagi rollar uchun hudud da'volari berilmaydi: ular har doim butun respublikani qamraydi.
+        // Vazirlik darajasidagi rollar uchun hudud da'volari berilmaydi: ular har doim butun vazirlikni qamraydi.
         if (user.getRole().scopeLevel() != ScopeLevel.REPUBLIC) {
             Long districtId = user.effectiveDistrictId();
             Long unitId = user.effectiveUnitId();

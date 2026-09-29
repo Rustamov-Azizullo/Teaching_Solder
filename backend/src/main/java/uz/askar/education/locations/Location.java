@@ -17,7 +17,7 @@ import uz.askar.education.organization.MilitaryDistrict;
 import uz.askar.education.organization.MilitaryUnit;
 
 /**
- * Foydalanuvchini hududga biriktirish uchun yagona daraxt: respublika -&gt; okrug -&gt; qism.
+ * Foydalanuvchini hududga biriktirish uchun yagona daraxt: vazirlik -&gt; okrug -&gt; qism.
  * Okrug va qism yozuvlari mavjud {@code military_districts}/{@code military_units} ga orqaga havola saqlaydi,
  * shuning uchun barcha mavjud districtId/unitId filtrlari o'zgarishsiz ishlaydi.
  */
@@ -50,7 +50,7 @@ public class Location {
     @JoinColumn(name = "military_unit_id")
     private MilitaryUnit militaryUnit;
 
-    /** Okrug darajasida — o'z okrugi, qism darajasida — ota (okrug) yozuvining okrugi, respublikada — {@code null}. */
+    /** Okrug darajasida — o'z okrugi, qism darajasida — ota (okrug) yozuvining okrugi, vazirlikda — {@code null}. */
     public Long districtId() {
         return switch (level) {
             case REPUBLIC -> null;

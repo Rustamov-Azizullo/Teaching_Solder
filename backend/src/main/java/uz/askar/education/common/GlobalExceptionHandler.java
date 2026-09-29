@@ -73,6 +73,38 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, "Ma'lumot allaqachon mavjud yoki bog'liq yozuvlar bor");
     }
 
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ApiError> handleTooManyRequests(TooManyRequestsException ex) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
+    }
+
+    @ExceptionHandler({org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.web.multipart.support.MissingServletRequestPartException.class})
+    public ResponseEntity<ApiError> handleBadParameter(Exception ex) {
+        return build(HttpStatus.BAD_REQUEST, "So'rov parametrlari noto'g'ri yoki yetishmayapti");
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResource(Exception ex) {
+        return build(HttpStatus.NOT_FOUND, "So'ralgan manzil topilmadi");
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMethodNotSupported(Exception ex) {
+        return build(HttpStatus.METHOD_NOT_ALLOWED, "Bu manzil uchun so'rov usuli qo'llab-quvvatlanmaydi");
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiError> handleMediaType(Exception ex) {
+        return build(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "So'rov formati qo'llab-quvvatlanmaydi");
+    }
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleUploadTooLarge(Exception ex) {
+        return build(HttpStatus.PAYLOAD_TOO_LARGE, "Fayl hajmi ruxsat etilganidan katta");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(Exception ex) {
         log.error("Kutilmagan xatolik", ex);

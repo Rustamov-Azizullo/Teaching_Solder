@@ -48,7 +48,9 @@ public final class UserDtos {
             Long locationId) {
     }
 
+    /** {@code username} bo'sh bo'lsa, login o'zgarmaydi. */
     public record UpdateUserRequest(
+            @Size(min = 3, max = 60) String username,
             @NotBlank String fullName,
             @NotNull Role role,
             Long locationId,

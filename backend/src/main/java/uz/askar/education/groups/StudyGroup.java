@@ -21,7 +21,6 @@ import lombok.Setter;
 import uz.askar.education.dictionaries.DictionaryItem;
 import uz.askar.education.organization.MilitaryUnit;
 import uz.askar.education.soldiers.Soldier;
-import uz.askar.education.users.AppUser;
 
 @Entity
 @Table(name = "study_groups")
@@ -57,11 +56,9 @@ public class StudyGroup {
     private String classroom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leader_user_id")
-    private AppUser leader;
+    @JoinColumn(name = "leader_id")
+    private GroupLeader leader;
 
-    private String leaderOrderNo;
-    private LocalDate leaderOrderDate;
     private int cycleYear;
     private java.time.LocalDateTime courseApprovedAt;
     private String courseApprovedBy;

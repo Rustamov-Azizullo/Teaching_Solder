@@ -2,7 +2,7 @@ package uz.askar.education.security;
 
 import uz.askar.education.common.ForbiddenException;
 
-/** Foydalanuvchining vakolat doirasi: butun respublika, okrug yoki bitta qism. */
+/** Foydalanuvchining vakolat doirasi: butun vazirlik, okrug yoki bitta qism. */
 public record AccessScope(ScopeLevel level, Long districtId, Long unitId) {
 
     /**

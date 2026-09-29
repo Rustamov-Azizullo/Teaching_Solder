@@ -53,13 +53,15 @@ public class SoldierService {
     private final AuditService audit;
 
     @Transactional(readOnly = true)
-    public PageResponse<SoldierSummary> search(String query, Long unitId, Long subdivisionId, int page, int size) {
+    public PageResponse<SoldierSummary> search(String query, Long districtId, Long unitId, Long subdivisionId,
+                                               int page, int size) {
         AccessScope scope = currentUser.scope();
+        Long districtFilter = scope.districtFilter() != null ? scope.districtFilter() : districtId;
         Long unitFilter = scope.unitFilter() != null ? scope.unitFilter() : unitId;
-        var pageable = PageRequest.of(page, Math.min(size, MAX_PAGE_SIZE), Sort.by("fullName"));
+        var pageable = PageRequest.of(Math.max(page, 0), Math.max(1, Math.min(size, MAX_PAGE_SIZE)), Sort.by("fullName"));
         var subdivisionIds = subdivisionId == null
                 ? java.util.Set.of(-1L) : subdivisionService.withDescendants(subdivisionId);
-        var result = soldiers.search(query == null ? "" : query.trim(), scope.districtFilter(), unitFilter,
+        var result = soldiers.search(query == null ? "" : query.trim(), districtFilter, unitFilter,
                 subdivisionId != null, subdivisionIds, pageable);
         return PageResponse.from(result, SoldierMapper::toSummary);
     }
@@ -101,8 +103,14 @@ public class SoldierService {
     public SourceLookupResponse lookupInSource(String pinfl) {
         var existing = soldiers.findByPinfl(pinfl);
         if (existing.isPresent()) {
-            audit.record("JSHSHIR_LOOKUP", "Soldier", existing.get().getId(), "Askar tizimda mavjud");
-            return SourceLookupResponse.notFound(existing.get().getId());
+            Soldier found = existing.get();
+            audit.record("JSHSHIR_LOOKUP", "Soldier", found.getId(), "Askar tizimda mavjud");
+            boolean isInScope = currentUser.scope().covers(found.getMilitaryUnit().getMilitaryDistrict().getId(),
+                    found.getMilitaryUnit().getId());
+            if (!isInScope) {
+                throw new BusinessRuleException("Bu JShShIR bilan askar boshqa hududda ro'yxatga olingan");
+            }
+            return SourceLookupResponse.notFound(found.getId());
         }
         try {
             var data = gateway.call("MANBA", "JSHSHIR", maskPinfl(pinfl), () -> sourceClient.findByPinfl(pinfl));

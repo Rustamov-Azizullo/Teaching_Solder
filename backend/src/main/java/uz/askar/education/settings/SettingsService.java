@@ -14,9 +14,6 @@ import uz.askar.education.common.BusinessRuleException;
 public class SettingsService {
 
     public static final String FUTURE_PLAN_MODE = "survey.futurePlan.mode";
-    public static final String LESSON_DEFAULT_START = "lesson.defaultStart";
-    public static final String LESSON_DEFAULT_END = "lesson.defaultEnd";
-    public static final String LESSON_DEFAULT_HOURS = "lesson.defaultAcademicHours";
 
     private final AppSettingRepository settings;
     private final AuditService audit;

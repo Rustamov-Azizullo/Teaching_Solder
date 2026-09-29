@@ -82,12 +82,11 @@ class ReferenceAndLocationManagementTest {
     }
 
     @Test
-    void geographyDashboardListsSoldiersByDistrictAndInstitutionsByRegion() throws Exception {
+    void geographyDashboardListsSoldiersByDistrictAndUnit() throws Exception {
         mvc.perform(get("/api/dashboard/geography").headers(auth(token("hktb"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.districts", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$.districts[0].units", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$.regions", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.districts[0].units", hasSize(greaterThan(0))));
     }
 
     @Test
@@ -122,5 +121,126 @@ class ReferenceAndLocationManagementTest {
         String me = mvc.perform(get("/api/auth/me").headers(auth(admin))).andReturn().getResponse().getContentAsString();
         int myId = JsonPath.read(me, "$.id");
         mvc.perform(delete("/api/users/" + myId).headers(auth(admin))).andExpect(status().isConflict());
+    }
+
+    @Test
+    void unitUserCanContractInstitutionsOnlyToOwnUnit() throws Exception {
+        String user = token("user");
+        int ownUnitId = firstId(user, "/api/military-units", "$[0].id");
+        String allUnits = mvc.perform(get("/api/military-units").headers(auth(token("superadmin"))))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        int otherUnitId = ((java.util.List<Integer>) JsonPath.read(allUnits, "$[*].id")).stream()
+                .filter(id -> id != ownUnitId).findFirst().orElseThrow();
+        String institution = mvc.perform(post("/api/institutions").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"SCHOOL\",\"name\":\"Qism chegarasi maktabi\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        int institutionId = JsonPath.read(institution, "$.id");
+
+        mvc.perform(post("/api/institution-contracts").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"institutionId\":" + institutionId + ",\"unitId\":" + otherUnitId + "}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/locations/tree").headers(auth(user))).andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.level=='UNIT')]", hasSize(1)));
+    }
+
+    @Test
+    void unitUserManagesTeachersGroupsAndLeaders() throws Exception {
+        String user = token("user");
+        int unitId = firstId(user, "/api/military-units", "$[0].id");
+        int specialtyId = firstId(user, "/api/dictionaries/SUBJECT", "$[0].id");
+        String institution = mvc.perform(post("/api/institutions").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"TECHNICAL_SCHOOL\",\"name\":\"Shartnomali texnikum\",\"subjectIds\":[" + specialtyId + "]}"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.subjectIds[0]").value(specialtyId))
+                .andReturn().getResponse().getContentAsString();
+        int institutionId = JsonPath.read(institution, "$.id");
+        mvc.perform(post("/api/institution-contracts").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"institutionId\":" + institutionId + ",\"unitId\":" + unitId + "}"))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/institution-contracts").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"institutionId\":" + institutionId + ",\"unitId\":" + unitId + "}"))
+                .andExpect(status().isConflict());
+        String second = mvc.perform(post("/api/institutions").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"SCHOOL\",\"name\":\"Almashtiriladigan maktab\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        int secondId = JsonPath.read(second, "$.id");
+        mvc.perform(put("/api/institution-contracts?institutionId=" + institutionId + "&unitId=" + unitId).headers(auth(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"institutionId\":" + secondId + ",\"unitId\":" + unitId + "}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.institutionId").value(secondId));
+        mvc.perform(put("/api/institution-contracts?institutionId=" + secondId + "&unitId=" + unitId).headers(auth(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"institutionId\":" + institutionId + ",\"unitId\":" + unitId + "}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.institutionId").value(institutionId));
+        int professionId = firstId(user, "/api/dictionaries/PROFESSION", "$[0].id");
+
+        String teacher = mvc.perform(post("/api/teachers").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fullName\":\"Sinov O'qituvchi\",\"specialtyIds\":[" + specialtyId + "],\"institutionId\":"
+                                + institutionId + "}"))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn().getResponse().getContentAsString();
+        int teacherId = JsonPath.read(teacher, "$.id");
+        mvc.perform(get("/api/institutions?unitId=" + unitId).headers(auth(user)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[?(@.id==" + institutionId + ")]").isNotEmpty());
+        String uncontracted = mvc.perform(post("/api/institutions").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"SCHOOL\",\"name\":\"Shartnomasiz maktab\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        int uncontractedId = JsonPath.read(uncontracted, "$.id");
+        String outsider = mvc.perform(post("/api/teachers").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"fullName\":\"Shartnomasiz\",\"specialtyIds\":[" + specialtyId + "],\"institutionId\":"
+                                + uncontractedId + "}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        int outsiderId = JsonPath.read(outsider, "$.id");
+        String groupBody = "{\"name\":\"Sinov guruhi\",\"type\":\"VOCATIONAL\",\"militaryUnitId\":" + unitId
+                + ",\"professionId\":" + professionId + ",\"startDate\":\"" + java.time.LocalDate.now()
+                + "\",\"endDate\":\"" + java.time.LocalDate.now().plusMonths(3) + "\",\"leader\":"
+                + "{\"fullName\":\"Sinov Katta\",\"pinfl\":\"12345678901234\",\"militaryRank\":\"Serjant\"}}";
+        String group = mvc.perform(post("/api/groups").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(groupBody))
+                .andExpect(status().is2xxSuccessful()).andExpect(jsonPath("$.leader.pinfl").value("12345678901234"))
+                .andReturn().getResponse().getContentAsString();
+        int groupId = JsonPath.read(group, "$.id");
+
+        mvc.perform(put("/api/groups/" + groupId).headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(groupBody.replace("Sinov Katta", "Sinov Katta 2")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.leader.fullName").value("Sinov Katta 2"));
+        mvc.perform(post("/api/groups").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content(groupBody.replace("12345678901234", "123")))
+                .andExpect(status().isBadRequest());
+        mvc.perform(put("/api/groups/" + groupId + "/teachers").headers(auth(user))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"teacherIds\":[" + teacherId + "]}"))
+                .andExpect(status().isOk());
+        mvc.perform(put("/api/groups/" + groupId + "/teachers").headers(auth(user))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"teacherIds\":[" + outsiderId + "]}"))
+                .andExpect(status().isConflict());
+        mvc.perform(delete("/api/groups/" + groupId + "/leader").headers(auth(user)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.leader").doesNotExist());
+        mvc.perform(delete("/api/teachers/" + teacherId).headers(auth(user))).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/groups/" + groupId).headers(auth(user))).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/groups/" + groupId).headers(auth(user))).andExpect(status().isNotFound());
+        mvc.perform(delete("/api/teachers/" + teacherId).headers(auth(token("qomondon2")))).andExpect(status().isNotFound());
+    }
+
+    private int firstId(String token, String url, String path) throws Exception {
+        String body = mvc.perform(get(url).headers(auth(token))).andExpect(status().isOk()).andReturn().getResponse()
+                .getContentAsString();
+        return JsonPath.read(body, path);
+    }
+
+    @Test
+    void institutionCanBeRenamedAndDeletedUnlessInUse() throws Exception {
+        String user = token("user");
+        String created = mvc.perform(post("/api/institutions").headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"SCHOOL\",\"name\":\"Sinov maktabi\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        int id = JsonPath.read(created, "$.id");
+        mvc.perform(put("/api/institutions/" + id).headers(auth(user)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"type\":\"TRAINING_CENTER\",\"name\":\"Sinov markazi\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Sinov markazi"));
+        mvc.perform(delete("/api/institutions/" + id).headers(auth(user))).andExpect(status().isNoContent());
+        mvc.perform(delete("/api/institutions/" + id).headers(auth(user))).andExpect(status().isNotFound());
+        int usedId = firstId(user, "/api/institutions", "$[0].id");
+        int status = mvc.perform(delete("/api/institutions/" + usedId).headers(auth(user))).andReturn().getResponse()
+                .getStatus();
+        org.junit.jupiter.api.Assertions.assertTrue(status == 204 || status == 409, "status=" + status);
     }
 }

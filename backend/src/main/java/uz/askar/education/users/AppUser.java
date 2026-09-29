@@ -39,7 +39,7 @@ public class AppUser {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    /** Hududiy biriktirish; respublika darajasidagi rollar (SuperAdmin, Mega SuperAdmin) uchun {@code null}. */
+    /** Hududiy biriktirish; vazirlik darajasidagi rollar (SuperAdmin, Mega SuperAdmin) uchun {@code null}. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;

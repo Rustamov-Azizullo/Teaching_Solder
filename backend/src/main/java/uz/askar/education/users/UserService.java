@@ -70,13 +70,16 @@ public class UserService {
     @Transactional
     public UserDto update(Long id, UpdateUserRequest request) {
         AppUser user = findManageable(id);
+        String previousUsername = user.getUsername();
+        changeUsername(user, request.username());
         applyProfile(user, request.fullName(), request.role(), request.locationId());
         user.setActive(request.active());
         if (request.newPassword() != null && !request.newPassword().isBlank()) {
             PasswordPolicy.check(request.newPassword());
             user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         }
-        audit.record("UPDATE", "AppUser", id, "rol=" + user.getRole() + ", faol=" + user.isActive());
+        audit.record("UPDATE", "AppUser", id, "login=" + previousUsername + " -> " + user.getUsername()
+                + ", rol=" + user.getRole() + ", faol=" + user.isActive());
         return toDto(user);
     }
 
@@ -108,6 +111,18 @@ public class UserService {
 
     public UserDto toDto(AppUser user) {
         return UserDto.from(user, permissions.effectivePermissions(user.getId(), user.getRole()));
+    }
+
+    /** Login o'zgartirilsa, u boshqa hisobda band bo'lmasligi shart. */
+    private void changeUsername(AppUser user, String requested) {
+        if (requested == null || requested.isBlank() || requested.trim().equals(user.getUsername())) {
+            return;
+        }
+        String username = requested.trim();
+        if (users.existsByUsername(username)) {
+            throw new BusinessRuleException("Bunday login allaqachon mavjud");
+        }
+        user.setUsername(username);
     }
 
     private void applyProfile(AppUser user, String fullName, Role role, Long locationId) {

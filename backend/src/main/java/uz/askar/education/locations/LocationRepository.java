@@ -28,4 +28,13 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
             order by l.level, l.name
             """)
     List<Location> findInDistrictScope(@Param("districtId") Long districtId);
+
+    /** Qism darajasidagi foydalanuvchi uchun: faqat o'z qismi va uning okrugi (daraxt ko'rinishi uchun). */
+    @Query("""
+            select l from Location l
+            where l.militaryUnit.id = :unitId
+               or l.id = (select u.parent.id from Location u where u.militaryUnit.id = :unitId)
+            order by l.level, l.name
+            """)
+    List<Location> findByUnitScope(@Param("unitId") Long unitId);
 }

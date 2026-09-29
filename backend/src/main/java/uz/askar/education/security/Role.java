@@ -1,7 +1,7 @@
 package uz.askar.education.security;
 
 /**
- * Tizim rollari va ularning vakolat darajasi. Rol faqat hududiy doirani (respublika / okrug / qism) belgilaydi;
+ * Tizim rollari va ularning vakolat darajasi. Rol faqat hududiy doirani (vazirlik / okrug / qism) belgilaydi;
  * aniq amallar {@link Permission} orqali — rol-ruxsat matritsasi va foydalanuvchiga shaxsiy qo'shimcha ruxsatlar
  * bilan — boshqariladi (qarang: {@link PermissionEvaluatorService}).
  */
