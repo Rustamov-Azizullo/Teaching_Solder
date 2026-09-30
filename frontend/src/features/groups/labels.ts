@@ -42,6 +42,7 @@ export const groupLabels = {
   leaderRemoved: 'Guruh kattasi olib tashlandi',
   confirmDelete: "Guruh o'chirilsinmi? Darslar va natijalar ham o'chadi",
   deleted: "Guruh o'chirildi",
+  membersSubdivision: "Bo'linma bo'yicha qidirish",
   membersHint: 'Askar faqat bitta guruhga qo\'shilishi mumkin (shu qismdagi askarlar)',
   teachersHint: "Guruhga biriktiriladigan o'qituvchilar",
   saved: 'Saqlandi',

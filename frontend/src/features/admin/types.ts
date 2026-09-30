@@ -56,13 +56,7 @@ export type AuditLogRow = {
   details: string | null;
 };
 
-export type IntegrationLogRow = {
-  id: number; at: string; system: string; operation: string; reference: string | null; success: boolean;
-  message: string | null; durationMs: number; actor: string;
-};
-
 export type CycleRow = { year: number; status: 'OPEN' | 'CLOSED'; openedAt: string; closedAt: string | null };
 
 export type AuditPage = PageResponse<AuditLogRow>;
-export type IntegrationPage = PageResponse<IntegrationLogRow>;
 export type SettingsMap = Record<string, string>;

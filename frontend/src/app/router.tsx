@@ -61,7 +61,6 @@ export const router = createBrowserRouter([
           page('reports', () => import('@/pages/ReportsPage'), 'ReportsPage', 'reports'),
           page('deadlines', () => import('@/pages/DeadlinesPage'), 'DeadlinesPage'),
           page('notifications', () => import('@/pages/NotificationsPage'), 'NotificationsPage'),
-          page('integration-logs', () => import('@/pages/IntegrationLogsPage'), 'IntegrationLogsPage', 'systemConfig'),
           page('*', () => import('@/pages/NotFoundPage'), 'NotFoundPage'),
         ],
       },

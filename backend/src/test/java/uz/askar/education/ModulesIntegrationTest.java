@@ -146,6 +146,27 @@ class ModulesIntegrationTest {
     }
 
     @Test
+    void weeklyReportSupportsTotalViewAndSubdivisionSelectionWithinScope() throws Exception {
+        String hktb = token("hktb");
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("view", "TOTAL").headers(auth(hktb)))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("subdivisionId", "1").headers(auth(hktb)))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("subdivisionId", "999999").headers(auth(hktb)))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("unitId", "1").headers(auth(hktb)))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("districtId", "1").headers(auth(hktb)))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("districtId", "1").param("unitId", "1")
+                .headers(auth(hktb))).andExpect(status().isConflict());
+        mvc.perform(get("/api/reports/COURSE_COMPLETION").param("subdivisionId", "1").headers(auth(hktb)))
+                .andExpect(status().isConflict());
+        mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("unitId", "3").headers(auth(token("qomondon1"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void admissionsShowFunnelAndSyncFromBmba() throws Exception {
         String token = token("operator1");
         mvc.perform(get("/api/admissions").headers(auth(token)))

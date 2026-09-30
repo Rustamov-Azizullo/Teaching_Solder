@@ -1,6 +1,6 @@
 import {
   ApartmentOutlined, EnvironmentOutlined, BellOutlined, ClockCircleOutlined, FileDoneOutlined, FileTextOutlined, ProfileOutlined,
-  ApiOutlined, AuditOutlined, BookOutlined, DashboardOutlined, SettingOutlined, TeamOutlined,
+  AuditOutlined, BookOutlined, DashboardOutlined, SettingOutlined, TeamOutlined,
   UserOutlined, ReadOutlined, SafetyCertificateOutlined, SolutionOutlined,
 } from '@ant-design/icons';
 import type { ReactNode } from 'react';
@@ -29,7 +29,6 @@ export const navItems: NavItem[] = [
   { path: '/users', label: 'Foydalanuvchilar', icon: <UserOutlined />, access: 'admin' },
   { path: '/admin/role-permissions', label: 'Rol huquqlari', icon: <SafetyCertificateOutlined />, access: 'permissionManager' },
   { path: '/admin/locations', label: 'Hududlar', icon: <EnvironmentOutlined />, access: 'permissionManager' },
-  { path: '/integration-logs', label: 'Integratsiya jurnali', icon: <ApiOutlined />, access: 'systemConfig' },
   { path: '/audit', label: 'Audit jurnali', icon: <AuditOutlined />, access: 'systemConfig' },
   { path: '/settings', label: 'Sozlamalar', icon: <SettingOutlined />, access: 'systemConfig' },
 ];

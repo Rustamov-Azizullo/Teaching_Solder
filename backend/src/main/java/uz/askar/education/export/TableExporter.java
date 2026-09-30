@@ -37,11 +37,12 @@ public class TableExporter {
         }
     }
 
+    /** Excel varaq nomi apostrof bilan boshlanishi yoki tugashi mumkin emas (sarlavha kesilganda shunday bo'lib qolishi mumkin). */
     private byte[] xlsx(TableData data) throws IOException {
         try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             String sheetName = data.title().length() > MAX_SHEET_NAME ? data.title().substring(0, MAX_SHEET_NAME)
                     : data.title();
-            Sheet sheet = workbook.createSheet(sheetName.replaceAll("[\\\\/?*\\[\\]:]", " "));
+            Sheet sheet = workbook.createSheet(sheetName.replaceAll("[\\\\/?*\\[\\]:]", " ").replaceAll("^'+|'+$", ""));
             XSSFFont bold = workbook.createFont();
             bold.setBold(true);
             CellStyle header = workbook.createCellStyle();

@@ -24,8 +24,13 @@ public class ReportController {
     public ResponseEntity<byte[]> report(
             @PathVariable ReportType type,
             @RequestParam(defaultValue = "XLSX") ExportFormat format,
-            @RequestParam(required = false) Integer year) {
-        var file = service.generate(type, year != null ? year : LocalDate.now().getYear(), format);
+            @RequestParam(required = false) Integer year,
+            @RequestParam(defaultValue = "BREAKDOWN") ReportView view,
+            @RequestParam(required = false) Long districtId,
+            @RequestParam(required = false) Long unitId,
+            @RequestParam(required = false) Long subdivisionId) {
+        var target = new ReportTarget(view, districtId, unitId, subdivisionId);
+        var file = service.generate(type, year != null ? year : LocalDate.now().getYear(), format, target);
         return ResponseEntity.ok()
                 .contentType(file.format().mediaType())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.fileName() + "\"")

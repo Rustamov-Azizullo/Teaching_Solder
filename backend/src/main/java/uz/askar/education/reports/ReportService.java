@@ -1,12 +1,9 @@
 package uz.askar.education.reports;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +16,6 @@ import uz.askar.education.export.ExportFormat;
 import uz.askar.education.export.TableData;
 import uz.askar.education.export.TableExporter;
 import uz.askar.education.groups.GroupType;
-import uz.askar.education.groups.StudyGroup;
 import uz.askar.education.groups.StudyGroupRepository;
 import uz.askar.education.results.CourseResult;
 import uz.askar.education.results.CourseResultRepository;
@@ -27,7 +23,6 @@ import uz.askar.education.results.CourseStatus;
 import uz.askar.education.security.CurrentUser;
 import uz.askar.education.security.Permission;
 import uz.askar.education.security.PermissionEvaluatorService;
-import uz.askar.education.soldiers.Soldier;
 import uz.askar.education.soldiers.SoldierRepository;
 import uz.askar.education.surveys.QuestionnaireRepository;
 
@@ -42,6 +37,8 @@ public class ReportService {
     public record ReportFile(String fileName, byte[] content, ExportFormat format) {
     }
 
+    private final WeeklySummaryBuilder weekly;
+    private final ReportMeta meta;
     private final CourseResultRepository results;
     private final AdmissionService admissions;
     private final StudyGroupRepository groups;
@@ -53,11 +50,12 @@ public class ReportService {
     private final AuditService audit;
 
     @Transactional(readOnly = true)
-    public ReportFile generate(ReportType type, int year, ExportFormat format) {
+    public ReportFile generate(ReportType type, int year, ExportFormat format, ReportTarget target) {
         requireAllowed(type);
+        requireTargetOnlyForWeekly(type, target);
         requireCurrentYearWhereNeeded(type, year);
         TableData data = switch (type) {
-            case WEEKLY_UNIT_SUMMARY -> weeklyUnitSummary(year);
+            case WEEKLY_UNIT_SUMMARY -> weekly.build(year, target);
             case COURSE_COMPLETION -> courseCompletion(year);
             case OTM_ADMISSIONS -> otmAdmissions(year);
             case YEARLY_SUMMARY -> yearlySummary(year);
@@ -65,29 +63,6 @@ public class ReportService {
         audit.record("EXPORT", "Report", type.name(), format + ", qatorlar: " + data.rows().size());
         return new ReportFile(type.name().toLowerCase() + "-" + LocalDate.now() + "." + format.extension(),
                 exporter.export(data, format), format);
-    }
-
-    /**
-     * Haftalik hisobot okruglar uchun: har bir harbiy qism bo'yicha jami askarlar, kasb kursi va OTM tayyorlovdagilar,
-     * kasb guruhlari (kasb va askarlar soni) hamda OTM yo'nalishlari (fanlar) bo'yicha askarlar soni.
-     */
-    private TableData weeklyUnitSummary(int year) {
-        var scope = currentUser.scope();
-        Map<String, List<Soldier>> soldiersByUnit = soldiers.findAllInScope(scope.districtFilter(), scope.unitFilter())
-                .stream().collect(Collectors.groupingBy(WeeklyUnitRows::unitKey));
-        List<StudyGroup> vocational = currentGroups(GroupType.VOCATIONAL, year);
-        List<StudyGroup> otm = currentGroups(GroupType.OTM_PREP, year);
-        Set<String> unitKeys = new LinkedHashSet<>(soldiersByUnit.keySet());
-        unitKeys.addAll(vocational.stream().map(WeeklyUnitRows::unitKey).toList());
-        unitKeys.addAll(otm.stream().map(WeeklyUnitRows::unitKey).toList());
-
-        List<List<String>> table = new ArrayList<>();
-        unitKeys.stream().sorted().forEach(key -> table.addAll(WeeklyUnitRows.forUnit(key,
-                soldiersByUnit.getOrDefault(key, List.of()),
-                vocational.stream().filter(g -> WeeklyUnitRows.unitKey(g).equals(key)).toList(),
-                otm.stream().filter(g -> WeeklyUnitRows.unitKey(g).equals(key)).toList())));
-        return new TableData("Haftalik hisobot: harbiy qismlar kesimida", meta("Yillik sikl: " + year),
-                WeeklyUnitRows.HEADERS, table);
     }
 
     /** Qabul va yillik umumlashma joriy holatdan hisoblanadi, shuning uchun o'tgan yil so'ralsa, noto'g'ri sarlavhali hisobot chiqmasin. */
@@ -98,10 +73,10 @@ public class ReportService {
         }
     }
 
-    private List<StudyGroup> currentGroups(GroupType type, int year) {
-        var scope = currentUser.scope();
-        return groups.search(type, scope.districtFilter(), scope.unitFilter()).stream()
-                .filter(group -> group.getCycleYear() == year).toList();
+    private void requireTargetOnlyForWeekly(ReportType type, ReportTarget target) {
+        if (target.isSelection() && type != ReportType.WEEKLY_UNIT_SUMMARY) {
+            throw new BusinessRuleException("Okrug, qism yoki bo'linma bo'yicha faqat haftalik hisobot tuziladi");
+        }
     }
 
     private TableData courseCompletion(int year) {
@@ -117,7 +92,7 @@ public class ReportService {
                     String.valueOf(count(list, CourseStatus.CERTIFIED)), String.valueOf(count(list, CourseStatus.DROPPED)),
                     group.getCourseApprovedAt() == null ? "Yo'q" : "Ha");
         }).sorted(Comparator.comparing((List<String> r) -> r.get(0)).thenComparing(r -> r.get(1))).toList();
-        return new TableData("Kurs yakuni hisoboti (HKTB uchun)", meta("Yillik sikl: " + year),
+        return new TableData("Kurs yakuni hisoboti (HKTB uchun)", meta.lines("Yillik sikl: " + year, null),
                 List.of("Qism", "Guruh", "Kasb", "O'qidi", "Imtihondan o'tdi", "Sertifikat oldi", "Tugatmadi",
                         "Qo'mondon tasdiqladi"), table);
     }
@@ -126,7 +101,7 @@ public class ReportService {
         List<List<String>> table = admissions.list().stream().map(r -> List.of(r.fullName(), r.pinfl(), r.unitName(),
                 yesNo(r.bmbaRegistered()), yesNo(r.testParticipated()), r.testScore() == null ? "" : r.testScore().toString(),
                 yesNo(r.admitted()), nz(r.university()), nz(r.studyDirection()))).toList();
-        return new TableData("OTMga qabul natijalari (HKTB uchun)", meta("Yillik sikl: " + year),
+        return new TableData("OTMga qabul natijalari (HKTB uchun)", meta.lines("Yillik sikl: " + year, null),
                 List.of("F.I.Sh.", "JShShIR", "Qism", "BMBA", "Test", "Ball", "Qabul", "OTM", "Yo'nalish"), table);
     }
 
@@ -143,7 +118,7 @@ public class ReportService {
                 List.of("Sertifikat olganlar", String.valueOf(certified)),
                 List.of("OTM nomzodlari", String.valueOf(admissions.list().size())),
                 List.of("OTMga qabul qilinganlar", String.valueOf(admissions.list().stream().filter(r -> r.admitted()).count())));
-        return new TableData("Vazirlik miqyosidagi yillik umumlashma", meta("Yil: " + year),
+        return new TableData("Vazirlik miqyosidagi yillik umumlashma", meta.lines("Yil: " + year, null),
                 List.of("Ko'rsatkich", "Qiymat"), table);
     }
 
@@ -162,17 +137,6 @@ public class ReportService {
         if (!required.stream().allMatch(permissions::currentUserHas)) {
             throw new ForbiddenException("Bu hisobot uchun vakolat yo'q");
         }
-    }
-
-    private List<String> meta(String period) {
-        var scope = currentUser.scope();
-        String area = switch (scope.level()) {
-            case REPUBLIC -> "Vazirlik";
-            case DISTRICT -> "Harbiy okrug #" + scope.districtId();
-            case UNIT -> "Harbiy qism #" + scope.unitId();
-        };
-        return List.of(period, "Vakolat doirasi: " + area, "Tuzilgan sana: " + LocalDate.now(),
-                "Tuzuvchi: " + currentUser.username());
     }
 
     private long count(List<CourseResult> list, CourseStatus status) {

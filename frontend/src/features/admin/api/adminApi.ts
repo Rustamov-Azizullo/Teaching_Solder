@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/apiClient';
 import type {
-  AuditPage, CreateUserRequest, CycleRow, IntegrationPage, Location, LocationInput, RoleOption, SettingsMap, UpdateUserRequest,
+  AuditPage, CreateUserRequest, CycleRow, Location, LocationInput, RoleOption, SettingsMap, UpdateUserRequest,
   UserPermissionChange, UserPermissionState, UserRow,
 } from '../types';
 
@@ -20,8 +20,6 @@ export const adminApi = {
   deleteLocation: (id: number) => apiClient.delete(`/locations/${id}`).then(() => undefined),
   audit: (params: { username: string; entity: string; page: number; size: number }) =>
     apiClient.get<AuditPage>('/audit-logs', { params }).then((r) => r.data),
-  integrationLogs: (page: number, size: number) =>
-    apiClient.get<IntegrationPage>('/integration-logs', { params: { page, size } }).then((r) => r.data),
   cycles: () => apiClient.get<CycleRow[]>('/cycles').then((r) => r.data),
   openCycle: (year: number) => apiClient.post<CycleRow>(`/cycles/${year}/open`).then((r) => r.data),
   reopenCycle: (year: number) => apiClient.post<CycleRow>(`/cycles/${year}/reopen`).then((r) => r.data),

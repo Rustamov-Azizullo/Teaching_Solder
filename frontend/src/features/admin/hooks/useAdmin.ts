@@ -71,10 +71,6 @@ export function useAuditLogs(params: { username: string; entity: string; page: n
   return useQuery({ queryKey: ['audit', params], queryFn: () => adminApi.audit(params), placeholderData: keepPreviousData });
 }
 
-export function useIntegrationLogs(page: number, size: number) {
-  return useQuery({ queryKey: ['integration-logs', page, size], queryFn: () => adminApi.integrationLogs(page, size), placeholderData: keepPreviousData });
-}
-
 export const useCycles = () => useQuery({ queryKey: ['cycles'], queryFn: adminApi.cycles });
 
 export function useCycleActions() {

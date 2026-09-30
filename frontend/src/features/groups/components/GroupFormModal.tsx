@@ -31,6 +31,11 @@ type GroupFormModalProps = { open: boolean; group?: Group; onClose: () => void }
 
 const PINFL_PATTERN = /^\d{14}$/;
 const PINFL_LENGTH = 14;
+const PHONE_MAX_LENGTH = 13;
+
+const keepDigits = (value?: string) => value?.replace(/\D/g, '');
+/** Telefon: faqat raqamlar va boshidagi "+" (masalan, +998901234567). */
+const keepPhoneCharacters = (value?: string) => value?.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
 const MODAL_WIDTH = 760;
 const required = [{ required: true, message: common.fields.required }];
 
@@ -166,6 +171,7 @@ export function GroupFormModal({ open, group, onClose }: GroupFormModalProps) {
                   name="leaderPinfl"
                   label={lf.pinfl}
                   dependencies={['leaderFullName']}
+                  normalize={keepDigits}
                   rules={[leaderRule('leaderFullName'), { pattern: PINFL_PATTERN, message: lf.pinflInvalid }]}
                 >
                   <Input maxLength={PINFL_LENGTH} inputMode="numeric" />
@@ -175,7 +181,9 @@ export function GroupFormModal({ open, group, onClose }: GroupFormModalProps) {
                 <Form.Item name="leaderRank" label={lf.rank}><Input /></Form.Item>
               </Col>
               <Col xs={24} md={12}>
-                <Form.Item name="leaderPhone" label={lf.phone}><Input /></Form.Item>
+                <Form.Item name="leaderPhone" label={lf.phone} normalize={keepPhoneCharacters}>
+                  <Input maxLength={PHONE_MAX_LENGTH} inputMode="tel" />
+                </Form.Item>
               </Col>
             </Row>
           </>

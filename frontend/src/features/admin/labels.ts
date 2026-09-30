@@ -57,11 +57,6 @@ export const adminLabels = {
     filterUser: 'Foydalanuvchi bo\'yicha',
     filterEntity: 'Obyekt bo\'yicha',
   },
-  integrations: {
-    title: 'Integratsiya jurnali',
-    subtitle: "Manba tizim va BMBA ga har bir murojaat: vaqti, holati, xatosi",
-    at: 'Vaqt', system: 'Tizim', operation: 'Amal', reference: 'Havola', status: 'Holat', message: 'Xabar', duration: 'ms', actor: 'Kim',
-  },
   cycles: {
     title: 'Yillik sikllar',
     open: 'Yangi sikl ochish',
