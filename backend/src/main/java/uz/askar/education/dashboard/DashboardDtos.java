@@ -32,8 +32,9 @@ public final class DashboardDtos {
     public record DistrictSoldiers(Long id, String name, long soldiers, List<UnitSoldiers> units) {
     }
 
-    /** Kasb bo'yicha o'qiyotgan askarlar soni va ularning okrug/harbiy qism kesimidagi taqsimoti. */
-    public record ProfessionRow(String profession, long soldiers, List<DistrictSoldiers> districts) {
+    /** Kasb bo'yicha o'qiyotgan askarlar soni va ularning okrug/harbiy qism kesimidagi taqsimoti; {@code subdivisions} — bo'linmalar kesimi. */
+    public record ProfessionRow(String profession, long soldiers, List<DistrictSoldiers> districts,
+                                List<UnitSoldiers> subdivisions) {
     }
 
     /** Viloyat (yoki Toshkent shahri, Qoraqalpog'iston Respublikasi) bo'yicha harbiy xizmat o'tayotgan askarlar soni. */
@@ -45,7 +46,7 @@ public final class DashboardDtos {
     }
 
     /**
-     * Okrug kesimi: jami askarlar, kasb kursi va OTM tayyorlovdagilar, kasblar va muassasalar soni
+     * Vakolat darajasiga mos kesim qatori (respublika — okrug, okrug — harbiy qism, qism — bo'linma): jami askarlar, kasb kursi va OTM tayyorlovdagilar, kasblar va muassasalar soni
      * ({@code programs} — kasb + muassasa bo'yicha tafsilot).
      */
     public record DistrictRow(Long id, String name, long soldiers, long vocational, long otm, long professions,

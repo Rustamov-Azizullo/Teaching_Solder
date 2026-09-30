@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { RequireAuth, RequireCapability, RequirePermissionManager, type Capability } from '@/features/auth';
+import { FullPageSpinner } from '@/components/ui';
 import { LoginPage } from '@/pages/LoginPage';
 import { HomeRedirect } from './HomeRedirect';
 import { AppLayout } from './layout/AppLayout';
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   {
     element: <RequireAuth />,
+    HydrateFallback: FullPageSpinner,
     children: [
       {
         element: <AppLayout />,

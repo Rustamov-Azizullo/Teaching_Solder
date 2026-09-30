@@ -9,11 +9,13 @@ export const dashboardLabels = {
   directions: "Askarlar yo'nalishlar bo'yicha",
   directionNames: { vocational: 'Kasb kursida', otm: 'OTMga tayyorlanmoqda', unassigned: 'Kursga biriktirilmagan' },
   professions: 'Kasblar kesimida askarlar',
-  profession: 'Kasb', soldiers: 'Askarlar', district: 'Okrug', unit: 'Harbiy qism',
+  profession: 'Kasb', soldiers: 'Askarlar', district: 'Okrug', unit: 'Harbiy qism', subdivision: "Bo'linma",
   districtBreakdown: {
-    compositionTitle: 'Okruglar: askarlar tarkibi',
-    programsTitle: 'Okruglar: kasb va muassasalar',
-    bubbleTitle: 'Okruglar: solishtirish',
+    titles: {
+      district: { composition: 'Okruglar: askarlar tarkibi', programs: 'Okruglar: kasb va muassasalar', bubble: 'Okruglar: solishtirish' },
+      unit: { composition: 'Harbiy qismlar: askarlar tarkibi', programs: 'Harbiy qismlar: kasb va muassasalar', bubble: 'Harbiy qismlar: solishtirish' },
+      subdivision: { composition: "Bo'linmalar: askarlar tarkibi", programs: "Bo'linmalar: kasb va muassasalar", bubble: "Bo'linmalar: solishtirish" },
+    },
     vocational: 'Kasbga', otm: 'OTM tayyorlovga', unassigned: 'Biriktirilmagan',
     professions: 'Kasblar soni', institutions: 'Muassasalar soni',
     bubbleAxisX: 'Kasblar soni', bubbleAxisY: 'Muassasalar soni', bubbleSize: 'Kasbdagi askarlar',

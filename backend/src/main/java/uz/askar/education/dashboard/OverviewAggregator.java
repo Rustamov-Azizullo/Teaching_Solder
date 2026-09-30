@@ -1,6 +1,8 @@
 package uz.askar.education.dashboard;
 
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import uz.askar.education.dashboard.DashboardDtos.ProfessionRow;
 import uz.askar.education.dashboard.DashboardDtos.RegionRow;
+import uz.askar.education.dashboard.DashboardDtos.UnitSoldiers;
+import uz.askar.education.organization.Subdivision;
 import uz.askar.education.organization.Region;
 import uz.askar.education.groups.StudyGroup;
 import uz.askar.education.soldiers.HigherEducation;
@@ -16,6 +20,8 @@ import uz.askar.education.soldiers.Soldier;
 
 /** Yagona dashboard uchun sof agregatlar: kurslardagi askarlar, kasblar kesimi va viloyatlar bo'yicha askarlar. */
 final class OverviewAggregator {
+
+    private static final String NO_SUBDIVISION = "Bo'linma ko'rsatilmagan";
 
     private OverviewAggregator() {
     }
@@ -37,16 +43,28 @@ final class OverviewAggregator {
     }
 
     /** Kasb kurslari guruhlaridagi askarlar kasb bo'yicha; har kasb uchun okrug va harbiy qism taqsimoti bilan. */
-    static List<ProfessionRow> professions(List<StudyGroup> vocationalGroups) {
+    static List<ProfessionRow> professions(List<StudyGroup> vocationalGroups, List<Soldier> scopedSoldiers) {
+        Set<Soldier> inScope = new HashSet<>(scopedSoldiers);
         Map<String, Set<Soldier>> byProfession = new LinkedHashMap<>();
         vocationalGroups.stream().filter(group -> group.getProfession() != null).forEach(group ->
                 byProfession.computeIfAbsent(group.getProfession().getName(), key -> new LinkedHashSet<>())
-                        .addAll(group.getSoldiers()));
+                        .addAll(group.getSoldiers().stream().filter(inScope::contains).toList()));
         return byProfession.entrySet().stream()
                 .map(entry -> new ProfessionRow(entry.getKey(), entry.getValue().size(),
-                        GeographyAggregator.districts(List.copyOf(entry.getValue()))))
+                        GeographyAggregator.districts(List.copyOf(entry.getValue())), subdivisions(entry.getValue())))
                 .sorted(Comparator.comparingLong(ProfessionRow::soldiers).reversed()
                         .thenComparing(ProfessionRow::profession))
+                .toList();
+    }
+
+    /** Askarlarning bo'linmalar bo'yicha soni; bo'linmasi ko'rsatilmaganlar {@code null} id bilan alohida qatorda. */
+    private static List<UnitSoldiers> subdivisions(Set<Soldier> soldiers) {
+        Map<Optional<Subdivision>, Long> counts = soldiers.stream()
+                .collect(Collectors.groupingBy(s -> Optional.ofNullable(s.getSubdivision()), Collectors.counting()));
+        return counts.entrySet().stream()
+                .map(e -> new UnitSoldiers(e.getKey().map(Subdivision::getId).orElse(null),
+                        e.getKey().map(Subdivision::getName).orElse(NO_SUBDIVISION), e.getValue()))
+                .sorted(Comparator.comparingLong(UnitSoldiers::soldiers).reversed().thenComparing(UnitSoldiers::name))
                 .toList();
     }
 

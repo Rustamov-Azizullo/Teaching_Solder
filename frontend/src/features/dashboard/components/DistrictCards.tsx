@@ -4,16 +4,19 @@ import { dashboardLabels } from '../labels';
 import type { DistrictRow } from '../types';
 import { BubbleChart, CompositionChart, ProgramCountsChart } from './districtCharts';
 
-const t = dashboardLabels.districtBreakdown;
+const titles = dashboardLabels.districtBreakdown.titles;
 
-/** Okruglar kesimi kartalari (SuperAdmin/MegaSuperAdmin): har biri alohida karta, bitta qatorda joylashadi. */
-export function DistrictCards({ rows }: { rows: DistrictRow[] }) {
+export type BreakdownLevel = keyof typeof titles;
+
+/** Kesim kartalari: okruglar (SuperAdmin/MegaSuperAdmin), harbiy qismlar (Admin) yoki bo'linmalar (User); bitta qatorda joylashadi. */
+export function DistrictCards({ rows, level }: { rows: DistrictRow[]; level: BreakdownLevel }) {
+  const t = titles[level];
   const isEmpty = rows.length === 0;
   return (
     <div className="dashboard-districts">
-      <ChartCard title={t.compositionTitle} icon={<BarChartOutlined />} isEmpty={isEmpty}><CompositionChart rows={rows} /></ChartCard>
-      <ChartCard title={t.programsTitle} icon={<ApartmentOutlined />} isEmpty={isEmpty}><ProgramCountsChart rows={rows} /></ChartCard>
-      <ChartCard title={t.bubbleTitle} icon={<DotChartOutlined />} isEmpty={isEmpty}><BubbleChart rows={rows} /></ChartCard>
+      <ChartCard title={t.composition} icon={<BarChartOutlined />} isEmpty={isEmpty}><CompositionChart rows={rows} /></ChartCard>
+      <ChartCard title={t.programs} icon={<ApartmentOutlined />} isEmpty={isEmpty}><ProgramCountsChart rows={rows} /></ChartCard>
+      <ChartCard title={t.bubble} icon={<DotChartOutlined />} isEmpty={isEmpty}><BubbleChart rows={rows} /></ChartCard>
     </div>
   );
 }

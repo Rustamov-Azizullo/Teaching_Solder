@@ -5,11 +5,14 @@ export type DashboardFilters = {
 
 export type UnitSoldiers = { id: number; name: string; soldiers: number };
 export type DistrictSoldiers = { id: number; name: string; soldiers: number; units: UnitSoldiers[] };
-export type ProfessionRow = { profession: string; soldiers: number; districts: DistrictSoldiers[] };
+export type SubdivisionSoldiers = { id: number | null; name: string; soldiers: number };
+export type ProfessionRow = {
+  profession: string; soldiers: number; districts: DistrictSoldiers[]; subdivisions: SubdivisionSoldiers[];
+};
 export type RegionRow = { name: string; soldiers: number };
 export type ProgramRow = { profession: string; institution: string; soldiers: number };
 export type DistrictRow = {
-  id: number; name: string; soldiers: number; vocational: number; otm: number;
+  id: number | null; name: string; soldiers: number; vocational: number; otm: number;
   professions: number; institutions: number; programs: ProgramRow[];
 };
 export type Overview = {

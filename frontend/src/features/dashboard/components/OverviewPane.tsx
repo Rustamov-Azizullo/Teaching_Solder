@@ -2,16 +2,20 @@ import {
   BankOutlined, BookOutlined, HourglassOutlined, PieChartOutlined, SafetyCertificateOutlined, TeamOutlined, ToolOutlined,
 } from '@ant-design/icons';
 import { ChartCard } from '@/components/ui';
-import { useAuth, useCan } from '@/features/auth';
+import { useAuth, useCan, type Role } from '@/features/auth';
 import { useOverview } from '../hooks/useDashboard';
 import { dashboardLabels } from '../labels';
 import { DonutCard } from './charts/DonutCard';
-import { DistrictCards } from './DistrictCards';
+import { DistrictCards, type BreakdownLevel } from './DistrictCards';
 import { KpiGrid, type KpiItem } from './KpiGrid';
 import { ProfessionTable } from './ProfessionTable';
 import { RegionSoldiersCard } from './RegionSoldiersCard';
 
 const t = dashboardLabels;
+
+const breakdownLevelByRole: Record<Role, BreakdownLevel> = {
+  MEGA_SUPER_ADMIN: 'district', SUPER_ADMIN: 'district', ADMIN: 'unit', USER: 'subdivision',
+};
 
 /** Yagona dashboard: umumiy raqamlar, yo'nalishlar ulushi, kasblar kesimi va viloyatlar bo'yicha askarlar. */
 export function OverviewPane() {
@@ -19,7 +23,7 @@ export function OverviewPane() {
   const { user } = useAuth();
   const canOpenSoldiers = useCan('soldierRead');
   const canOpenGroups = useCan('groupRead');
-  const canSeeDistricts = user?.role === 'SUPER_ADMIN' || user?.role === 'MEGA_SUPER_ADMIN';
+  const breakdownLevel = user ? breakdownLevelByRole[user.role] : undefined;
 
   if (!data) {
     return (
@@ -50,7 +54,7 @@ export function OverviewPane() {
   return (
     <div className="dashboard-pane">
       <KpiGrid items={kpis} />
-      {canSeeDistricts && <div className="dashboard-overview-row"><DistrictCards rows={data.districts} /></div>}
+      {breakdownLevel && <div className="dashboard-overview-row"><DistrictCards rows={data.districts} level={breakdownLevel} /></div>}
       <div className="dashboard-body">
         <div className="dashboard-col">
           <RegionSoldiersCard rows={data.regions} />
@@ -58,7 +62,7 @@ export function OverviewPane() {
         <div className="dashboard-col dashboard-col--full">
           <div className="dashboard-split">
             {directionsCard}
-            <ProfessionTable rows={data.professions} />
+            <ProfessionTable rows={data.professions} bySubdivision={breakdownLevel === 'subdivision'} />
           </div>
         </div>
       </div>

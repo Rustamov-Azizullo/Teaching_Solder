@@ -71,8 +71,8 @@ public class DashboardService {
                 OverviewAggregator.countCertified(scopedSoldiers),
                 OverviewAggregator.countHigher(scopedSoldiers, true),
                 OverviewAggregator.countHigher(scopedSoldiers, false),
-                OverviewAggregator.professions(vocationalGroups),
-                DistrictBreakdownAggregator.districts(scopedSoldiers, vocationalGroups, otmGroups),
+                OverviewAggregator.professions(vocationalGroups, scopedSoldiers),
+                DistrictBreakdownAggregator.districts(scopedSoldiers, vocationalGroups, otmGroups, scope.level()),
                 OverviewAggregator.regions(regions.findAllByOrderByNameAsc(), scopedSoldiers));
     }
 
