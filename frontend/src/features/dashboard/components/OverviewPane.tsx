@@ -1,5 +1,5 @@
 import {
-  BankOutlined, BookOutlined, HourglassOutlined, PieChartOutlined, SafetyCertificateOutlined, TeamOutlined, ToolOutlined,
+  ApartmentOutlined, BookOutlined, PieChartOutlined, ReadOutlined, SolutionOutlined, TeamOutlined, ToolOutlined,
 } from '@ant-design/icons';
 import { ChartCard } from '@/components/ui';
 import { useAuth, useCan, type Role } from '@/features/auth';
@@ -23,6 +23,10 @@ export function OverviewPane() {
   const { user } = useAuth();
   const canOpenSoldiers = useCan('soldierRead');
   const canOpenGroups = useCan('groupRead');
+  const canOpenDictionaries = useCan('dictionaryWrite');
+  const isRepublicLevel = user?.role === 'SUPER_ADMIN' || user?.role === 'MEGA_SUPER_ADMIN';
+  // Super rollar umumiy ma'lumotnomaga, Admin va User o'z doirasidagi qismlar ro'yxatiga o'tadi.
+  const catalogLink = isRepublicLevel ? (canOpenDictionaries ? '/dictionaries' : undefined) : '/catalog';
   const breakdownLevel = user ? breakdownLevelByRole[user.role] : undefined;
 
   if (!data) {
@@ -39,9 +43,9 @@ export function OverviewPane() {
     { title: t.kpi.total, value: data.totalSoldiers, icon: <TeamOutlined />, to: canOpenSoldiers ? '/soldiers' : undefined },
     { title: t.kpi.vocational, value: data.vocationalStudying, icon: <ToolOutlined />, to: canOpenGroups ? '/groups?type=VOCATIONAL' : undefined },
     { title: t.kpi.otm, value: data.otmPreparing, icon: <BookOutlined />, to: canOpenGroups ? '/groups?type=OTM_PREP' : undefined },
-    { title: t.kpi.certified, value: data.certified, icon: <SafetyCertificateOutlined /> },
-    { title: t.kpi.higher, value: data.higherCompleted, icon: <BankOutlined /> },
-    { title: t.kpi.higherIncomplete, value: data.higherIncomplete, icon: <HourglassOutlined /> },
+    { title: t.kpi.directions, value: data.catalog.directions, icon: <ApartmentOutlined />, to: catalogLink },
+    { title: t.kpi.subjects, value: data.catalog.subjects, icon: <ReadOutlined />, to: catalogLink },
+    { title: t.kpi.professions, value: data.catalog.professions, icon: <SolutionOutlined />, to: catalogLink },
   ];
   const directions = [
     { id: 'vocational', name: t.directionNames.vocational, value: data.vocationalStudying },

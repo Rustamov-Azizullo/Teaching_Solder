@@ -12,6 +12,7 @@ import uz.askar.education.groups.GroupType;
 import uz.askar.education.groups.StudyGroup;
 import uz.askar.education.security.AccessScope;
 import uz.askar.education.security.CurrentUser;
+import uz.askar.education.security.ScopeLevel;
 import uz.askar.education.soldiers.Soldier;
 import uz.askar.education.soldiers.SoldierRepository;
 import uz.askar.education.surveys.Questionnaire;
@@ -31,6 +32,7 @@ public class DashboardService {
     private final uz.askar.education.admissions.AdmissionRepository admissions;
     private final uz.askar.education.groups.StudyGroupRepository groups;
     private final uz.askar.education.organization.RegionRepository regions;
+    private final CatalogService catalog;
     private final CurrentUser currentUser;
 
     @Transactional(readOnly = true)
@@ -73,7 +75,13 @@ public class DashboardService {
                 OverviewAggregator.countHigher(scopedSoldiers, false),
                 OverviewAggregator.professions(vocationalGroups, scopedSoldiers),
                 DistrictBreakdownAggregator.districts(scopedSoldiers, vocationalGroups, otmGroups, scope.level()),
-                OverviewAggregator.regions(regions.findAllByOrderByNameAsc(), scopedSoldiers));
+                OverviewAggregator.regions(regions.findAllByOrderByNameAsc(), scopedSoldiers),
+                catalogCounts(scope));
+    }
+
+    /** Respublika darajasida — ma'lumotnomaning umumiy soni; Admin va User uchun — o'z doirasidagi qismlarda mavjudlari. */
+    private DashboardDtos.CatalogCounts catalogCounts(AccessScope scope) {
+        return scope.level() == ScopeLevel.REPUBLIC ? catalog.globalCounts() : catalog.catalog().counts();
     }
 
     private List<StudyGroup> currentGroups(GroupType type, Long districtId, Long unitId, int year) {

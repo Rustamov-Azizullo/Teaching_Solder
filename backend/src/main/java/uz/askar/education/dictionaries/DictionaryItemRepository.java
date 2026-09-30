@@ -12,6 +12,8 @@ public interface DictionaryItemRepository extends JpaRepository<DictionaryItem, 
 
     List<DictionaryItem> findByTypeAndActiveTrueOrderBySortOrderAscNameAsc(DictionaryType type);
 
+    long countByTypeAndActiveTrue(DictionaryType type);
+
     boolean existsByTypeAndCode(DictionaryType type, String code);
 
     List<DictionaryItem> findByIdIn(Collection<Long> ids);

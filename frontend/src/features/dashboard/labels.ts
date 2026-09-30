@@ -4,7 +4,7 @@ export const dashboardLabels = {
   series: { soldiers: 'Askarlar' },
   kpi: {
     total: 'Jami askarlar', vocational: "Kasb kurslarida o'qiyapti", otm: 'OTMga tayyorlanmoqda',
-    certified: 'Sertifikati borlar', higher: "Oliy ma'lumotli", higherIncomplete: 'Tugallanmagan oliy',
+    directions: "Kasb yo'nalishlari", subjects: 'Fanlar', professions: 'Kasblar soni',
   },
   directions: "Askarlar yo'nalishlar bo'yicha",
   directionNames: { vocational: 'Kasb kursida', otm: 'OTMga tayyorlanmoqda', unassigned: 'Kursga biriktirilmagan' },
@@ -20,6 +20,12 @@ export const dashboardLabels = {
     professions: 'Kasblar soni', institutions: 'Muassasalar soni',
     bubbleAxisX: 'Kasblar soni', bubbleAxisY: 'Muassasalar soni', bubbleSize: 'Kasbdagi askarlar',
     programsHeading: 'Kasb — muassasa', soldiers: 'askar', total: 'Jami',
+  },
+  catalog: {
+    title: "Kasb yo'nalishlari, kasblar va fanlar",
+    subtitle: "O'z doirangizdagi harbiy qismlarda mavjud yo'nalishlar, kasblar va fanlar",
+    directions: "Kasb yo'nalishlari", professions: 'Kasblar', subjects: 'Fanlar (OTM tayyorlov)',
+    name: 'Nomi', groups: 'Guruhlar', soldiers: 'Askarlar',
   },
   regions: "Viloyatlar bo'yicha harbiy xizmatchilar",
 } as const;

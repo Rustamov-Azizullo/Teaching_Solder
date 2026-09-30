@@ -146,6 +146,17 @@ class ModulesIntegrationTest {
     }
 
     @Test
+    void scopedCatalogListsDirectionsProfessionsAndSubjectsPerUnitInScope() throws Exception {
+        mvc.perform(get("/api/dashboard/catalog").headers(auth(token("hktb"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.counts.directions").isNumber())
+                .andExpect(jsonPath("$.units", hasSize(greaterThan(1))));
+        mvc.perform(get("/api/dashboard/catalog").headers(auth(token("qomondon1"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.units", hasSize(greaterThan(0))));
+    }
+
+    @Test
     void weeklyReportSupportsTotalViewAndSubdivisionSelectionWithinScope() throws Exception {
         String hktb = token("hktb");
         mvc.perform(get("/api/reports/WEEKLY_UNIT_SUMMARY").param("view", "TOTAL").headers(auth(hktb)))

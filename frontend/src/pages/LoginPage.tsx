@@ -1,6 +1,6 @@
 import { SafetyCertificateOutlined } from '@ant-design/icons';
 import { Typography, theme } from 'antd';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { ThemeModeSwitch } from '@/app/theme/ThemeModeSwitch';
 import { authLabels, LoginBrand, LoginForm, useAuth } from '@/features/auth';
 import { common } from '@/lib/i18n';
@@ -10,11 +10,10 @@ const SHOW_DEMO_HINT = import.meta.env.VITE_SHOW_DEMO_HINT === 'true';
 
 export function LoginPage() {
   const { status } = useAuth();
-  const location = useLocation();
   const { token } = theme.useToken();
-  const redirectTo = (location.state as { from?: string } | null)?.from ?? '/';
 
-  if (status === 'authenticated') return <Navigate to={redirectTo} replace />;
+  // Yangi kirishdan keyin har doim bosh sahifa (rolga mos birinchi sahifa): oldingi foydalanuvchi sahifasi boshqa rolda mavjud bo'lmasligi mumkin.
+  if (status === 'authenticated') return <Navigate to="/" replace />;
 
   return (
     <div className="login-page" style={{ background: token.colorBgLayout }}>

@@ -10,3 +10,7 @@ export function useOverview(filters: Pick<DashboardFilters, 'districtId' | 'unit
     placeholderData: keepPreviousData,
   });
 }
+
+export function useCatalog() {
+  return useQuery({ queryKey: [...queryKeys.dashboard, 'catalog'], queryFn: dashboardApi.catalog });
+}

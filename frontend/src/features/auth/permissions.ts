@@ -52,3 +52,10 @@ export function canAny(user: AuthUser | null | undefined, capabilities: readonly
 export function isPermissionManager(user: AuthUser | null | undefined): boolean {
   return user !== null && user !== undefined && PERMISSION_MANAGER_ROLES.includes(user.role);
 }
+
+const DASHBOARD_CAPABILITIES: readonly Capability[] = ['dashboardVocational', 'dashboardOtm', 'dashboardSurveys'];
+
+/** Admin/User: o'z doirasidagi qismlar ma'lumoti sahifasiga (`/catalog`) kirishi mumkin; super rollarda umumiy ma'lumotnoma bor. */
+export function canOpenScopedCatalog(user: AuthUser | null | undefined): boolean {
+  return (user?.role === 'ADMIN' || user?.role === 'USER') && canAny(user, DASHBOARD_CAPABILITIES);
+}

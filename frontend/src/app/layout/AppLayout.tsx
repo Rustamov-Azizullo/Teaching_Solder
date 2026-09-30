@@ -2,7 +2,7 @@ import { LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { Button, Drawer, Layout, Menu, Space, Typography, theme } from 'antd';
 import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { can, canAny, isPermissionManager, useAuth, type AuthUser, type Capability } from '@/features/auth';
+import { can, canAny, canOpenScopedCatalog, isPermissionManager, useAuth, type AuthUser, type Capability } from '@/features/auth';
 import { NotificationBell } from '@/features/notifications';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { common } from '@/lib/i18n';
@@ -20,6 +20,7 @@ const DASHBOARD_CAPABILITIES = ['dashboardVocational', 'dashboardOtm', 'dashboar
 
 function isNavItemVisible(item: NavItem, user: AuthUser | null): boolean {
   if (item.path === '/dashboard') return DASHBOARD_CAPABILITIES.some((capability) => can(user, capability));
+  if (item.access === 'unitScoped') return canOpenScopedCatalog(user);
   if (item.access === 'any') return true;
   if (item.access === 'permissionManager') return isPermissionManager(user);
   return Array.isArray(item.access) ? canAny(user, item.access) : can(user, item.access as Capability);

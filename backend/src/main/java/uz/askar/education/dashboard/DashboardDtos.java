@@ -53,13 +53,31 @@ public final class DashboardDtos {
                               long institutions, List<ProgramRow> programs) {
     }
 
+    /** Nom bo'yicha o'qitilayotgan kasb yoki fan: nechta guruhda va nechta askar. */
+    public record CatalogEntry(String name, long groups, long soldiers) {
+    }
+
+    /** Bitta harbiy qismdagi kasb yo'nalishlari, kasblar va fanlar. */
+    public record CatalogUnit(Long id, String name, List<String> directions, List<CatalogEntry> professions,
+                              List<CatalogEntry> subjects) {
+    }
+
+    /** Vakolat doirasidagi qismlar kesimida yo'nalishlar, kasblar va fanlar (jami sonlar noyob nomlar bo'yicha). */
+    public record ScopedCatalog(CatalogCounts counts, List<CatalogUnit> units) {
+    }
+
+    /** Ma'lumotnomadagi faol kasb yo'nalishlari, fanlar va kasblar soni (vakolat doirasiga bog'liq emas). */
+    public record CatalogCounts(long directions, long subjects, long professions) {
+    }
+
     /**
      * Yagona dashboard ko'rsatkichlari: umumiy raqamlar, kasblar kesimi, okruglar va viloyatlar kesimi.
      * {@code unassigned} — hech bir kursga biriktirilmagan askarlar.
      */
     public record Overview(long totalSoldiers, long vocationalStudying, long otmPreparing, long unassigned,
                            long certified, long higherCompleted, long higherIncomplete,
-                           List<ProfessionRow> professions, List<DistrictRow> districts, List<RegionRow> regions) {
+                           List<ProfessionRow> professions, List<DistrictRow> districts, List<RegionRow> regions,
+                           CatalogCounts catalog) {
     }
 
     public record GeographyBlock(long totalSoldiers, List<DistrictSoldiers> districts) {

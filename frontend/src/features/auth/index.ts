@@ -1,11 +1,12 @@
 export { AuthProvider } from './hooks/AuthProvider';
 export { useAuth } from './hooks/useAuth';
 export { useCan } from './hooks/useCan';
-export { can, canAny, isPermissionManager, type Capability } from './permissions';
+export { can, canAny, canOpenScopedCatalog, isPermissionManager, type Capability } from './permissions';
 export { LoginBrand } from './components/LoginBrand';
 export { LoginForm } from './components/LoginForm';
 export { RequireAuth } from './components/RequireAuth';
 export { RequireCapability } from './components/RequireCapability';
+export { RequireScopedCatalog } from './components/RequireScopedCatalog';
 export { RequirePermissionManager } from './components/RequirePermissionManager';
 export { authLabels } from './labels';
 export { permissionLabels } from './permissionLabels';

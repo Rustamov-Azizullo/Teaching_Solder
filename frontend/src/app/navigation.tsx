@@ -1,5 +1,5 @@
 import {
-  ApartmentOutlined, EnvironmentOutlined, BellOutlined, ClockCircleOutlined, FileDoneOutlined, FileTextOutlined, ProfileOutlined,
+  ApartmentOutlined, AppstoreOutlined, EnvironmentOutlined, BellOutlined, ClockCircleOutlined, FileDoneOutlined, FileTextOutlined, ProfileOutlined,
   AuditOutlined, BookOutlined, DashboardOutlined, SettingOutlined, TeamOutlined,
   UserOutlined, ReadOutlined, SafetyCertificateOutlined, SolutionOutlined,
 } from '@ant-design/icons';
@@ -8,9 +8,10 @@ import type { Capability } from '@/features/auth';
 
 /**
  * Menyu bandining ko'rinish sharti: dinamik ruxsat (capability), hamma uchun (`any`) yoki faqat
- * SuperAdmin/Mega SuperAdmin (`permissionManager` — backenddagi statik tekshiruv bilan mos).
+ * SuperAdmin/Mega SuperAdmin (`permissionManager` — backenddagi statik tekshiruv bilan mos) yoki faqat
+ * Admin/User (`unitScoped` — o'z doirasidagi qismlar ma'lumoti; super rollar uchun umumiy ma'lumotnoma bor).
  */
-export type NavAccess = Capability | readonly Capability[] | 'any' | 'permissionManager';
+export type NavAccess = Capability | readonly Capability[] | 'any' | 'permissionManager' | 'unitScoped';
 
 export type NavItem = { path: string; label: string; icon: ReactNode; access: NavAccess };
 
@@ -30,5 +31,6 @@ export const navItems: NavItem[] = [
   { path: '/admin/role-permissions', label: 'Rol huquqlari', icon: <SafetyCertificateOutlined />, access: 'permissionManager' },
   { path: '/admin/locations', label: 'Hududlar', icon: <EnvironmentOutlined />, access: 'permissionManager' },
   { path: '/audit', label: 'Audit jurnali', icon: <AuditOutlined />, access: 'systemConfig' },
+  { path: '/catalog', label: "Yo'nalish, fan va kasblar", icon: <AppstoreOutlined />, access: 'unitScoped' },
   { path: '/settings', label: 'Sozlamalar', icon: <SettingOutlined />, access: 'systemConfig' },
 ];

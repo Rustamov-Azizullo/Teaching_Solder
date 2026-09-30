@@ -17,6 +17,7 @@ import uz.askar.education.security.Access;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final CatalogService catalogService;
 
     @GetMapping("/vocational/results")
     @PreAuthorize(Access.DASHBOARD_VOCATIONAL)
@@ -31,6 +32,13 @@ public class DashboardController {
     public DashboardDtos.Overview overview(@RequestParam(required = false) Long districtId,
                                            @RequestParam(required = false) Long unitId) {
         return dashboardService.overview(districtId, unitId);
+    }
+
+    /** Vakolat doirasidagi harbiy qismlarda mavjud kasb yo'nalishlari, kasblar va fanlar. */
+    @GetMapping("/catalog")
+    @PreAuthorize(Access.DASHBOARD_ANY)
+    public DashboardDtos.ScopedCatalog catalog() {
+        return catalogService.catalog();
     }
 
     @GetMapping("/surveys")

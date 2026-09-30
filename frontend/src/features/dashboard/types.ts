@@ -15,6 +15,7 @@ export type DistrictRow = {
   id: number | null; name: string; soldiers: number; vocational: number; otm: number;
   professions: number; institutions: number; programs: ProgramRow[];
 };
+export type CatalogCounts = { directions: number; subjects: number; professions: number };
 export type Overview = {
   totalSoldiers: number;
   vocationalStudying: number;
@@ -26,4 +27,9 @@ export type Overview = {
   professions: ProfessionRow[];
   districts: DistrictRow[];
   regions: RegionRow[];
+  catalog: CatalogCounts;
 };
+
+export type CatalogEntry = { name: string; groups: number; soldiers: number };
+export type CatalogUnit = { id: number; name: string; directions: string[]; professions: CatalogEntry[]; subjects: CatalogEntry[] };
+export type ScopedCatalog = { counts: CatalogCounts; units: CatalogUnit[] };
